@@ -28,6 +28,15 @@ main {
     .form-section {
         flex-grow: 0.3;
         padding: 0 35px;
+        
+
+        .formulario{
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 5% 0;
+        }
 
         img {
             filter: drop-shadow(0 0 10px $secondary-color);
@@ -48,7 +57,7 @@ main {
             gap: 10px 0;
 
             button {
-                width: 70%;
+                width: 80%;
                 font-size: 16px;
                 font-weight: 500;
                 border-radius: 8px;
@@ -56,8 +65,9 @@ main {
                 background-color: transparent;
                 cursor: pointer;
                 &.primeiro-btn {
+                    border: 1px solid $secondary-color;
                     background-color: $primary-color;
-                    color: #fff;
+                    color: $secondary-color;
                     filter: drop-shadow(0 0 10px $secondary-color);
                 }
 
@@ -82,7 +92,7 @@ main {
                     min-width: 100%;
                     flex-grow: 1;
                     height: 1px;
-                    background-color: $bg-sombra-claro;
+                    background-color: $bg-sombra-claro
                 }
             }
         }
