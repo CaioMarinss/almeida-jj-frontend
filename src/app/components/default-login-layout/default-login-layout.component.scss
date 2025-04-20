@@ -1,0 +1,129 @@
+:host {
+    --amareloJJ: #F2CC0F;
+    --bgAlmeida: #000;
+    --bgSombra: #333333;
+}
+
+#queroAjudar {
+    height: 100vh;
+    background-image: url('../imgs/parallaxProjeto.jpeg');
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .container {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    .screen {
+        position: relative;
+        background: var(--bgSombra);
+        border-radius: 15px;
+        width: 80%;
+        max-width: 1000px;
+    }
+
+    .screen-body {
+        display: flex;
+        padding: 5% 0;
+
+        &-item {
+            flex: 1;
+            padding: 50px;
+
+            &.left {
+                display: flex;
+                flex-direction: column;
+            }
+        }
+    }
+
+    #logoForm {
+        width: 70%;
+        margin: 20px 0;
+    }
+
+    .app-title {
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        font-size: 26px;
+        text-transform: uppercase;
+
+        &::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            width: 25px;
+            height: 4px;
+            background: var(--amareloJJ);
+        }
+    }
+
+    .app-contact {
+        margin-top: auto;
+        font-size: 10px;
+        color: #a8a8a8;
+        text-transform: uppercase;
+    }
+
+    .app-form {
+        &-group {
+            margin-bottom: 15px;
+
+            &.message {
+                margin-top: 40px;
+            }
+
+            &.buttons {
+                text-align: right;
+            }
+        }
+
+        &-control {
+            width: 100%;
+            padding: 10px 0;
+            background: none;
+            border: none;
+            border-bottom: 1px solid #666;
+            color: #ddd;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+
+            &::placeholder {
+                color: #a8a8a8;
+                text-transform: uppercase;
+            }
+
+            &:focus {
+                border-bottom-color: var(--amareloJJ);
+            }
+        }
+
+        &-button {
+            background: none;
+            border: none;
+            color: var(--amareloJJ);
+            font-size: 14px;
+            cursor: pointer;
+            margin: 0 2%;
+
+            &:hover {
+                transition: transform 0.2s;
+                transform: scale(1.2);
+            }
+        }
+    }
+}
+
+// Estilo para campos preenchidos automaticamente no Chrome
+input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0px 1000px #333 inset;
+}
+
+input:-webkit-autofill::first-line {
+    color: white !important;
+}

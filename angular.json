@@ -28,10 +28,12 @@
             "assets": [
               {
                 "glob": "**/*",
-                "input": "public"
+                "input": "public",
+                "output": "assets"
               }
             ],
             "styles": [
+              
               "src/styles.scss"
             ],
             "scripts": []
