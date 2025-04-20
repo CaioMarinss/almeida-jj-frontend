@@ -1,129 +1,91 @@
-:host {
-    --amareloJJ: #F2CC0F;
-    --bgAlmeida: #000;
-    --bgSombra: #333333;
-}
+@import "../../../styles/variables.scss";
 
-#queroAjudar {
-    height: 100vh;
-    background-image: url('../imgs/parallaxProjeto.jpeg');
+main {
+    height: 70vh;
     display: flex;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
+    height: 100%;
+    background-color: $bg-sombra;
 
-    .container {
-        width: 100%;
-        display: flex;
-        justify-content: center;
-    }
-
-    .screen {
-        position: relative;
-        background: var(--bgSombra);
-        border-radius: 15px;
-        width: 80%;
-        max-width: 1000px;
-    }
-
-    .screen-body {
-        display: flex;
-        padding: 5% 0;
-
-        &-item {
-            flex: 1;
-            padding: 50px;
-
-            &.left {
-                display: flex;
-                flex-direction: column;
-            }
-        }
-    }
-
-    #logoForm {
-        width: 70%;
-        margin: 20px 0;
-    }
-
-    .app-title {
+    section {
         display: flex;
         flex-direction: column;
-        position: relative;
-        font-size: 26px;
-        text-transform: uppercase;
-
-        &::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            width: 25px;
-            height: 4px;
-            background: var(--amareloJJ);
-        }
+        align-items: center;
+        justify-content: center;
+        height: 100%;
     }
 
-    .app-contact {
-        margin-top: auto;
-        font-size: 10px;
-        color: #a8a8a8;
-        text-transform: uppercase;
+    .main-section {
+        flex-grow: 1;
+        background-image: url("../../../../public/imgs/alunosPB.jpeg");
+        background-position: center;
+        background-size: cover;
+        color: $primary-color;
     }
 
-    .app-form {
-        &-group {
-            margin-bottom: 15px;
+    .form-section {
+        flex-grow: 0.3;
+        padding: 0 35px;
 
-            &.message {
-                margin-top: 40px;
-            }
-
-            &.buttons {
-                text-align: right;
-            }
+        img {
+            filter: drop-shadow(0 0 10px $secondary-color);
+            width: 25vw;
+            margin-bottom: 10px;
         }
 
-        &-control {
+        h1 {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .btn-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             width: 100%;
-            padding: 10px 0;
-            background: none;
-            border: none;
-            border-bottom: 1px solid #666;
-            color: #ddd;
-            font-size: 14px;
-            outline: none;
-            transition: border-color 0.2s;
+            gap: 10px 0;
 
-            &::placeholder {
-                color: #a8a8a8;
+            button {
+                width: 70%;
+                font-size: 16px;
+                font-weight: 500;
+                border-radius: 8px;
+                padding: 12px 24px;
+                background-color: transparent;
+                cursor: pointer;
+                &.primeiro-btn {
+                    background-color: $primary-color;
+                    color: #fff;
+                    filter: drop-shadow(0 0 10px $secondary-color);
+                }
+
+                &.segundo-btn {
+                    border: 1px solid $primary-color;
+                    color: $primary-color;
+                }
+
+            }
+
+            .divider {
+                display: flex;
+                width: 30%;
+                font-size: 14px;
+                color: $bg-sombra-claro;
+                font-weight: 400;
+                align-items: center;
+                justify-content: center;
                 text-transform: uppercase;
-            }
-
-            &:focus {
-                border-bottom-color: var(--amareloJJ);
-            }
-        }
-
-        &-button {
-            background: none;
-            border: none;
-            color: var(--amareloJJ);
-            font-size: 14px;
-            cursor: pointer;
-            margin: 0 2%;
-
-            &:hover {
-                transition: transform 0.2s;
-                transform: scale(1.2);
+                gap: 20px;
+                div {
+                    min-width: 100%;
+                    flex-grow: 1;
+                    height: 1px;
+                    background-color: $bg-sombra-claro;
+                }
             }
         }
+
     }
-}
-
-// Estilo para campos preenchidos automaticamente no Chrome
-input:-webkit-autofill {
-    -webkit-box-shadow: 0 0 0px 1000px #333 inset;
-}
-
-input:-webkit-autofill::first-line {
-    color: white !important;
 }
