@@ -8,16 +8,15 @@
         </div>
 
         <div class="btn-wrapper">
-            <button class="primeiro-btn">{{primeiroBotao}}</button>
+            <button class="primeiro-btn" (click)="submit()" >{{primeiroBotao}}</button>
             <div class="divider">
                 <div></div>
                 <span>ou</span>
                 <div></div>
             </div>
-            <button class="segundo-btn">{{segundoBotao}}</button>
+            <button class="segundo-btn" (click)="navigate()" >{{segundoBotao}}</button>
         </div>
     </section>
     <section class="main-section">
-
     </section>
 </main>

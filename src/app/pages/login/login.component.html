@@ -1,19 +1,23 @@
-<app-default-login-layout title="Faça login na sua conta!" primeiroBotao="Login" segundoBotao="Cadastre-se">
+<app-default-login-layout 
+title="Faça login na sua conta!" 
+primeiroBotao="Login" 
+segundoBotao="Cadastre-se"
+(submit)="submit()" 
+(navigate)="navigate()"
+
+>
 
     <form [formGroup]="loginForm">
-        <app-primeiro-input [formGroup]="loginForm" [inputName]="'email'" [type]="'email'"
-        [label]="'Digite seu e-mail'"
-        [placeholder]="'E-mail'">
+        <app-primeiro-input [formGroup]="loginForm" [formControlName]="'email'" [inputName]="'email'" [type]="'email'"
+            [label]="'Digite seu e-mail'" [placeholder]="'E-mail'">
             <img src="/assets/svg/email-svgrepo-com.svg" height="20px" />
         </app-primeiro-input>
 
-        <app-primeiro-input [formGroup]="loginForm" [formControlName]="'password'" [inputName]="'password'" [type]="'password'"
-        [label]="'Digite sua senha'"
-        [placeholder]="'**********'"
-        >
+        <app-primeiro-input [formGroup]="loginForm" [formControlName]="'password'" [inputName]="'password'"
+            [type]="'password'" [label]="'Digite sua senha'" [placeholder]="'**********'">
             <img src="/assets/svg/padlock-svgrepo-com.svg" height="20px" />
         </app-primeiro-input>
-
+        <span>Esqueceu a senha?</span>
     </form>
-    
+
 </app-default-login-layout>
