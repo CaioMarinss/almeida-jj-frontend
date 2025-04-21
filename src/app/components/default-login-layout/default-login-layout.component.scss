@@ -1,7 +1,6 @@
 @import "../../../styles/variables.scss";
 
 main {
-    height: 70vh;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -40,7 +39,7 @@ main {
 
         img {
             filter: drop-shadow(0 0 10px $secondary-color);
-            width: 25vw;
+            width: 20vw;
             margin-bottom: 10px;
         }
 
@@ -58,13 +57,12 @@ main {
 
             button {
                 width: 80%;
-                font-size: 16px;
-                font-weight: 500;
+                font-size: 14px;
+                font-weight: 600;
                 border-radius: 8px;
-                padding: 12px 24px;
+                padding: 12px 0;
                 background-color: transparent;
                 cursor: pointer;
-
                 
                 &.primeiro-btn {
                     border: 1px solid $secondary-color;

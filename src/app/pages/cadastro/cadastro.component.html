@@ -1,0 +1,32 @@
+<app-default-login-layout 
+primeiroBotao="Cadastar" 
+segundoBotao="Faça login"
+(submit)="submit()" 
+(navigate)="navigate()">
+
+    <form [formGroup]="cadastroForm">
+
+        <app-primeiro-input [formGroup]="cadastroForm" [formControlName]="'nome'" [inputName]="'name'" [type]="'text'"
+            [label]="'Digite seu nome'" [placeholder]="'Nome'">
+            <img src="/assets/svg/user-svgrepo-com.svg" height="20px" />
+        </app-primeiro-input>
+
+
+        <app-primeiro-input [formGroup]="cadastroForm" [formControlName]="'email'" [inputName]="'email'" [type]="'email'"
+            [label]="'Digite seu e-mail'" [placeholder]="'E-mail'">
+            <img src="/assets/svg/email-svgrepo-com.svg" height="20px" />
+        </app-primeiro-input>
+
+        <app-primeiro-input [formGroup]="cadastroForm" [formControlName]="'password'" [inputName]="'password'"
+            [type]="'password'" [label]="'Digite sua senha'" [placeholder]="'**********'">
+            <img src="/assets/svg/padlock-svgrepo-com.svg" height="20px" />
+        </app-primeiro-input>
+
+        <app-primeiro-input [formGroup]="cadastroForm" [formControlName]="'passwordConfirm'" [inputName]="'passwordConfirm'"
+            [type]="'password'" [label]="'Confirme sua senha'" [placeholder]="'**********'">
+            <img src="/assets/svg/padlock-svgrepo-com.svg" height="20px" />
+        </app-primeiro-input>
+
+    </form>
+
+</app-default-login-layout>

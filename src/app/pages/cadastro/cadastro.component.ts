@@ -6,12 +6,16 @@ import { Router } from '@angular/router';
 import { LoginService } from '../../services/login.service';
 import { ToastrService } from 'ngx-toastr';
 
-interface loginForm{
+interface CadastroForm{
+  name:FormControl,
   email:FormControl,
-  password: FormControl
+  password: FormControl,
+  passwordConfirm:FormControl,
+
 }
+
 @Component({
-  selector: 'app-login',
+  selector: 'app-cadastro',
   standalone: true,
   imports: [
     DefaultLoginLayoutComponent,
@@ -21,29 +25,31 @@ interface loginForm{
   providers:[
     LoginService
   ],
-  templateUrl: './login.component.html',
-  styleUrl: './login.component.scss'
+  templateUrl: './cadastro.component.html',
+  styleUrl: './cadastro.component.scss'
 })
-export class LoginComponent {
-  loginForm!: FormGroup;
+export class CadastroComponent {
+  cadastroForm!: FormGroup;
   constructor(
     private router: Router,
     private loginService: LoginService,
     private toastr: ToastrService 
 
   ){
-    this.loginForm = new FormGroup({
+    this.cadastroForm = new FormGroup({
+      nome: new FormControl('', [Validators.required, Validators.minLength(3)]),
       email: new FormControl('', [Validators.required, Validators.email]),
-      password: new FormControl('', [Validators.required, Validators.minLength(6)])
+      password: new FormControl('', [Validators.required, Validators.minLength(6)]),
+      passwordConfirm: new FormControl('', [Validators.required, Validators.minLength(6)])
     })
   }
   submit(){
-    this.loginService.login(this.loginForm.value.email, this.loginForm.value.password).subscribe({
+    this.loginService.login(this.cadastroForm.value.email, this.cadastroForm.value.password).subscribe({
       next: ()=> this.toastr.success("Logado"),
       error: ()=> this.toastr.error('Algo deu errado!')
     })
   }
   navigate(){
-    this.router.navigate(["/cadastro"])
+    this.router.navigate(["login"])
   }
 }
