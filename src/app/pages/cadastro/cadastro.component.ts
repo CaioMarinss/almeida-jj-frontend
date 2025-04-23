@@ -1,18 +1,11 @@
 import { Component } from '@angular/core';
 import { DefaultLoginLayoutComponent } from '../../components/default-login-layout/default-login-layout.component';
 import { PrimeiroInputComponent } from '../../components/primeiro-input/primeiro-input.component';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LoginService } from '../../services/login.service';
 import { ToastrService } from 'ngx-toastr';
-
-interface CadastroForm{
-  name:FormControl,
-  email:FormControl,
-  senha: FormControl,
-  passwordConfirm:FormControl,
-
-}
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-cadastro',
@@ -21,8 +14,9 @@ interface CadastroForm{
     DefaultLoginLayoutComponent,
     PrimeiroInputComponent,
     ReactiveFormsModule,
+    CommonModule
   ],
-  providers:[
+  providers: [
     LoginService
   ],
   templateUrl: './cadastro.component.html',
@@ -30,26 +24,44 @@ interface CadastroForm{
 })
 export class CadastroComponent {
   cadastroForm!: FormGroup;
+
   constructor(
     private router: Router,
     private loginService: LoginService,
-    private toastr: ToastrService 
-
-  ){
+    private toastr: ToastrService
+  ) {
     this.cadastroForm = new FormGroup({
       nome: new FormControl('', [Validators.required, Validators.minLength(3)]),
       email: new FormControl('', [Validators.required, Validators.email]),
       senha: new FormControl('', [Validators.required, Validators.minLength(6)]),
       passwordConfirm: new FormControl('', [Validators.required, Validators.minLength(6)])
-    })
+    }, {
+      validators: this.senhasIguaisValidator
+    });
   }
-  submit(){
-    this.loginService.cadastrar(this.cadastroForm.value.nome, this.cadastroForm.value.email, this.cadastroForm.value.senha).subscribe({
-      next: ()=> this.toastr.success("Cadastrado com sucesso!"),
-      error: ()=> this.toastr.error('Algo deu errado!')
-    })
+
+  senhasIguaisValidator(form: AbstractControl) {
+    const senha = form.get('senha')?.value;
+    const confirmar = form.get('passwordConfirm')?.value;
+  
+    return senha === confirmar ? null : { senhasDiferentes: true };
   }
-  navigate(){
-    this.router.navigate(["login"])
+  
+
+  submit() {
+    if (this.cadastroForm.valid) {
+      const { nome, email, senha } = this.cadastroForm.value;
+      this.loginService.cadastrar(nome, email, senha).subscribe({
+        next: () => this.toastr.success("Cadastrado com sucesso!"),
+        error: () => this.toastr.error('Algo deu errado!')
+      });
+    } else {
+      this.toastr.warning('Verifique os campos do formulário.');
+      this.cadastroForm.markAllAsTouched();
+    }
+  }
+
+  navigate() {
+    this.router.navigate(["login"]);
   }
 }
