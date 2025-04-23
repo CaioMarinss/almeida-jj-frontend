@@ -8,7 +8,7 @@ import { ToastrService } from 'ngx-toastr';
 
 interface loginForm{
   email:FormControl,
-  password: FormControl
+  senha: FormControl
 }
 @Component({
   selector: 'app-login',
@@ -34,11 +34,11 @@ export class LoginComponent {
   ){
     this.loginForm = new FormGroup({
       email: new FormControl('', [Validators.required, Validators.email]),
-      password: new FormControl('', [Validators.required, Validators.minLength(6)])
+      senha: new FormControl('', [Validators.required, Validators.minLength(6)])
     })
   }
   submit(){
-    this.loginService.login(this.loginForm.value.email, this.loginForm.value.password).subscribe({
+    this.loginService.login(this.loginForm.value.email, this.loginForm.value.senha).subscribe({
       next: ()=> this.toastr.success("Logado"),
       error: ()=> this.toastr.error('Algo deu errado!')
     })
