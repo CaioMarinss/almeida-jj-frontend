@@ -9,7 +9,7 @@ import { ToastrService } from 'ngx-toastr';
 interface CadastroForm{
   name:FormControl,
   email:FormControl,
-  password: FormControl,
+  senha: FormControl,
   passwordConfirm:FormControl,
 
 }
@@ -39,13 +39,13 @@ export class CadastroComponent {
     this.cadastroForm = new FormGroup({
       nome: new FormControl('', [Validators.required, Validators.minLength(3)]),
       email: new FormControl('', [Validators.required, Validators.email]),
-      password: new FormControl('', [Validators.required, Validators.minLength(6)]),
+      senha: new FormControl('', [Validators.required, Validators.minLength(6)]),
       passwordConfirm: new FormControl('', [Validators.required, Validators.minLength(6)])
     })
   }
   submit(){
-    this.loginService.login(this.cadastroForm.value.email, this.cadastroForm.value.password).subscribe({
-      next: ()=> this.toastr.success("Logado"),
+    this.loginService.cadastrar(this.cadastroForm.value.nome, this.cadastroForm.value.email, this.cadastroForm.value.senha).subscribe({
+      next: ()=> this.toastr.success("Cadastrado com sucesso!"),
       error: ()=> this.toastr.error('Algo deu errado!')
     })
   }
