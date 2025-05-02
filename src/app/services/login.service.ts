@@ -8,7 +8,7 @@ import { tap } from 'rxjs';
 })
 export class LoginService {
 
-  apiUrl: string ="https://almeida-jj-api.onrender.com//auth";
+  apiUrl: string ="https://almeida-jj-api.onrender.com/auth";
   constructor(private httpClient: HttpClient) {  }
 
   login(email: string, senha: string){
