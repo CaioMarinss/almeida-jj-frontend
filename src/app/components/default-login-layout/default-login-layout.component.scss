@@ -18,18 +18,15 @@ main {
 
     .main-section {
         flex-grow: 1;
-        background-image: url("../../../../public/imgs/alunosPB.jpeg");
-        background-position: center;
-        background-size: cover;
-        color: $primary-color;
+        background: url("../../../../public/imgs/alunosPB.jpeg") center / cover no-repeat;
     }
 
     .form-section {
         flex-grow: 0.3;
         padding: 0 35px;
-        
 
-        .formulario{
+
+        .formulario {
             width: 100%;
             display: flex;
             justify-content: center;
@@ -63,7 +60,7 @@ main {
                 padding: 12px 0;
                 background-color: transparent;
                 cursor: pointer;
-                
+
                 &.primeiro-btn {
                     border: 1px solid $secondary-color;
                     background-color: $primary-color;
@@ -88,6 +85,7 @@ main {
                 justify-content: center;
                 text-transform: uppercase;
                 gap: 20px;
+
                 div {
                     min-width: 100%;
                     flex-grow: 1;
@@ -97,5 +95,28 @@ main {
             }
         }
 
+    }
+}
+
+@media (max-width: 700px) {
+    main {
+        display: block;
+
+        .form-section {
+
+            flex-grow: 1;
+            background: url("../../../../public/imgs/alunosPBescuro.jpeg") center / cover no-repeat;
+
+            
+
+            img {
+                width: 50vw;
+            }
+        }
+
+
+        .main-section {
+            display: none;
+        }
     }
 }

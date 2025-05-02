@@ -3,12 +3,13 @@ import { Injectable } from '@angular/core';
 import { LoginResponse } from '../types/login-response.type';
 import { tap } from 'rxjs';
 
+
 @Injectable({
   providedIn: 'root'
 })
 export class LoginService {
 
-  apiUrl: string ="https://almeida-jj-api.onrender.com/auth";
+apiUrl: string ="https://almeida-jj-api.onrender.com/auth";
   constructor(private httpClient: HttpClient) {  }
 
   login(email: string, senha: string){
