@@ -52,7 +52,10 @@ export class CadastroComponent {
     if (this.cadastroForm.valid) {
       const { nome, email, senha } = this.cadastroForm.value;
       this.loginService.cadastrar(nome, email, senha).subscribe({
-        next: () => this.toastr.success("Cadastrado com sucesso!"),
+        next: () => {
+          this.toastr.success("Cadastrado com sucesso!");
+          this.router.navigate(['/login']);
+        },
         error: () => this.toastr.error('Algo deu errado!')
       });
     } else {
@@ -60,6 +63,7 @@ export class CadastroComponent {
       this.cadastroForm.markAllAsTouched();
     }
   }
+  
 
   navigate() {
     this.router.navigate(["login"]);

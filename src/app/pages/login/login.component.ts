@@ -37,12 +37,16 @@ export class LoginComponent {
       senha: new FormControl('', [Validators.required, Validators.minLength(6)])
     })
   }
-  submit(){
+  submit() {
     this.loginService.login(this.loginForm.value.email, this.loginForm.value.senha).subscribe({
-      next: ()=> this.toastr.success("Logado"),
-      error: ()=> this.toastr.error('Algo deu errado!')
-    })
+      next: () => {
+        this.toastr.success("Logado com sucesso!");
+        this.router.navigate(['/dashboard']); // ou outra rota principal da sua aplicação
+      },
+      error: () => this.toastr.error('Algo deu errado!')
+    });
   }
+  
   navigate(){
     this.router.navigate(["/cadastro"])
   }
