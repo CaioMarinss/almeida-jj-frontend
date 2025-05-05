@@ -56,6 +56,7 @@ export class ResetarComponent implements OnInit {
       next: (response: any) => {
         console.log('Resposta da API:', response);
         this.toastr.success('Senha redefinida com sucesso!');
+        this.router.navigate(['login'])
       },
       error: (err) => {
         console.error('Erro na API:', err);
