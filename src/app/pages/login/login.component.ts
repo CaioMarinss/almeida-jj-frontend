@@ -5,6 +5,8 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router } from '@angular/router';
 import { LoginService } from '../../services/login.service';
 import { ToastrService } from 'ngx-toastr';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+
 
 interface loginForm{
   email:FormControl,
@@ -30,7 +32,6 @@ export class LoginComponent {
     private router: Router,
     private loginService: LoginService,
     private toastr: ToastrService 
-
   ){
     this.loginForm = new FormGroup({
       email: new FormControl('', [Validators.required, Validators.email]),
@@ -41,12 +42,14 @@ export class LoginComponent {
     this.loginService.login(this.loginForm.value.email, this.loginForm.value.senha).subscribe({
       next: () => {
         this.toastr.success("Logado com sucesso!");
-        this.router.navigate(['/dashboard']); // ou outra rota principal da sua aplicação
+        this.router.navigate(['/dashboard']);
       },
       error: () => this.toastr.error('Algo deu errado!')
     });
   }
-  
+  esqueciSenha(){
+    this.router.navigate(["/esquecisenha"])
+  }
   navigate(){
     this.router.navigate(["/cadastro"])
   }
