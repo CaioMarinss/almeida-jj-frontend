@@ -1,0 +1,22 @@
+<app-default-login-layout 
+title="Vamos trocar a senha?" 
+primeiroBotao="Alterar" 
+segundoBotao="Voltar"
+(submit)="submit()" 
+(navigate)="navigate()"
+>
+
+    <form [formGroup]="formSenha">
+        <app-primeiro-input [formGroup]="formSenha" [formControlName]="'novaSenha'" [inputName]="'novaSenha'" [type]="'password'"
+            [label]="'Qual será sua nova senha?'" [placeholder]="'Nova senha'">
+            <img src="/assets/svg/padlock-svgrepo-com.svg" height="20px" />
+        </app-primeiro-input>
+        <app-primeiro-input [formGroup]="formSenha" [formControlName]="'confirmarSenha'" [inputName]="'confirmarSenha'" [type]="'password'"
+            [label]="'Confirme sua nova senha...'" [placeholder]="'Repita a senha'">
+            <img src="/assets/svg/padlock-svgrepo-com.svg" height="20px" />
+        </app-primeiro-input>
+
+        
+    </form>
+
+</app-default-login-layout>

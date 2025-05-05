@@ -3,6 +3,8 @@ import { LoginComponent } from './pages/login/login.component';
 import { CadastroComponent } from './pages/cadastro/cadastro.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { AuthGuard } from './services/authguard.service';
+import { EsqueciSenhaComponent } from './pages/esquecisenha/esquecisenha.component';
+import { ResetarComponent } from './pages/resetar/resetar.component';
 
 export const routes: Routes = [
     {
@@ -16,6 +18,15 @@ export const routes: Routes = [
     {
         path: 'cadastro',
         component: CadastroComponent
+    },
+    {
+        path: 'esquecisenha',
+        component: EsqueciSenhaComponent
+    },
+    {
+        path: 'resetar',
+        component: ResetarComponent,
+        canActivate: [AuthGuard]
     },
     {
         path: 'dashboard',

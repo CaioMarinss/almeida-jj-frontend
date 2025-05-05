@@ -4,7 +4,6 @@ primeiroBotao="Login"
 segundoBotao="Cadastre-se"
 (submit)="submit()" 
 (navigate)="navigate()"
-
 >
 
     <form [formGroup]="loginForm">
@@ -17,7 +16,8 @@ segundoBotao="Cadastre-se"
             [type]="'password'" [label]="'Digite sua senha'" [placeholder]="'**********'">
             <img src="/assets/svg/padlock-svgrepo-com.svg" height="20px" />
         </app-primeiro-input>
-        <span>Esqueceu a senha?</span>
+        
+        <span (click)="esqueciSenha()">Esqueceu a senha?</span>
     </form>
 
 </app-default-login-layout>

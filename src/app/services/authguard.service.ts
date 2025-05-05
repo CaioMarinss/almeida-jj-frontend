@@ -12,6 +12,13 @@ export class AuthGuard implements CanActivate {
   canActivate(
     next: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
+
+    const tokenFromUrl = next.queryParamMap.get('token');
+
+    if (next.routeConfig?.path === 'resetar' && tokenFromUrl) {
+      return true;
+    }
+
     const authToken = sessionStorage.getItem('auth-token');
 
     if (authToken) {

@@ -1,0 +1,18 @@
+<app-default-login-layout 
+title="Vamos verificar seu email!" 
+primeiroBotao="Enviar email!" 
+segundoBotao="Voltar"
+(submit)="submit()" 
+(navigate)="navigate()"
+>
+
+    <form [formGroup]="emailForm">
+        <app-primeiro-input [formGroup]="emailForm" [formControlName]="'email'" [inputName]="'email'" [type]="'email'"
+            [label]="'Digite seu e-mail'" [placeholder]="'E-mail'">
+            <img src="/assets/svg/email-svgrepo-com.svg" height="20px" />
+        </app-primeiro-input>
+
+        
+    </form>
+
+</app-default-login-layout>
