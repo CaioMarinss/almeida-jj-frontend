@@ -1,0 +1,10 @@
+<app-default-login-layout 
+  [title]="status === 'sucesso' ? 'E-mail verificado!' : status === 'erro' ? 'Erro ao verificar' : 'Verificando...'" 
+  primeiroBotao="Enviar novamente"
+  segundoBotao="Voltar"
+  (submit)="submit()"
+  (navigate)="navigate()"
+>
+  <p>{{ mensagem }}</p>
+</app-default-login-layout>
+

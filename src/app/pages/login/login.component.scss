@@ -5,11 +5,14 @@ form{
     flex-direction: column;
     gap: 24px;
 
-    span{
+    .spans{
+        display: flex;
+        justify-content: end;
         font-size: 14px;
         text-decoration: underline;
         color: $primary-color;
-        text-align: end;
-        cursor: pointer;
+        cursor: pointer; 
+        gap: 3%;
+        
     }
 }

@@ -5,8 +5,6 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router } from '@angular/router';
 import { LoginService } from '../../services/login.service';
 import { ToastrService } from 'ngx-toastr';
-import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
-
 
 interface loginForm{
   email:FormControl,
@@ -49,6 +47,9 @@ export class LoginComponent {
   }
   esqueciSenha(){
     this.router.navigate(["/esquecisenha"])
+  }
+  verificarEmail(){
+    this.router.navigate(["/verificaremail"])
   }
   navigate(){
     this.router.navigate(["/cadastro"])

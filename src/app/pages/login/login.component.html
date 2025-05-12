@@ -15,9 +15,14 @@ segundoBotao="Cadastre-se"
         <app-primeiro-input [formGroup]="loginForm" [formControlName]="'senha'" [inputName]="'senha'"
             [type]="'password'" [label]="'Digite sua senha'" [placeholder]="'**********'">
             <img src="/assets/svg/padlock-svgrepo-com.svg" height="20px" />
+            
         </app-primeiro-input>
         
-        <span (click)="esqueciSenha()">Esqueceu a senha?</span>
+        <div class="spans">
+            <span (click)="verificarEmail()">Verifique seu email</span>
+            <span (click)="esqueciSenha()">Esqueceu a senha?</span>
+        </div>
+
     </form>
 
 </app-default-login-layout>

@@ -9,8 +9,11 @@ import { catchError, tap, throwError } from 'rxjs';
 })
 export class LoginService {
 
-  apiUrlAuth: string = "https://almeida-jj-api.onrender.com/auth";
-  apiUrl: string = "https://almeida-jj-api.onrender.com";
+  //apiUrlAuth: string = "http://localhost:8080/auth";
+  //apiUrl: string = "http://localhost:8080";
+
+   apiUrlAuth: string = "https://almeida-jj-api.onrender.com/auth";
+   apiUrl: string = "https://almeida-jj-api.onrender.com";
 
   constructor(private httpClient: HttpClient) { }
 
@@ -37,8 +40,8 @@ export class LoginService {
   }
 
 
-  enviarEmail(email: string) {
-    return this.httpClient.post(this.apiUrlAuth + "/enviar-email", { email }).pipe(
+  enviarEmailRecuperacao(email: string) {
+    return this.httpClient.post(this.apiUrlAuth + "/enviar-email-recuperacao", { email }).pipe(
       catchError(err => {
         console.error("Erro ao enviar e-mail:", err);
         return throwError(() => new Error("Erro ao enviar e-mail"));
@@ -46,13 +49,20 @@ export class LoginService {
     );
   }
   
+  enviarEmailVerificacao(email: string) {
+    return this.httpClient.post(this.apiUrlAuth + "/enviar-email-verificacao", { email }).pipe(
+      catchError(err => {
+        console.error("Erro ao enviar e-mail:", err);
+        return throwError(() => new Error("Erro ao enviar e-mail"));
+      })
+    );
+  }
 
   resetSenha(email: string, novaSenha: string, token: string) {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     });
-  
     return this.httpClient.put(this.apiUrl + "/administrador/resetar",
       { email, novaSenha }, 
       { headers }            

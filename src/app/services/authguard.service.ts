@@ -15,7 +15,7 @@ export class AuthGuard implements CanActivate {
 
     const tokenFromUrl = next.queryParamMap.get('token');
 
-    if (next.routeConfig?.path === 'resetar' && tokenFromUrl) {
+    if (next.routeConfig?.path === 'resetar' && tokenFromUrl || next.routeConfig?.path === 'verificar' && tokenFromUrl) {
       return true;
     }
 
