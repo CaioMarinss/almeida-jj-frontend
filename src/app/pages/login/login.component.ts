@@ -6,8 +6,8 @@ import { Router } from '@angular/router';
 import { LoginService } from '../../services/login.service';
 import { ToastrService } from 'ngx-toastr';
 
-interface loginForm{
-  email:FormControl,
+interface loginForm {
+  email: FormControl,
   senha: FormControl
 }
 @Component({
@@ -18,7 +18,7 @@ interface loginForm{
     PrimeiroInputComponent,
     ReactiveFormsModule,
   ],
-  providers:[
+  providers: [
     LoginService
   ],
   templateUrl: './login.component.html',
@@ -29,29 +29,35 @@ export class LoginComponent {
   constructor(
     private router: Router,
     private loginService: LoginService,
-    private toastr: ToastrService 
-  ){
+    private toastr: ToastrService
+  ) {
     this.loginForm = new FormGroup({
       email: new FormControl('', [Validators.required, Validators.email]),
       senha: new FormControl('', [Validators.required, Validators.minLength(6)])
     })
   }
   submit() {
-    this.loginService.login(this.loginForm.value.email, this.loginForm.value.senha).subscribe({
+    const { email, senha } = this.loginForm.value;
+
+    this.loginService.login(email, senha).subscribe({
       next: () => {
         this.toastr.success("Logado com sucesso!");
         this.router.navigate(['/dashboard']);
       },
-      error: () => this.toastr.error('Algo deu errado!')
+      error: (err) => {
+        const mensagem = err.error?.erro || 'Algo deu errado!';
+        this.toastr.error(mensagem);
+      }
     });
   }
-  esqueciSenha(){
+
+  esqueciSenha() {
     this.router.navigate(["/esquecisenha"])
   }
-  verificarEmail(){
+  verificarEmail() {
     this.router.navigate(["/verificaremail"])
   }
-  navigate(){
+  navigate() {
     this.router.navigate(["/cadastro"])
   }
 }
