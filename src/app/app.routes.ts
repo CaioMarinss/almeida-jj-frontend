@@ -5,6 +5,8 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { AuthGuard } from './services/authguard.service';
 import { EsqueciSenhaComponent } from './pages/esquecisenha/esquecisenha.component';
 import { ResetarComponent } from './pages/resetar/resetar.component';
+import { VerificarEmailComponent } from './pages/verificaremail/verificaremail.component';
+import { VerificarComponent } from './pages/verificar/verificar.component';
 
 export const routes: Routes = [
     {
@@ -24,8 +26,17 @@ export const routes: Routes = [
         component: EsqueciSenhaComponent
     },
     {
+        path: 'verificaremail',
+        component: VerificarEmailComponent
+    },
+    {
         path: 'resetar',
         component: ResetarComponent,
+        canActivate: [AuthGuard]
+    },
+    {
+        path: 'verificar',
+        component: VerificarComponent,
         canActivate: [AuthGuard]
     },
     {

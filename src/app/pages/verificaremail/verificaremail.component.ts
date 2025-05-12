@@ -7,16 +7,16 @@ import { ToastrService } from 'ngx-toastr';
 import { LoginService } from '../../services/login.service';
 
 @Component({
-  selector: 'app-esquecisenha',
+  selector: 'app-verificaremail',
   imports: [
     DefaultLoginLayoutComponent,
     PrimeiroInputComponent,
     ReactiveFormsModule
   ],
-  templateUrl: './esquecisenha.component.html',
-  styleUrl: './esquecisenha.component.scss'
+  templateUrl: './verificaremail.component.html',
+  styleUrl: './verificaremail.component.scss'
 })
-export class EsqueciSenhaComponent {
+export class VerificarEmailComponent {
   emailForm!: FormGroup;
   constructor(
     private router: Router,
@@ -36,7 +36,7 @@ export class EsqueciSenhaComponent {
       return;
     }
   
-    this.service.enviarEmailRecuperacao(email).subscribe({
+    this.service.enviarEmailVerificacao(email).subscribe({
       next: () => {
         this.toastr.success("Email enviado com sucesso!");
         this.router.navigate(['/login']);

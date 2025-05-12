@@ -12,6 +12,7 @@ export class DefaultLoginLayoutComponent {
   @Input() title: string = "";
   @Input() primeiroBotao: string = "";
   @Input() segundoBotao: string = "";
+  
 
   @Output ("submit") onSubmit = new EventEmitter();
   @Output ("navigate") onNavigate = new EventEmitter();
