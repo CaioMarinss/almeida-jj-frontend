@@ -1,4 +1,4 @@
-@import "../../../styles/variables.scss";
+@use "../../../styles/variables.scss" as vars;
 
 main {
     display: flex;
@@ -6,7 +6,7 @@ main {
     align-items: center;
     justify-content: center;
     height: 100%;
-    background-color: $bg-sombra;
+    background-color: vars.$bg-sombra;
 
     section {
         display: flex;
@@ -35,7 +35,7 @@ main {
         }
 
         img {
-            filter: drop-shadow(0 0 10px $secondary-color);
+            filter: drop-shadow(0 0 10px vars.$secondary-color);
             width: 20vw;
             margin-bottom: 10px;
         }
@@ -62,15 +62,15 @@ main {
                 cursor: pointer;
 
                 &.primeiro-btn {
-                    border: 1px solid $secondary-color;
-                    background-color: $primary-color;
-                    color: $secondary-color;
-                    filter: drop-shadow(0 0 10px $secondary-color);
+                    border: 1px solid vars.$secondary-color;
+                    background-color: vars.$primary-color;
+                    color: vars.$secondary-color;
+                    filter: drop-shadow(0 0 10px vars.$secondary-color);
                 }
 
                 &.segundo-btn {
-                    border: 1px solid $primary-color;
-                    color: $primary-color;
+                    border: 1px solid vars.$primary-color;
+                    color: vars.$primary-color;
                 }
 
             }
@@ -79,7 +79,7 @@ main {
                 display: flex;
                 width: 30%;
                 font-size: 14px;
-                color: $bg-sombra-claro;
+                color: vars.$bg-sombra-claro;
                 font-weight: 400;
                 align-items: center;
                 justify-content: center;
@@ -90,7 +90,7 @@ main {
                     min-width: 100%;
                     flex-grow: 1;
                     height: 1px;
-                    background-color: $bg-sombra-claro
+                    background-color: vars.$bg-sombra-claro
                 }
             }
         }
@@ -107,7 +107,7 @@ main {
             flex-grow: 1;
             background: url("../../../../public/imgs/alunosPBescuro.jpeg") center / cover no-repeat;
 
-            
+
 
             img {
                 width: 50vw;

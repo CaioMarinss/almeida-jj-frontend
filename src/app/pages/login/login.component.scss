@@ -1,4 +1,4 @@
-@import "../../../styles/variables.scss";
+@use "../../../styles/variables.scss" as vars;
 form{
     width: 80%;
     display: flex;
@@ -10,9 +10,9 @@ form{
         justify-content: end;
         font-size: 14px;
         text-decoration: underline;
-        color: $primary-color;
-        cursor: pointer; 
+        color: vars.$primary-color;
+        cursor: pointer;
         gap: 3%;
-        
+
     }
 }

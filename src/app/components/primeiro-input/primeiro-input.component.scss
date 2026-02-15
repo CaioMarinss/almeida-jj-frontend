@@ -1,9 +1,9 @@
-@import "../../../styles/variables.scss";
+@use "../../../styles/variables.scss" as vars;
 
 
 .input-wrapper{
     text-align: start;
-    
+
     .input-content{
         width: 100%;
         border-radius: 8px;
@@ -11,7 +11,7 @@
 
         .icon{
             padding: 10px;
-            background-color: $primary-color;
+            background-color: vars.$primary-color;
             align-items: center;
             justify-content: center;
             display: flex;
@@ -20,11 +20,14 @@
 
         input{
             border: none;
-            background-color: $fundo-input;
+            background-color: vars.$fundo-input;
             border-radius: 10px 0 0 10px;
             font-size: 13px;
             padding: 10px 20px ;
             width: 100%;
+            &::placeholder{
+                color: vars.$bg-sombra-claro;
+            }
         }
     }
 }

@@ -1,6 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
-@import "primeicons/primeicons.css";
-@import 'ngx-toastr/toastr';
+@use 'ngx-toastr/toastr';
+@use "./styles/variables.scss" as vars;
 
 *{
     margin: 0;
@@ -10,6 +10,15 @@
 }
 html,body{
     height: 100%;
+    color: vars.$text-color;
 }
-html, body { height: 100%; }
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  box-shadow: 0 0 0 1px vars.$primary-color;
+}
+::selection {
+  background: vars.$bg-sombra-claro;
+}
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
