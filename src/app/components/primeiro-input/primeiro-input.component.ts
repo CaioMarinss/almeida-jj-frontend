@@ -1,5 +1,6 @@
 import { Component, forwardRef, Input } from '@angular/core';
 import { ControlValueAccessor, FormGroup, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
+import { NgxMaskDirective } from 'ngx-mask';
 
 type InputTypes = "text" | "email" |"password"
 
@@ -7,7 +8,8 @@ type InputTypes = "text" | "email" |"password"
   selector: 'app-primeiro-input',
   standalone: true, 
   imports: [
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    NgxMaskDirective
   ],
   providers:[
     {
@@ -25,15 +27,17 @@ export class PrimeiroInputComponent implements ControlValueAccessor{
   @Input() placeholder: string = "";
   @Input() label: string = "";
   @Input() inputName: string = "";
+  @Input() mask: string = '';
 
   @Input() formGroup!: FormGroup;
   value: string ='';
   onChange:any = () => {}
   onTouched:any = () => {}
 
-  onInput(event: Event){
-    const value = (event.target as HTMLInputElement).value
-    this.onChange(value)
+  onInput(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    this.value = value;
+    this.onChange(value);
   }
   writeValue(value: any): void {
     this.value = value

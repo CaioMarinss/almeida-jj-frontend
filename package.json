@@ -20,6 +20,7 @@
     "@angular/platform-browser-dynamic": "^19.2.9",
     "@angular/router": "^19.2.9",
     "@primeng/themes": "^19.1.0",
+    "ngx-mask": "^19.0.7",
     "ngx-toastr": "^19.0.0",
     "primeicons": "^7.0.0",
     "primeng": "^19.1.0",

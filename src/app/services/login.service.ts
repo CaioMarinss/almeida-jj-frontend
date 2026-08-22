@@ -28,8 +28,8 @@ export class LoginService {
     )
   }
 
-  cadastrar(nome: string, email: string, senha: string) {
-    return this.httpClient.post<LoginResponse>(this.apiUrlAuth + "/register", { nome, email, senha }).pipe(
+  cadastrar(nome: string, cpf: string, email: string, senha: string) {
+    return this.httpClient.post<LoginResponse>(this.apiUrlAuth + "/register", { nome, cpf, email, senha }).pipe(
       tap(
         (value) => {
           sessionStorage.setItem("auth-token", value.token)
