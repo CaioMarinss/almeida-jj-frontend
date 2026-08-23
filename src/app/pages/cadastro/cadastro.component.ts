@@ -104,9 +104,6 @@ export class CadastroComponent {
         error: (err) => this.alerta.errorFromApi(err)
       });
     } else {
-      this.alerta.warning(
-        'Verifique se os campos do formulário estão preenchidos corretamente.'
-      );
       this.cadastroForm.markAllAsTouched();
     }
   }

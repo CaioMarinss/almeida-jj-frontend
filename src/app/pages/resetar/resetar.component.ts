@@ -46,7 +46,7 @@ export class ResetarComponent implements OnInit {
 
   submit() {
     if (this.formSenha.invalid || this.formSenha.value.novaSenha !== this.formSenha.value.confirmarSenha) {
-      this.alerta.error('Algo deu errado, revise as informações.');
+      this.formSenha.markAllAsTouched();
       return;
     }
 

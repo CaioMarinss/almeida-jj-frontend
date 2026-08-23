@@ -32,7 +32,7 @@ export class EsqueciSenhaComponent {
     const email = this.emailForm.value.email;
   
     if (!email || this.emailForm.invalid) {
-      this.alerta.error('Digite um e-mail válido.');
+      this.emailForm.markAllAsTouched();
       return;
     }
   

@@ -3,27 +3,27 @@
 
     <form [formGroup]="cadastroForm">
 
-        <app-primeiro-input [formGroup]="cadastroForm" [formControlName]="'nome'" [inputName]="'name'" [type]="'text'"
+        <app-primeiro-input [formGroup]="cadastroForm" [formControlName]="'nome'" [controlName]="'nome'" [inputName]="'name'" [type]="'text'"
             [label]="'Digite seu nome'" [placeholder]="'Nome'">
             <img src="/assets/svg/user-svgrepo-com.svg" height="20px" />
         </app-primeiro-input>
 
-        <app-primeiro-input [formGroup]="cadastroForm" [formControlName]="'cpf'" [inputName]="'cpf'"
+        <app-primeiro-input [formGroup]="cadastroForm" [formControlName]="'cpf'" [controlName]="'cpf'" [inputName]="'cpf'"
             [type]="'text'" [label]="'Digite seu CPF'" [placeholder]="'123.456.789-01'" [mask]="'000.000.000-00'">
             <img src="/assets/svg/user-svgrepo-com.svg" height="20px" />
         </app-primeiro-input>
 
-        <app-primeiro-input [formGroup]="cadastroForm" [formControlName]="'email'" [inputName]="'email'"
+        <app-primeiro-input [formGroup]="cadastroForm" [formControlName]="'email'" [controlName]="'email'" [inputName]="'email'"
             [type]="'email'" [label]="'Digite seu e-mail'" [placeholder]="'E-mail'">
             <img src="/assets/svg/email-svgrepo-com.svg" height="20px" />
         </app-primeiro-input>
         
-        <app-primeiro-input [formGroup]="cadastroForm" [formControlName]="'senha'" [inputName]="'senha'"
+        <app-primeiro-input [formGroup]="cadastroForm" [formControlName]="'senha'" [controlName]="'senha'" [inputName]="'senha'"
             [type]="'password'" [label]="'Digite sua senha'" [placeholder]="'**********'">
             <img src="/assets/svg/padlock-svgrepo-com.svg" height="20px" />
         </app-primeiro-input>
 
-        <app-primeiro-input [formGroup]="cadastroForm" [formControlName]="'passwordConfirm'"
+        <app-primeiro-input [formGroup]="cadastroForm" [formControlName]="'passwordConfirm'" [controlName]="'passwordConfirm'"
             [inputName]="'passwordConfirm'" [type]="'password'" [label]="'Confirme sua senha'"
             [placeholder]="'**********'">
             <img src="/assets/svg/padlock-svgrepo-com.svg" height="20px" />

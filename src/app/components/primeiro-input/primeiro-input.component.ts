@@ -27,6 +27,7 @@ export class PrimeiroInputComponent implements ControlValueAccessor{
   @Input() placeholder: string = "";
   @Input() label: string = "";
   @Input() inputName: string = "";
+  @Input() controlName: string = "";
   @Input() mask: string = '';
 
   @Input() formGroup!: FormGroup;
@@ -38,6 +39,42 @@ export class PrimeiroInputComponent implements ControlValueAccessor{
     const value = (event.target as HTMLInputElement).value;
     this.value = value;
     this.onChange(value);
+  }
+
+  get errorMessage(): string {
+    const control = this.formGroup?.get(this.controlName);
+
+    if (!control || (!control.touched && !control.dirty)) {
+      return '';
+    }
+
+    if (control.hasError('required')) {
+      return 'Este campo é obrigatório.';
+    }
+
+    if (control.hasError('email')) {
+      return 'Digite um e-mail válido.';
+    }
+
+    if (control.hasError('minlength')) {
+      const requiredLength = control.getError('minlength').requiredLength;
+      return `Digite pelo menos ${requiredLength} caracteres.`;
+    }
+
+    if (control.hasError('cpfInvalido')) {
+      return 'Digite um CPF válido.';
+    }
+
+    if (this.controlName === 'passwordConfirm'
+      && this.formGroup.hasError('senhasDiferentes')) {
+      return 'As senhas não coincidem.';
+    }
+
+    return '';
+  }
+
+  onBlur(): void {
+    this.onTouched();
   }
   writeValue(value: any): void {
     this.value = value

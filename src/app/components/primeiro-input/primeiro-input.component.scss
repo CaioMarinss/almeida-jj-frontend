@@ -27,4 +27,11 @@
             width: 100%;
         }
     }
+
+    .input-error {
+        display: block;
+        color: #ff6b6b;
+        font-size: 12px;
+        margin: 5px 4px 0;
+    }
 }
