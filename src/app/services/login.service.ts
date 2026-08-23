@@ -9,11 +9,11 @@ import { catchError, tap, throwError } from 'rxjs';
 })
 export class LoginService {
 
-  //apiUrlAuth: string = "http://localhost:8080/auth";
-  //apiUrl: string = "http://localhost:8080";
+  apiUrlAuth: string = "http://localhost:8080/auth";
+  apiUrl: string = "http://localhost:8080";
 
-   apiUrlAuth: string = "https://almeida-jj-api.onrender.com/auth";
-   apiUrl: string = "https://almeida-jj-api.onrender.com";
+   //apiUrlAuth: string = "https://almeida-jj-api.onrender.com/auth";
+   //apiUrl: string = "https://almeida-jj-api.onrender.com";
 
   constructor(private httpClient: HttpClient) { }
 

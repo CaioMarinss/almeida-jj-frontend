@@ -82,7 +82,9 @@ export class CadastroComponent {
   submit() {
     if (this.cadastroForm.valid) {
       const { nome, cpf, email, senha } = this.cadastroForm.value;
-      this.loginService.cadastrar(nome, cpf, email, senha).subscribe({
+      const cpfSemMascara = String(cpf).replace(/\D/g, '');
+
+      this.loginService.cadastrar(nome, cpfSemMascara, email, senha).subscribe({
         next: () => {
           this.toastr.success("Cadastrado com sucesso!");
           this.router.navigate(['/login']);
@@ -90,7 +92,7 @@ export class CadastroComponent {
         error: () => this.toastr.error('Algo deu errado!')
       });
     } else {
-      this.toastr.warning('Verifique os campos do formulário.');
+      this.toastr.warning('Verifique se os campos do formulário estão preenchidos corretamente.');
       this.cadastroForm.markAllAsTouched();
     }
   }
