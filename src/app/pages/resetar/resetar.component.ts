@@ -61,7 +61,7 @@ export class ResetarComponent implements OnInit {
       },
       error: (err) => {
         console.error('Erro na API:', err);
-        this.alerta.error("Erro ao redefinir a senha.");
+        this.alerta.errorFromApi(err, "Erro ao redefinir a senha.");
       }
     });
     

@@ -42,7 +42,7 @@ export class VerificarEmailComponent {
           this.router.navigate(['/login']);
         });
       },
-      error: () => this.alerta.error('Algo deu errado!')
+      error: (err) => this.alerta.errorFromApi(err)
     });
   }
   

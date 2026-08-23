@@ -46,8 +46,7 @@ export class LoginComponent {
         });
       },
       error: (err) => {
-        const mensagem = err.error?.erro || 'Algo deu errado!';
-        this.alerta.error(mensagem);
+        this.alerta.errorFromApi(err);
       }
     });
   }

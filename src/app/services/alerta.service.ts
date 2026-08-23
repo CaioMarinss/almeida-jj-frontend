@@ -13,8 +13,43 @@ export class AlertaService {
     return this.show('error', message);
   }
 
+  errorFromApi(error: unknown, fallback = 'Algo deu errado!'): Promise<void> {
+    return this.error(this.getApiMessage(error, fallback));
+  }
+
   warning(message: string): Promise<void> {
     return this.show('warning', message);
+  }
+
+  private getApiMessage(error: unknown, fallback: string): string {
+    if (!error || typeof error !== 'object') {
+      return fallback;
+    }
+
+    const response = (error as { error?: unknown }).error;
+
+    if (typeof response === 'string' && response.trim()) {
+      return response;
+    }
+
+    if (response && typeof response === 'object') {
+      const responseObject = response as Record<string, unknown>;
+      const message = responseObject['erro'];
+
+      if (typeof message === 'string' && message.trim()) {
+        return message;
+      }
+
+      const firstMessage = Object.values(responseObject).find(
+        (value): value is string => typeof value === 'string' && value.trim().length > 0
+      );
+
+      if (firstMessage) {
+        return firstMessage;
+      }
+    }
+
+    return fallback;
   }
 
   private async show(

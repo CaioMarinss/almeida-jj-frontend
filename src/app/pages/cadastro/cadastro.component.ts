@@ -101,7 +101,7 @@ export class CadastroComponent {
             this.router.navigate(['/login']);
           });
         },
-        error: () => this.alerta.error('Algo deu errado!')
+        error: (err) => this.alerta.errorFromApi(err)
       });
     } else {
       this.alerta.warning(
