@@ -3,7 +3,7 @@ import { DefaultLoginLayoutComponent } from '../../components/default-login-layo
 import { PrimeiroInputComponent } from '../../components/primeiro-input/primeiro-input.component';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
+import { AlertaService } from '../../services/alerta.service';
 import { LoginService } from '../../services/login.service';
 
 @Component({
@@ -21,7 +21,7 @@ export class EsqueciSenhaComponent {
   constructor(
     private router: Router,
     private service: LoginService,
-    private toastr: ToastrService 
+    private alerta: AlertaService
   ){
     this.emailForm = new FormGroup({
       email: new FormControl('', [Validators.required, Validators.email]),
@@ -32,16 +32,17 @@ export class EsqueciSenhaComponent {
     const email = this.emailForm.value.email;
   
     if (!email || this.emailForm.invalid) {
-      this.toastr.error('Digite um e-mail válido.');
+      this.alerta.error('Digite um e-mail válido.');
       return;
     }
   
     this.service.enviarEmailRecuperacao(email).subscribe({
       next: () => {
-        this.toastr.success("Email enviado com sucesso!");
-        this.router.navigate(['/login']);
+        this.alerta.success("Email enviado com sucesso!").then(() => {
+          this.router.navigate(['/login']);
+        });
       },
-      error: () => this.toastr.error('Algo deu errado!')
+      error: () => this.alerta.error('Algo deu errado!')
     });
   }
   

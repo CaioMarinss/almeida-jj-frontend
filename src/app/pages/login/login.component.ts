@@ -4,7 +4,7 @@ import { PrimeiroInputComponent } from '../../components/primeiro-input/primeiro
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LoginService } from '../../services/login.service';
-import { ToastrService } from 'ngx-toastr';
+import { AlertaService } from '../../services/alerta.service';
 
 interface loginForm {
   email: FormControl,
@@ -29,7 +29,7 @@ export class LoginComponent {
   constructor(
     private router: Router,
     private loginService: LoginService,
-    private toastr: ToastrService
+    private alerta: AlertaService
   ) {
     this.loginForm = new FormGroup({
       email: new FormControl('', [Validators.required, Validators.email]),
@@ -41,12 +41,13 @@ export class LoginComponent {
 
     this.loginService.login(email, senha).subscribe({
       next: () => {
-        this.toastr.success("Logado com sucesso!");
-        this.router.navigate(['/dashboard']);
+        this.alerta.success("Logado com sucesso!").then(() => {
+          this.router.navigate(['/dashboard']);
+        });
       },
       error: (err) => {
         const mensagem = err.error?.erro || 'Algo deu errado!';
-        this.toastr.error(mensagem);
+        this.alerta.error(mensagem);
       }
     });
   }

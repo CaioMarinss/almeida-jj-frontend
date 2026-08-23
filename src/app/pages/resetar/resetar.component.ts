@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { LoginService } from '../../services/login.service';
 import { PrimeiroInputComponent } from '../../components/primeiro-input/primeiro-input.component';
 import { DefaultLoginLayoutComponent } from '../../components/default-login-layout/default-login-layout.component';
-import { ToastrService } from 'ngx-toastr';
+import { AlertaService } from '../../services/alerta.service';
 
 @Component({
   selector: 'app-resetar',
@@ -29,7 +29,7 @@ export class ResetarComponent implements OnInit {
     private fb: FormBuilder,
     private loginService: LoginService,
     private router: Router,
-    private toastr: ToastrService
+    private alerta: AlertaService
   ) {
     this.formSenha = this.fb.group({
       novaSenha: ['', [Validators.required, Validators.minLength(6)]],
@@ -46,7 +46,7 @@ export class ResetarComponent implements OnInit {
 
   submit() {
     if (this.formSenha.invalid || this.formSenha.value.novaSenha !== this.formSenha.value.confirmarSenha) {
-      this.toastr.error('Algo deu errado, revise as informações.');
+      this.alerta.error('Algo deu errado, revise as informações.');
       return;
     }
 
@@ -55,12 +55,13 @@ export class ResetarComponent implements OnInit {
     this.loginService.resetSenha(this.email, novaSenha, this.token).subscribe({
       next: (response: any) => {
         console.log('Resposta da API:', response);
-        this.toastr.success('Senha redefinida com sucesso!');
-        this.router.navigate(['login'])
+        this.alerta.success('Senha redefinida com sucesso!').then(() => {
+          this.router.navigate(['login']);
+        });
       },
       error: (err) => {
         console.error('Erro na API:', err);
-        this.toastr.error("Erro ao redefinir a senha.");
+        this.alerta.error("Erro ao redefinir a senha.");
       }
     });
     

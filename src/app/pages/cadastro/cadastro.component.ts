@@ -12,7 +12,7 @@ import {
 
 import { Router } from '@angular/router';
 import { LoginService } from '../../services/login.service';
-import { ToastrService } from 'ngx-toastr';
+import { AlertaService } from '../../services/alerta.service';
 import { CommonModule } from '@angular/common';
 
 import { cpfValidator } from '../../validators/cpf.validator';
@@ -40,7 +40,7 @@ export class CadastroComponent {
   constructor(
     private router: Router,
     private loginService: LoginService,
-    private toastr: ToastrService
+    private alerta: AlertaService
   ) {
     this.cadastroForm = new FormGroup({
 
@@ -97,13 +97,14 @@ export class CadastroComponent {
         senha
       ).subscribe({
         next: () => {
-          this.toastr.success("Cadastrado com sucesso!");
-          this.router.navigate(['/login']);
+          this.alerta.success("Cadastrado com sucesso!").then(() => {
+            this.router.navigate(['/login']);
+          });
         },
-        error: () => this.toastr.error('Algo deu errado!')
+        error: () => this.alerta.error('Algo deu errado!')
       });
     } else {
-      this.toastr.warning(
+      this.alerta.warning(
         'Verifique se os campos do formulário estão preenchidos corretamente.'
       );
       this.cadastroForm.markAllAsTouched();

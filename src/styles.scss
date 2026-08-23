@@ -1,6 +1,50 @@
 /* You can add global styles to this file, and also import other style files */
 @use "primeicons/primeicons.css";
-@use 'ngx-toastr/toastr';
+
+html {
+    scrollbar-gutter: stable;
+}
+
+.swal2-container {
+    background-color: rgba(0, 0, 0, 0.68) !important;
+}
+
+.app-alert-popup {
+    width: min(90vw, 430px) !important;
+    padding: 2rem !important;
+    border: 1px solid #F2CC0F !important;
+    border-radius: 12px !important;
+    background: #202020 !important;
+    color: #ffffff !important;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45) !important;
+}
+
+.app-alert-title {
+    color: #ffffff !important;
+    font-family: "Poppins", sans-serif !important;
+    font-size: 1.35rem !important;
+}
+
+.app-alert-message {
+    color: #ffffff !important;
+    font-family: "Poppins", sans-serif !important;
+}
+
+.app-alert-confirm {
+    min-width: 110px;
+    padding: 0.7rem 1.4rem;
+    border: 1px solid #F2CC0F;
+    border-radius: 6px;
+    background: #F2CC0F;
+    color: #000000;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.app-alert-confirm:hover {
+    background: #ffe45c;
+}
 
 *{
     margin: 0;
