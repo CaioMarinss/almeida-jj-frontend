@@ -9,11 +9,10 @@ import { catchError, tap, throwError } from 'rxjs';
 })
 export class LoginService {
 
-  apiUrlAuth: string = "http://localhost:8080/auth";
+  //apiUrl: string = "https://almeida-jj-api.onrender.com";
   apiUrl: string = "http://localhost:8080";
-
-   //apiUrlAuth: string = "https://almeida-jj-api.onrender.com/auth";
-   //apiUrl: string = "https://almeida-jj-api.onrender.com";
+  apiUrlAuth: string = this.apiUrl + "/auth";
+  apiUrlEmail: string = this.apiUrl + "/email";
 
   constructor(private httpClient: HttpClient) { }
 
@@ -41,7 +40,7 @@ export class LoginService {
 
 
   enviarEmailRecuperacao(email: string) {
-    return this.httpClient.post(this.apiUrlAuth + "/enviar-email-recuperacao", { email }).pipe(
+    return this.httpClient.post(this.apiUrlEmail + "/enviar-email-recuperacao", { email }).pipe(
       catchError(err => {
         console.error("Erro ao enviar e-mail:", err);
         return throwError(() => new Error("Erro ao enviar e-mail"));
@@ -50,7 +49,7 @@ export class LoginService {
   }
   
   enviarEmailVerificacao(email: string) {
-    return this.httpClient.post(this.apiUrlAuth + "/enviar-email-verificacao", { email }).pipe(
+    return this.httpClient.post(this.apiUrlEmail + "/enviar-email-verificacao", { email }).pipe(
       catchError(err => {
         console.error("Erro ao enviar e-mail:", err);
         return throwError(() => new Error("Erro ao enviar e-mail"));
