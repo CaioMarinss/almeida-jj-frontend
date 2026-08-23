@@ -37,11 +37,6 @@ export class LoginComponent {
     })
   }
   submit() {
-    if (this.loginForm.invalid) {
-      this.loginForm.markAllAsTouched();
-      return;
-    }
-
     const { email, senha } = this.loginForm.value;
 
     this.loginService.login(email, senha).subscribe({

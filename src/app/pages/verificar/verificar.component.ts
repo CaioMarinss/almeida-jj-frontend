@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-verificar',
@@ -27,8 +28,7 @@ export class VerificarComponent implements OnInit {
 
   ngOnInit(): void {
     const token = this.route.snapshot.queryParamMap.get('token');
-    //const linkBack = "http://localhost:8080/administrador";
-    const linkBack = "https://almeida-jj-api.onrender.com/administrador";
+    const linkBack = `${environment.apiUrl}/aluno`;
 
     if (token) {
       this.http.get(`${linkBack}/verificar?token=${token}`, { responseType: 'text' })

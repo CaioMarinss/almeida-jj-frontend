@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { LoginResponse } from '../types/login-response.type';
 import { catchError, tap, throwError } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 
 @Injectable({
@@ -9,8 +10,7 @@ import { catchError, tap, throwError } from 'rxjs';
 })
 export class LoginService {
 
-  //apiUrl: string = "https://almeida-jj-api.onrender.com";
-  apiUrl: string = "http://localhost:8080";
+  apiUrl: string = environment.apiUrl;
   apiUrlAuth: string = this.apiUrl + "/auth";
   apiUrlEmail: string = this.apiUrl + "/email";
 
@@ -62,7 +62,7 @@ export class LoginService {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     });
-    return this.httpClient.put(this.apiUrl + "/administrador/resetar",
+    return this.httpClient.put(this.apiUrl + "/aluno/resetar",
       { email, novaSenha }, 
       { headers }            
     );
