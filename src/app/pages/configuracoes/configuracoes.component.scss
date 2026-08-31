@@ -1,0 +1,161 @@
+@use "../../../styles/variables" as *;
+
+:host {
+  display: block;
+}
+
+.settings-page {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 1.25rem;
+}
+
+.settings-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 1.5rem;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.avatar-block {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+
+  img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid rgba(242, 204, 15, 0.55);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+  }
+
+  input {
+    display: none;
+  }
+}
+
+.upload-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  background: rgba(242, 204, 15, 0.12);
+  color: $primary-color;
+  border: 1px solid rgba(242, 204, 15, 0.35);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.profile-summary {
+  h2 {
+    margin: 0.2rem 0;
+    font-size: clamp(1.6rem, 2vw, 2.2rem);
+  }
+
+  span {
+    color: rgba(255, 255, 255, 0.7);
+  }
+}
+
+.eyebrow {
+  margin-bottom: 0.3rem;
+  color: $primary-color;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.7rem;
+}
+
+.form-header {
+  margin-bottom: 1rem;
+
+  h3 {
+    font-size: 1.5rem;
+  }
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+
+  label {
+    margin-bottom: 0.55rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+  }
+
+  input {
+    width: 100%;
+    padding: 0.85rem 0.9rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    color: $text-color;
+    font-size: 1rem;
+
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    &:focus {
+      outline: 2px solid rgba(242, 204, 15, 0.25);
+      border-color: rgba(242, 204, 15, 0.35);
+    }
+  }
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.primary-button,
+.secondary-button {
+  border: 0;
+  border-radius: 10px;
+  padding: 0.8rem 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primary-button {
+  background: $primary-color;
+  color: $secondary-color;
+}
+
+.secondary-button {
+  background: rgba(255, 255, 255, 0.04);
+  color: $text-color;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+@media (max-width: 900px) {
+  .settings-page {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .profile-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .actions {
+    flex-direction: column-reverse;
+  }
+}

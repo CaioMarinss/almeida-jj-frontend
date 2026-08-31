@@ -1,0 +1,62 @@
+<app-base-page
+  [heading]="'Configurações do perfil'"
+  [title]="'Perfil'"
+  [userName]="userName"
+  [role]="role"
+  [navItems]="[
+    { label: 'Visão geral', route: '/dashboard' },
+    { label: 'Treinos', route: '/calendario' },
+    { label: 'Financeiro', route: '/financeiro' },
+    { label: 'Configurações', route: '/configuracoes', active: true }
+  ]"
+>
+  <section class="settings-page">
+    <div class="settings-card profile-card">
+      <div class="profile-header">
+        <div class="avatar-block">
+          <img [src]="profileImage" alt="Foto do perfil" />
+          <label class="upload-button" for="profile-image-input">Alterar foto</label>
+          <input
+            id="profile-image-input"
+            type="file"
+            accept="image/*"
+            (change)="onImageChange($event)"
+          />
+        </div>
+
+        <div class="profile-summary">
+          <p class="eyebrow">Dados pessoais</p>
+          <h2>{{ userName }}</h2>
+          <span>{{ role }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-card form-card">
+      <div class="form-header">
+        <p class="eyebrow">Editar perfil</p>
+        <h3>Personalize seu nome e foto</h3>
+      </div>
+
+      <div class="field-group">
+        <label for="display-name">Nome completo</label>
+        <input
+          id="display-name"
+          type="text"
+          [(ngModel)]="editedName"
+          placeholder="Digite seu nome"
+        />
+      </div>
+
+      <div class="field-group">
+        <label for="email">E-mail</label>
+        <input id="email" type="email" value="maria@almeida.com" disabled />
+      </div>
+
+      <div class="actions">
+        <button type="button" class="secondary-button">Cancelar</button>
+        <button type="button" class="primary-button" (click)="saveProfile()">Salvar alterações</button>
+      </div>
+    </div>
+  </section>
+</app-base-page>

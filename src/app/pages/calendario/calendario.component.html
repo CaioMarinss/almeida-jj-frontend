@@ -1,0 +1,81 @@
+<app-base-page
+  [heading]="'Calendário de treinos'"
+  [title]="'Agenda'"
+  [userName]="userName"
+  [role]="role"
+  [navItems]="[
+    { label: 'Visão geral', route: '/dashboard' },
+    { label: 'Treinos', route: '/calendario', active: true },
+    { label: 'Financeiro', route: '/financeiro' },
+    { label: 'Configurações', route: '/configuracoes' }
+  ]"
+>
+  <section class="calendar-page">
+    <div class="calendar-card">
+      <div class="calendar-header">
+        <div>
+          <p class="eyebrow">Agenda</p>
+          <h2>Agende sua presença</h2>
+        </div>
+        <button type="button" class="calendar-action">+ Nova reserva</button>
+      </div>
+
+      <div class="calendar-grid">
+        <div class="calendar-weekdays">
+          <span *ngFor="let day of weekDays">{{ day }}</span>
+        </div>
+
+        <div class="calendar-days">
+          <button
+            *ngFor="let item of calendarDays"
+            type="button"
+            class="day-cell"
+            [class.outside-month]="!item.isCurrentMonth"
+            [class.selected]="item.day === selectedDate.getDate() && item.isCurrentMonth"
+            [class.has-class]="item.hasClass"
+            (click)="item.isCurrentMonth && selectDay(item.day)"
+          >
+            {{ item.day }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <aside class="classes-card">
+      <div class="class-header">
+        <p class="eyebrow">{{ selectedDate | date: 'dd MMM yyyy' }}</p>
+        <h3>Aulas disponíveis</h3>
+      </div>
+
+      <div class="class-list" *ngIf="selectedDayAulas.length; else emptyState">
+        <article class="class-item" *ngFor="let aula of selectedDayAulas">
+          <div class="class-topline">
+            <span class="time">{{ aula.horario }}</span>
+            <button
+              type="button"
+              class="presence-button"
+              [class.confirmed]="aula.confirmado"
+              (click)="togglePresenca(aula)"
+            >
+              {{ aula.confirmado ? 'Presente' : 'Marcar presença' }}
+            </button>
+          </div>
+
+          <h4>{{ aula.nome }}</h4>
+          <p>{{ aula.professor }} • {{ aula.modalidade }}</p>
+
+          <div class="class-footer">
+            <span>{{ aula.vagas }} vagas</span>
+            <span [class.low]="aula.vagas <= 3">{{ aula.vagas <= 3 ? 'Últimas vagas' : 'Disponível' }}</span>
+          </div>
+        </article>
+      </div>
+
+      <ng-template #emptyState>
+        <div class="empty-state">
+          <p>Nenhuma aula para este dia.</p>
+        </div>
+      </ng-template>
+    </aside>
+  </section>
+</app-base-page>

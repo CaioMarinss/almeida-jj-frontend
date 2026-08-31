@@ -1,0 +1,67 @@
+<div class="base-page-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">A</div>
+      <div>
+        <strong>Almeida JJ</strong>
+        <span>Gestão da academia</span>
+      </div>
+    </div>
+
+    <nav class="nav" aria-label="Menu principal">
+      <button
+        *ngFor="let item of navItems"
+        type="button"
+        class="nav-item"
+        [class.active]="item.active"
+        [routerLink]="item.route ?? null"
+        [disabled]="!item.route"
+      >
+        {{ item.label }}
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-card">
+        <span class="label">Status</span>
+        <strong>Operação ativa</strong>
+        <p>Seu corpo e seu progresso estão em acompanhamento constante.</p>
+      </div>
+
+      <button type="button" class="logout-button" (click)="openLogoutDialog()">
+        Sair
+      </button>
+    </div>
+  </aside>
+
+  <app-confirm-popup
+    [visible]="showLogoutDialog"
+    title="Sair da conta"
+    message="Tem certeza que deseja sair?"
+    confirmLabel="Sim"
+    cancelLabel="Não"
+    (confirm)="confirmLogout()"
+    (cancel)="closeLogoutDialog()"
+  ></app-confirm-popup>
+
+  <main class="content">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">{{ title }}</p>
+        <h1>{{ heading }}</h1>
+      </div>
+
+      <div class="user-badge">
+        <span class="avatar">{{ userName.charAt(0) }}</span>
+        <div>
+          <strong>{{ userName }}</strong>
+          <small>{{ role }}</small>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-slot">
+      <ng-content></ng-content>
+    </div>
+  </main>
+</div>

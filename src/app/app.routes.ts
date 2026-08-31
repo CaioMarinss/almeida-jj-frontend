@@ -7,6 +7,9 @@ import { EsqueciSenhaComponent } from './pages/esquecisenha/esquecisenha.compone
 import { ResetarComponent } from './pages/resetar/resetar.component';
 import { VerificarEmailComponent } from './pages/verificaremail/verificaremail.component';
 import { VerificarComponent } from './pages/verificar/verificar.component';
+import { CalendarioComponent } from './pages/calendario/calendario.component';
+import { ConfiguracoesComponent } from './pages/configuracoes/configuracoes.component';
+import { FinanceiroComponent } from './pages/financeiro/financeiro.component';
 
 export const routes: Routes = [
     {
@@ -42,6 +45,21 @@ export const routes: Routes = [
     {
         path: 'dashboard',
         component: DashboardComponent,
+        canActivate: [AuthGuard]
+    },
+    {
+        path: 'calendario',
+        component: CalendarioComponent,
+        canActivate: [AuthGuard]
+    },
+    {
+        path: 'configuracoes',
+        component: ConfiguracoesComponent,
+        canActivate: [AuthGuard]
+    },
+    {
+        path: 'financeiro',
+        component: FinanceiroComponent,
         canActivate: [AuthGuard]
     }
 ];

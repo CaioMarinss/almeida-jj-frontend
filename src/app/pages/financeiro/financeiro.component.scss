@@ -1,0 +1,151 @@
+@use "../../../styles/variables" as *;
+
+:host {
+  display: block;
+}
+
+.finance-page {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.finance-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 1.5rem;
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.eyebrow {
+  margin-bottom: 0.4rem;
+  color: $primary-color;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.7rem;
+}
+
+h2,
+h3 {
+  font-size: clamp(1.4rem, 2vw, 2rem);
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(122, 224, 214, 0.12);
+  color: #9df2e3;
+  border: 1px solid rgba(122, 224, 214, 0.3);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.plan-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.plan-box {
+  padding: 1rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  span {
+    display: block;
+    color: rgba(255, 255, 255, 0.72);
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  strong {
+    font-size: clamp(1.2rem, 2vw, 1.7rem);
+  }
+
+  &.highlight {
+    background: rgba(242, 204, 15, 0.08);
+    border-color: rgba(242, 204, 15, 0.28);
+
+    strong {
+      color: $primary-color;
+    }
+  }
+}
+
+.empty-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.empty-message {
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.5;
+  max-width: 640px;
+}
+
+.primary-button {
+  border: 0;
+  border-radius: 10px;
+  background: $primary-color;
+  color: $secondary-color;
+  padding: 0.8rem 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.upgrade-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.upgrade-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  &.destaque {
+    border-color: rgba(242, 204, 15, 0.35);
+    background: rgba(242, 204, 15, 0.08);
+  }
+
+  .plan-name {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+  }
+
+  small {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  strong {
+    font-size: 1.2rem;
+    color: $primary-color;
+  }
+}
+
+@media (max-width: 900px) {
+  .plan-grid,
+  .upgrade-list {
+    grid-template-columns: 1fr;
+  }
+}
