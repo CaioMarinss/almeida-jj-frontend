@@ -50,7 +50,35 @@
 
       <div class="field-group">
         <label for="email">E-mail</label>
-        <input id="email" type="email" value="maria@almeida.com" disabled />
+        <input id="email" type="email" [value]="email" disabled />
+      </div>
+
+      <div class="password-card">
+        <div class="form-header">
+          <p class="eyebrow">Segurança</p>
+          <h3>Trocar senha</h3>
+        </div>
+
+        <div class="field-group">
+          <label for="new-password">Nova senha</label>
+          <input
+            id="new-password"
+            type="password"
+            [(ngModel)]="newPassword"
+            placeholder="Digite sua nova senha"
+          />
+        </div>
+
+        <div class="field-group">
+          <label for="confirm-password">Confirmar nova senha</label>
+          <input
+            id="confirm-password"
+            type="password"
+            [(ngModel)]="confirmPassword"
+            placeholder="Confirme a nova senha"
+          />
+        </div>
+
       </div>
 
       <div class="actions">
@@ -59,4 +87,14 @@
       </div>
     </div>
   </section>
+
+  <app-confirm-popup
+    [visible]="showPasswordPopup"
+    title="Trocar senha"
+    message="Tem certeza que deseja alterar sua senha?"
+    confirmLabel="Sim"
+    cancelLabel="Não"
+    (confirm)="confirmPasswordChange()"
+    (cancel)="closePasswordPopup()"
+  ></app-confirm-popup>
 </app-base-page>
