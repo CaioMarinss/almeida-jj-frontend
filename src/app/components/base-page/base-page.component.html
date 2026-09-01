@@ -52,10 +52,10 @@
       </div>
 
       <div class="user-badge">
-        <span class="avatar">{{ userName.charAt(0) }}</span>
+        <span class="avatar">{{ (userName ?? 'U').charAt(0) }}</span>
         <div>
-          <strong>{{ userName }}</strong>
-          <small>{{ role }}</small>
+          <strong>{{ userName ?? 'User' }}</strong>
+          <small>{{ role ?? 'Aluno' }}</small>
         </div>
       </div>
     </header>

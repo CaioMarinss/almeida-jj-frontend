@@ -11,7 +11,7 @@ import {
 } from '@angular/forms';
 
 import { Router } from '@angular/router';
-import { LoginService } from '../../services/login.service';
+import { LoginService } from '../../services/login/login.service';
 import { AlertaService } from '../../services/alerta.service';
 import { CommonModule } from '@angular/common';
 

@@ -18,8 +18,8 @@ interface Plano {
   styleUrl: './financeiro.component.scss'
 })
 export class FinanceiroComponent {
-  userName = 'Maria Almeida';
-  role = 'Aluno';
+  userName = sessionStorage.getItem('username') ?? 'User';
+  role = sessionStorage.getItem('user-is-admin') === 'true' ? 'Admin' : 'Aluno';
 
   temPlano = true;
 

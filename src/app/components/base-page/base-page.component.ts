@@ -19,8 +19,8 @@ export interface BasePageNavItem {
 export class BasePageComponent {
   @Input() heading = 'Bem-vindo';
   @Input() title = 'Dashboard';
-  @Input() userName = 'Usuário';
-  @Input() role = 'Membro';
+  @Input() userName = sessionStorage.getItem('username') ?? 'User';
+  @Input() role = sessionStorage.getItem('user-is-admin') === 'true' ? 'Admin' : 'Aluno';
   @Input() navItems: BasePageNavItem[] = [
     { label: 'Visão geral', route: '/dashboard', active: true },
     { label: 'Treinos', route: '/calendario' },

@@ -1,9 +1,8 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { LoginResponse } from '../types/login-response.type';
+import { LoginResponse } from '../../types/login-response.type';
 import { catchError, tap, throwError } from 'rxjs';
-import { environment } from '../../environments/environment';
-
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -16,28 +15,25 @@ export class LoginService {
 
   constructor(private httpClient: HttpClient) { }
 
+  private saveUserSession(value: LoginResponse): void {
+    sessionStorage.setItem("auth-token", value.token);
+    sessionStorage.setItem("username", value.name);
+    sessionStorage.setItem("user-id", String(value.id));
+    sessionStorage.setItem("user-email", value.email);
+    sessionStorage.setItem("user-is-admin", String(Boolean(value.isAdmin)));
+  }
+
   login(email: string, senha: string) {
     return this.httpClient.post<LoginResponse>(this.apiUrlAuth + "/login", { email, senha }).pipe(
-      tap(
-        (value) => {
-          sessionStorage.setItem("auth-token", value.token)
-          sessionStorage.setItem("username", value.name)
-        }
-      )
+      tap((value) => this.saveUserSession(value))
     )
   }
 
   cadastrar(nome: string, cpf: string, email: string, senha: string) {
     return this.httpClient.post<LoginResponse>(this.apiUrlAuth + "/register", { nome, cpf, email, senha }).pipe(
-      tap(
-        (value) => {
-          sessionStorage.setItem("auth-token", value.token)
-          sessionStorage.setItem("username", value.name)
-        }
-      )
+      tap((value) => this.saveUserSession(value))
     )
   }
-
 
   enviarEmailRecuperacao(email: string) {
     return this.httpClient.post(this.apiUrlEmail + "/enviar-email-recuperacao", { email }).pipe(
@@ -67,7 +63,4 @@ export class LoginService {
       { headers }            
     );
   }
-  
-
-
 }

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ConfiguracoesComponent } from './configuracoes.component';
-import { LoginService } from '../../services/login.service';
+import { LoginService } from '../../services/login/login.service';
 import { AlertaService } from '../../services/alerta.service';
 import { of } from 'rxjs';
 

@@ -10,8 +10,8 @@ import { BasePageComponent } from '../../components/base-page/base-page.componen
   styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent {
-  userName = 'Maria Almeida';
-  role = 'Aluno';
+  userName = sessionStorage.getItem('username') ?? 'User';
+  role = sessionStorage.getItem('user-is-admin') === 'true' ? 'Admin' : 'Aluno';
 
   metrics = [
     { label: 'Treinos concluídos', value: '18', tone: 'primary' },

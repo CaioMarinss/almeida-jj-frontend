@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { BasePageComponent } from '../../components/base-page/base-page.component';
 import { ConfirmPopupComponent } from '../../components/confirm-popup/confirm-popup.component';
 import { AlertaService } from '../../services/alerta.service';
-import { LoginService } from '../../services/login.service';
+import { LoginService } from '../../services/login/login.service';
 
 @Component({
   selector: 'app-configuracoes',
@@ -14,10 +14,10 @@ import { LoginService } from '../../services/login.service';
   styleUrl: './configuracoes.component.scss'
 })
 export class ConfiguracoesComponent {
-  userName = sessionStorage.getItem('username') || 'Maria Almeida';
-  role = 'Aluno';
+  userName = sessionStorage.getItem('username') ?? 'User';
+  role = sessionStorage.getItem('user-is-admin') === 'true' ? 'Admin' : 'Aluno';
   profileImage = 'https://images.unsplash.com/photo-1541534401786-2077eed87a74?auto=format&fit=crop&w=400&q=80';
-  email = 'maria@almeida.com';
+  email = sessionStorage.getItem('user-email') ?? 'user@example.com';
   editedName = this.userName;
   newPassword = '';
   confirmPassword = '';
@@ -50,9 +50,6 @@ export class ConfiguracoesComponent {
       this.showPasswordPopup = true;
       return;
     }
-
-    this.userName = this.editedName.trim() || this.userName;
-    sessionStorage.setItem('username', this.userName);
     this.alertaService.success('Alterações salvas com sucesso!');
   }
 

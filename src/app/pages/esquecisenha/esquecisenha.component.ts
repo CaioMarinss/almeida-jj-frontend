@@ -4,7 +4,7 @@ import { PrimeiroInputComponent } from '../../components/primeiro-input/primeiro
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AlertaService } from '../../services/alerta.service';
-import { LoginService } from '../../services/login.service';
+import { LoginService } from '../../services/login/login.service';
 
 @Component({
   selector: 'app-esquecisenha',

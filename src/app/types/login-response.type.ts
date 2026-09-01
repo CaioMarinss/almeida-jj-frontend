@@ -1,4 +1,7 @@
 export type LoginResponse = {
-    token: string;
-    name: string;
-}
+  token: string;
+  id: number;
+  name: string;
+  email: string;
+  isAdmin: boolean;
+};

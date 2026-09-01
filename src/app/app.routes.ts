@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { LoginComponent } from './pages/login/login.component';
 import { CadastroComponent } from './pages/cadastro/cadastro.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
-import { AuthGuard } from './services/authguard.service';
+import { AuthGuard } from './services/login/authguard.service';
 import { EsqueciSenhaComponent } from './pages/esquecisenha/esquecisenha.component';
 import { ResetarComponent } from './pages/resetar/resetar.component';
 import { VerificarEmailComponent } from './pages/verificaremail/verificaremail.component';

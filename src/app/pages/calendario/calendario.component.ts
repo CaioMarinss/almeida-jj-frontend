@@ -19,8 +19,8 @@ interface Aula {
   styleUrl: './calendario.component.scss'
 })
 export class CalendarioComponent {
-  userName = 'Maria Almeida';
-  role = 'Aluno';
+  userName = sessionStorage.getItem('username') ?? 'User';
+  role = sessionStorage.getItem('user-is-admin') === 'true' ? 'Admin' : 'Aluno';
 
   currentDate = new Date();
   selectedDate = new Date(2026, 7, 12);
