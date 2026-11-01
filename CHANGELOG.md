@@ -11,6 +11,9 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 ### Alterado
 - `set-version.sh` passa a indicar o remote `origin` nos próximos passos (o remote duplicado `master` foi removido).
 
+### Corrigido
+- `primeng` e `@primeng/themes` atualizados para 19.1.4. A 19.1.0 exigia exatamente `@angular/cdk@19.2.3`, o que quebrava o `npm install` na Vercel desde 23/08.
+
 ## [0.0.1] - 2026-11-01
 
 Primeira versão marcada. Reúne todo o desenvolvimento até esta data.
