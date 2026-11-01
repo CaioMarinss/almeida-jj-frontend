@@ -2,7 +2,7 @@
 
 Interface web do sistema de gestão da academia **Almeida JJ** (jiu-jitsu): login, cadastro, verificação de conta, recuperação e troca de senha, e o painel do aluno (visão geral, treinos, financeiro e configurações).
 
-API: [almeida-jj-api](https://github.com/CaioMarinss/almeida-jj-api)
+API: repositório `almeida-jj-api` (privado).
 
 ## Stack
 
