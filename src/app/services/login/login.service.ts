@@ -18,7 +18,7 @@ export class LoginService {
   private saveUserSession(value: LoginResponse): void {
     sessionStorage.setItem("auth-token", value.token);
     sessionStorage.setItem("username", value.name);
-    sessionStorage.setItem("user-id", String(value.id));
+    sessionStorage.setItem("user-id", String(value.idAluno));
     sessionStorage.setItem("user-email", value.email);
     sessionStorage.setItem("user-is-admin", String(Boolean(value.isAdmin)));
   }
