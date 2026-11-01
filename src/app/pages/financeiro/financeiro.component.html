@@ -1,0 +1,69 @@
+<app-base-page
+  [heading]="'Financeiro'"
+  [title]="'Pagamentos'"
+  [userName]="userName"
+  [role]="role"
+  [navItems]="[
+    { label: 'Visão geral', route: '/dashboard' },
+    { label: 'Treinos', route: '/calendario' },
+    { label: 'Financeiro', route: '/financeiro', active: true },
+    { label: 'Configurações', route: '/configuracoes' }
+  ]"
+>
+  <section class="finance-page">
+    <div class="finance-card main-card" *ngIf="temPlano; else semPlano">
+      <div class="header-row">
+        <div>
+          <p class="eyebrow">Plano atual</p>
+          <h2>{{ planoAtivo.nome }}</h2>
+        </div>
+        <span class="status-badge" [class.active]="planoAtivo.status === 'ativo'">
+          {{ planoAtivo.status === 'ativo' ? 'Ativo' : 'Próximo pagamento' }}
+        </span>
+      </div>
+
+      <div class="plan-grid">
+        <div class="plan-box">
+          <span>Valor mensal</span>
+          <strong>{{ planoAtivo.valor }}</strong>
+        </div>
+        <div class="plan-box">
+          <span>Validade</span>
+          <strong>{{ planoAtivo.validade }}</strong>
+        </div>
+        <div class="plan-box highlight">
+          <span>Próximo pagamento</span>
+          <strong>{{ planoAtivo.proximoPagamento }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #semPlano>
+      <div class="finance-card empty-card">
+        <p class="eyebrow">Sem plano ativo</p>
+        <h2>Você ainda não possui um plano</h2>
+        <p class="empty-message">{{ fecharPlanoMensagem }}</p>
+        <button type="button" class="primary-button">Fechar plano</button>
+      </div>
+    </ng-template>
+
+    <div class="finance-card upgrades-card">
+      <div class="header-row">
+        <div>
+          <p class="eyebrow">Opções</p>
+          <h3>Upgrade disponível</h3>
+        </div>
+      </div>
+
+      <div class="upgrade-list">
+        <article class="upgrade-item" *ngFor="let item of upgrades" [class.destaque]="item.destaque">
+          <div>
+            <span class="plan-name">{{ item.nome }}</span>
+            <small>Melhore sua experiência na academia</small>
+          </div>
+          <strong>{{ item.valor }}</strong>
+        </article>
+      </div>
+    </div>
+  </section>
+</app-base-page>

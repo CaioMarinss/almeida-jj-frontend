@@ -1,59 +1,77 @@
-# AlmeidaJj
+# Almeida JJ — Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.8.
+Interface web do sistema de gestão da academia **Almeida JJ** (jiu-jitsu): login, cadastro, verificação de conta, recuperação e troca de senha, e o painel do aluno (visão geral, treinos, financeiro e configurações).
 
-## Development server
+API: repositório `almeida-jj-api` (privado).
 
-To start a local development server, run:
+## Stack
 
-```bash
-ng serve
-```
+- Angular 19 (standalone components) · TypeScript · SCSS
+- PrimeNG 19 (tema Aura) · PrimeIcons
+- ngx-mask · SweetAlert2
+- Karma + Jasmine (testes)
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Pré-requisitos
 
-## Code scaffolding
+- Node.js 20+ e npm
+- A API rodando (veja o README da API)
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Como rodar
 
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+A URL da API é obrigatória e vem da variável `API_URL`:
 
 ```bash
-ng generate --help
+npm install
+export API_URL="http://localhost:8080"
+npm start
 ```
 
-## Building
+Acesse `http://localhost:4200`.
 
-To build the project run:
+> Os scripts `start`, `build` e `test` executam antes `scripts/set-environment.mjs`, que gera `src/environments/environment.ts` a partir de `API_URL`. Sem a variável, o comando falha. Evite commitar esse arquivo com a URL de produção.
+
+> A API precisa liberar a origem do front no CORS (`URL_FRONTEND=http://localhost:4200` no `.env` da API).
+
+### Outros comandos
 
 ```bash
-ng build
+npm run build   # build de produção em dist/almeida-jj
+npm test        # testes unitários
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## Telas
 
-## Running unit tests
+| Rota | Tela | Acesso |
+|---|---|---|
+| `/login` | Login | público |
+| `/cadastro` | Cadastro de aluno | público |
+| `/verificaremail` | Enviar (ou reenviar) o e-mail de verificação da conta | público |
+| `/esquecisenha` | Solicitar recuperação de senha | público |
+| `/verificar?token=` | Ativação da conta (link do e-mail) | token na URL |
+| `/resetar?token=` | Definir nova senha (link do e-mail) | token na URL |
+| `/dashboard` | Visão geral | logado |
+| `/calendario` | Treinos | logado |
+| `/financeiro` | Financeiro | logado |
+| `/configuracoes` | Perfil e troca de senha | logado |
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+> Dashboard, treinos e financeiro ainda usam dados de exemplo — os endpoints correspondentes estão em desenvolvimento na API.
 
-```bash
-ng test
+## Autenticação
+
+Após login ou cadastro, o token JWT e os dados do usuário ficam no `sessionStorage` (são apagados ao fechar a aba). O `AuthGuard` bloqueia as rotas internas sem token e redireciona para `/login`.
+
+## Estrutura
+
 ```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
+src/
+├── app/
+│   ├── pages/        # uma pasta por rota
+│   ├── components/   # base-page (layout logado), default-login-layout, primeiro-input, confirm-popup
+│   ├── services/     # LoginService, AuthGuard, AlertaService (alertas SweetAlert2)
+│   ├── types/        # tipos de resposta da API
+│   ├── validators/   # validador de CPF
+│   └── utils/
+├── styles/variables.scss   # cores do tema (amarelo #F2CC0F sobre fundo escuro)
+└── environments/           # gerado a partir de API_URL
+scripts/set-environment.mjs
 ```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.

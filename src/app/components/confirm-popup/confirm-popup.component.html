@@ -1,0 +1,14 @@
+<div class="dialog-backdrop" *ngIf="visible" (click)="close()">
+  <div class="dialog" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+    <div class="dialog-header">
+      <h3>{{ title }}</h3>
+    </div>
+
+    <p>{{ message }}</p>
+
+    <div class="dialog-actions">
+      <button type="button" class="secondary" (click)="close()">{{ cancelLabel }}</button>
+      <button type="button" class="primary" (click)="confirmAction()">{{ confirmLabel }}</button>
+    </div>
+  </div>
+</div>

@@ -1,11 +1,22 @@
 import { Component } from '@angular/core';
+
 import { DefaultLoginLayoutComponent } from '../../components/default-login-layout/default-login-layout.component';
 import { PrimeiroInputComponent } from '../../components/primeiro-input/primeiro-input.component';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
+
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators
+} from '@angular/forms';
+
 import { Router } from '@angular/router';
-import { LoginService } from '../../services/login.service';
-import { ToastrService } from 'ngx-toastr';
+import { LoginService } from '../../services/login/login.service';
+import { AlertaService } from '../../services/alerta.service';
 import { CommonModule } from '@angular/common';
+
+import { cpfValidator } from '../../validators/cpf.validator';
+import { normalizarEmail } from '../../utils/email.util';
 
 @Component({
   selector: 'app-cadastro',
@@ -23,47 +34,79 @@ import { CommonModule } from '@angular/common';
   styleUrl: './cadastro.component.scss'
 })
 export class CadastroComponent {
+
   cadastroForm!: FormGroup;
 
   constructor(
     private router: Router,
     private loginService: LoginService,
-    private toastr: ToastrService
+    private alerta: AlertaService
   ) {
     this.cadastroForm = new FormGroup({
-      nome: new FormControl('', [Validators.required, Validators.minLength(3)]),
-      email: new FormControl('', [Validators.required, Validators.email]),
-      senha: new FormControl('', [Validators.required, Validators.minLength(6)]),
-      passwordConfirm: new FormControl('', [Validators.required, Validators.minLength(6)])
+
+      nome: new FormControl('', [
+        Validators.required,
+        Validators.minLength(3)
+      ]),
+
+      cpf: new FormControl('', [
+        Validators.required,
+        cpfValidator()
+      ]),
+
+      email: new FormControl('', [
+        Validators.required,
+        Validators.email
+      ]),
+
+      senha: new FormControl('', [
+        Validators.required,
+        Validators.minLength(6)
+      ]),
+
+      passwordConfirm: new FormControl('', [
+        Validators.required,
+        Validators.minLength(6)
+      ])
+
     }, {
       validators: this.senhasIguaisValidator
     });
   }
 
-  senhasIguaisValidator(form: AbstractControl) {
+  senhasIguaisValidator(form: any) {
     const senha = form.get('senha')?.value;
     const confirmar = form.get('passwordConfirm')?.value;
-  
-    return senha === confirmar ? null : { senhasDiferentes: true };
+
+    return senha === confirmar
+      ? null
+      : { senhasDiferentes: true };
   }
-  
 
   submit() {
     if (this.cadastroForm.valid) {
-      const { nome, email, senha } = this.cadastroForm.value;
-      this.loginService.cadastrar(nome, email, senha).subscribe({
+      const { nome, cpf, email, senha } = this.cadastroForm.value;
+
+      const cpfSemMascara = String(cpf).replace(/\D/g, '');
+      const emailNormalizado = normalizarEmail(email);
+
+      this.loginService.cadastrar(
+        nome,
+        cpfSemMascara,
+        emailNormalizado,
+        senha
+      ).subscribe({
         next: () => {
-          this.toastr.success("Cadastrado com sucesso!");
-          this.router.navigate(['/login']);
+          this.alerta.success("Cadastrado com sucesso!").then(() => {
+            this.router.navigate(['/login']);
+          });
         },
-        error: () => this.toastr.error('Algo deu errado!')
+        error: (err) => this.alerta.errorFromApi(err)
       });
     } else {
-      this.toastr.warning('Verifique os campos do formulário.');
       this.cadastroForm.markAllAsTouched();
     }
   }
-  
 
   navigate() {
     this.router.navigate(["login"]);

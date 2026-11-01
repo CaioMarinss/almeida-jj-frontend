@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { DefaultLoginLayoutComponent } from '../../components/default-login-layout/default-login-layout.component';
 import { Router } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-verificar',
@@ -22,15 +22,13 @@ export class VerificarComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private toastr: ToastrService,
     private route: ActivatedRoute, 
     private http: HttpClient
   ) {}
 
   ngOnInit(): void {
     const token = this.route.snapshot.queryParamMap.get('token');
-    //const linkBack = "http://localhost:8080/administrador";
-    const linkBack = "https://almeida-jj-api.onrender.com/administrador";
+    const linkBack = `${environment.apiUrl}/aluno`;
 
     if (token) {
       this.http.get(`${linkBack}/verificar?token=${token}`, { responseType: 'text' })

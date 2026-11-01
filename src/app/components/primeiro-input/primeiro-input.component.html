@@ -7,7 +7,9 @@
         [type]="type" 
         [placeholder]="placeholder"
         [value]="value"
+        [mask]="mask"
         (input)="onInput($event)"
+        (blur)="onBlur()"
         />
         
         <div class="icon">
@@ -15,5 +17,9 @@
         </div>
 
     </div>
+
+    @if (errorMessage) {
+        <small class="input-error">{{ errorMessage }}</small>
+    }
     
 </div>
