@@ -43,4 +43,4 @@ echo
 echo "Próximos passos:"
 echo "  1. Revise o CHANGELOG.md (itens da versão $VERSION)"
 echo "  2. git commit -am \"chore: release v$VERSION\""
-echo "  3. git tag -a v$VERSION -m \"v$VERSION\" && git push && git push master v$VERSION"
+echo "  3. git tag -a v$VERSION -m \"v$VERSION\" && git push && git push origin v$VERSION"

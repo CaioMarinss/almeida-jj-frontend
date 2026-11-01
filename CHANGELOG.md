@@ -8,6 +8,9 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não lançado]
 
+### Alterado
+- `set-version.sh` passa a indicar o remote `origin` nos próximos passos (o remote duplicado `master` foi removido).
+
 ## [0.0.1] - 2026-11-01
 
 Primeira versão marcada. Reúne todo o desenvolvimento até esta data.
