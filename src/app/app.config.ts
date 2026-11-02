@@ -7,7 +7,7 @@ import { routes } from './app.routes';
 import { authInterceptor } from './core/http/auth.interceptor';
 import { sessaoExpiradaInterceptor } from './core/http/sessao-expirada.interceptor';
 import { Notificador } from './core/notificacao/notificador';
-import { SweetAlertNotificador } from './core/notificacao/sweet-alert-notificador';
+import { IonicNotificador } from './core/notificacao/ionic-notificador';
 
 export const appConfig: ApplicationConfig = {
     providers: [
@@ -15,6 +15,6 @@ export const appConfig: ApplicationConfig = {
         provideRouter(routes),
         provideNgxMask(),
         provideHttpClient(withFetch(), withInterceptors([authInterceptor, sessaoExpiradaInterceptor])),
-        { provide: Notificador, useClass: SweetAlertNotificador }
+        { provide: Notificador, useClass: IonicNotificador }
     ]
 };

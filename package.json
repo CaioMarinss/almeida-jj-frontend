@@ -22,7 +22,6 @@
     "@lucide/angular": "^1.66.0",
     "ngx-mask": "^22.2.5",
     "rxjs": "~7.8.0",
-    "sweetalert2": "^11.26.25",
     "tslib": "^2.3.0",
     "vite": "^6.3.4"
   },

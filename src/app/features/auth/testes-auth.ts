@@ -16,11 +16,12 @@ export function criarAuthService(): jasmine.SpyObj<AuthService> {
 }
 
 export function criarNotificador(): jasmine.SpyObj<Notificador> {
-  const notificador = jasmine.createSpyObj<Notificador>('Notificador', ['sucesso', 'erro', 'aviso', 'erroDaApi']);
+  const notificador = jasmine.createSpyObj<Notificador>('Notificador', ['sucesso', 'erro', 'aviso', 'erroDaApi', 'confirmar']);
   notificador.sucesso.and.resolveTo();
   notificador.erro.and.resolveTo();
   notificador.aviso.and.resolveTo();
   notificador.erroDaApi.and.resolveTo();
+  notificador.confirmar.and.resolveTo(true);
   return notificador;
 }
 
