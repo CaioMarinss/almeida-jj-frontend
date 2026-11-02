@@ -1,0 +1,34 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ajj-espaco-2);
+  padding: var(--ajj-espaco-8) var(--ajj-espaco-5);
+  border: 1px dashed var(--ajj-borda);
+  border-radius: var(--ajj-raio-m);
+  text-align: center;
+}
+
+.icone {
+  color: var(--ajj-primaria);
+  width: 36px;
+  height: 36px;
+}
+
+.icone ::ng-deep svg {
+  width: 100%;
+  height: 100%;
+}
+
+.titulo {
+  margin: var(--ajj-espaco-1) 0 0;
+  font-size: 18px;
+}
+
+.texto {
+  margin: 0;
+  color: var(--ajj-texto-suave);
+  font-size: 15px;
+  line-height: 1.5;
+  max-width: 32ch;
+}

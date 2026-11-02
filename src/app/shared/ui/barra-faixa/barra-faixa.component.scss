@@ -1,0 +1,27 @@
+:host {
+  display: block;
+}
+
+.faixa {
+  position: relative;
+  height: 14px;
+  border-radius: 4px;
+}
+
+.ponta {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 18px;
+  width: 34px;
+  display: flex;
+  justify-content: flex-start;
+  gap: 4px;
+  padding-left: 5px;
+  background: #0a0a0a;
+}
+
+.grau {
+  width: 3px;
+  background: #fff;
+}
