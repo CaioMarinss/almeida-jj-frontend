@@ -1,4 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
+import { provideNgxMask } from 'ngx-mask';
 
 import { EsqueciSenhaComponent } from './esquecisenha.component';
 
@@ -8,7 +12,8 @@ describe('EsqueciSenhaComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [EsqueciSenhaComponent]
+      imports: [EsqueciSenhaComponent],
+      providers: [provideRouter([]), provideNgxMask(), provideHttpClient(), provideHttpClientTesting()]
     })
     .compileComponents();
 
