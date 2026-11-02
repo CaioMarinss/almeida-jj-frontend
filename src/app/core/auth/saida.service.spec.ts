@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { provideRouter, Router } from '@angular/router';
+import { provideRouter } from '@angular/router';
+import { NavController } from '@ionic/angular';
 import { Notificador } from '../notificacao/notificador';
 import { criarNotificador } from '../../features/auth/testes-auth';
 import { SaidaService } from './saida.service';
@@ -15,7 +16,7 @@ describe('SaidaService', () => {
     TestBed.configureTestingModule({ providers: [provideRouter([]), { provide: Notificador, useValue: notificador }] });
     sessao = TestBed.inject(SessionService);
     sessao.iniciar('TK', { id: 1, nome: 'Ana', email: 'a@x.com', perfil: 'ALUNO' });
-    navegar = spyOn(TestBed.inject(Router), 'navigateByUrl').and.resolveTo(true);
+    navegar = spyOn(TestBed.inject(NavController), 'navigateRoot').and.resolveTo(true);
   });
 
   afterEach(() => sessionStorage.clear());
@@ -26,7 +27,7 @@ describe('SaidaService', () => {
     await TestBed.inject(SaidaService).sair();
 
     expect(sessao.autenticado()).toBeFalse();
-    expect(navegar).toHaveBeenCalledWith('/login', { replaceUrl: true });
+    expect(navegar).toHaveBeenCalledWith('/login');
   });
 
   it('cancelado mantém a sessão', async () => {

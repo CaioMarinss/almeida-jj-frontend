@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular';
+import { IonContent, IonHeader, IonTitle, IonToolbar, NavController } from '@ionic/angular';
 import { firstValueFrom } from 'rxjs';
 import { SaidaService } from '../../core/auth/saida.service';
 import { SessionService } from '../../core/auth/session.service';
@@ -27,7 +26,7 @@ export class PerfilComponent {
   private readonly perfilService = inject(PerfilService);
   private readonly notificador = inject(Notificador);
   private readonly saida = inject(SaidaService);
-  private readonly router = inject(Router);
+  private readonly nav = inject(NavController);
 
   readonly nome = computed(() => this.sessao.usuario()?.nome ?? '');
   readonly email = computed(() => this.sessao.usuario()?.email ?? '');
@@ -86,7 +85,7 @@ export class PerfilComponent {
       await firstValueFrom(this.perfilService.alterarSenha(senhaAtual, novaSenha), { defaultValue: undefined });
       await this.notificador.sucesso('Senha alterada! Entre novamente com a nova senha.');
       this.sessao.encerrar();
-      await this.router.navigate(['/login']);
+      await this.nav.navigateRoot('/login');
     } catch (erro: unknown) {
       await this.notificador.erroDaApi(erro, 'Erro ao alterar a senha.');
     } finally {

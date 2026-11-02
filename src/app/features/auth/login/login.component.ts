@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { NavController } from '@ionic/angular';
 import { finalize } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
 import { Notificador } from '../../../core/notificacao/notificador';
@@ -22,6 +23,7 @@ export class LoginComponent {
   private readonly auth = inject(AuthService);
   private readonly notificador = inject(Notificador);
   private readonly router = inject(Router);
+  private readonly nav = inject(NavController);
 
   readonly enviando = signal(false);
 
@@ -41,7 +43,7 @@ export class LoginComponent {
     const email = normalizarEmail(this.loginForm.getRawValue().email);
     this.enviando.set(true);
     this.auth.login(email, this.loginForm.getRawValue().senha).pipe(finalize(() => this.enviando.set(false))).subscribe({
-      next: () => void this.router.navigate(['/app/inicio']),
+      next: () => void this.nav.navigateRoot('/app/inicio'),
       error: (erro: unknown) => {
         if (codigoDeErro(erro) === 'ERR003') {
           void this.notificador

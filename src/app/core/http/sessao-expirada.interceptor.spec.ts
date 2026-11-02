@@ -1,7 +1,8 @@
 import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter, Router } from '@angular/router';
+import { provideRouter } from '@angular/router';
+import { NavController } from '@ionic/angular';
 import { environment } from '../../../environments/environment';
 import { SessionService } from '../auth/session.service';
 import { sessaoExpiradaInterceptor } from './sessao-expirada.interceptor';
@@ -25,7 +26,7 @@ describe('sessaoExpiradaInterceptor', () => {
     controle = TestBed.inject(HttpTestingController);
     sessao = TestBed.inject(SessionService);
     sessao.iniciar('TK', { id: 1, nome: 'Ana', email: 'a@x.com', perfil: 'ALUNO' });
-    navegar = spyOn(TestBed.inject(Router), 'navigateByUrl').and.resolveTo(true);
+    navegar = spyOn(TestBed.inject(NavController), 'navigateRoot').and.resolveTo(true);
   });
 
   afterEach(() => {

@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { Router } from '@angular/router';
+import { NavController } from '@ionic/angular';
 import { Notificador } from '../notificacao/notificador';
 import { SessionService } from './session.service';
 
@@ -7,13 +7,13 @@ import { SessionService } from './session.service';
 export class SaidaService {
   private readonly sessao = inject(SessionService);
   private readonly notificador = inject(Notificador);
-  private readonly router = inject(Router);
+  private readonly nav = inject(NavController);
 
   async sair(): Promise<void> {
     if (!(await this.notificador.confirmar('Sair', 'Deseja sair da sua conta?', 'Sair'))) {
       return;
     }
     this.sessao.encerrar();
-    await this.router.navigateByUrl('/login', { replaceUrl: true });
+    await this.nav.navigateRoot('/login');
   }
 }

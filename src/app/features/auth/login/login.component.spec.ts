@@ -2,6 +2,7 @@ import { Subject } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
+import { NavController } from '@ionic/angular';
 import { of, throwError } from 'rxjs';
 import { criarAuthService, criarNotificador, provedoresAuth } from '../testes-auth';
 import { LoginComponent } from './login.component';
@@ -11,6 +12,7 @@ describe('LoginComponent', () => {
   const notificador = criarNotificador();
   let componente: LoginComponent;
   let navegar: jasmine.Spy;
+  let navegarRaiz: jasmine.Spy;
 
   beforeEach(async () => {
     auth.login.calls.reset();
@@ -23,6 +25,7 @@ describe('LoginComponent', () => {
     fixture.detectChanges();
     componente = fixture.componentInstance;
     navegar = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+    navegarRaiz = spyOn(TestBed.inject(NavController), 'navigateRoot').and.resolveTo(true);
     componente.loginForm.setValue({ email: 'ana@example.com', senha: 'Senha@1' });
   });
 
@@ -32,7 +35,7 @@ describe('LoginComponent', () => {
     componente.submit();
 
     expect(auth.login).toHaveBeenCalledWith('ana@example.com', 'Senha@1');
-    expect(navegar).toHaveBeenCalledWith(['/app/inicio']);
+    expect(navegarRaiz).toHaveBeenCalledWith('/app/inicio');
   });
 
   it('conta não verificada avisa e leva ao reenvio com o e-mail', async () => {

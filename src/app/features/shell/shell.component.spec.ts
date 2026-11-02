@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
+import { NavController } from '@ionic/angular';
 import { SessionService } from '../../core/auth/session.service';
 import { criarNotificador } from '../auth/testes-auth';
 import { logar, provedoresApp } from '../testes-app';
@@ -39,12 +39,12 @@ describe('ShellComponent', () => {
   });
 
   it('sair confirmado encerra a sessão e navega para o login', async () => {
-    const navegar = spyOn(TestBed.inject(Router), 'navigateByUrl').and.resolveTo(true);
+    const navegar = spyOn(TestBed.inject(NavController), 'navigateRoot').and.resolveTo(true);
 
     await fixture.componentInstance.sair();
 
     expect(sessao.autenticado()).toBeFalse();
-    expect(navegar).toHaveBeenCalledWith('/login', { replaceUrl: true });
+    expect(navegar).toHaveBeenCalledWith('/login');
   });
 
   it('sair cancelado mantém a sessão', async () => {

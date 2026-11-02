@@ -1,4 +1,5 @@
-import { ApplicationConfig } from '@angular/core';
+import { ApplicationConfig, isDevMode } from '@angular/core';
+import { provideServiceWorker } from '@angular/service-worker';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
@@ -13,6 +14,7 @@ export const appConfig: ApplicationConfig = {
         provideIonicAngular({ mode: 'md' }),
         provideRouter(routes),
         provideHttpClient(withFetch(), withInterceptors([authInterceptor, sessaoExpiradaInterceptor])),
-        { provide: Notificador, useClass: IonicNotificador }
+        { provide: Notificador, useClass: IonicNotificador },
+        provideServiceWorker('ngsw-worker.js', { enabled: !isDevMode(), registrationStrategy: 'registerWhenStable:30000' })
     ]
 };

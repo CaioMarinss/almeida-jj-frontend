@@ -1,12 +1,12 @@
-@import '@ionic/angular/css/core.css';
-@import '@ionic/angular/css/normalize.css';
-@import '@ionic/angular/css/structure.css';
-@import '@ionic/angular/css/typography.css';
-@import '@ionic/angular/css/padding.css';
-@import '@ionic/angular/css/flex-utils.css';
-@import '@ionic/angular/css/display.css';
+@use '@ionic/angular/css/core';
+@use '@ionic/angular/css/normalize';
+@use '@ionic/angular/css/structure';
+@use '@ionic/angular/css/typography';
+@use '@ionic/angular/css/padding';
+@use '@ionic/angular/css/flex-utils';
+@use '@ionic/angular/css/display';
 
-@import 'theme/tokens';
-@import 'theme/ionic';
-@import 'theme/componentes';
-@import 'theme/auth';
+@use 'theme/tokens';
+@use 'theme/ionic';
+@use 'theme/componentes';
+@use 'theme/auth';

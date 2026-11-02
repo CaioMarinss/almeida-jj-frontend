@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
+import { NavController } from '@ionic/angular';
 import { of } from 'rxjs';
 import { SessionService } from '../../core/auth/session.service';
 import { criarNotificador } from '../auth/testes-auth';
@@ -68,7 +68,7 @@ describe('PerfilComponent', () => {
   });
 
   it('após trocar a senha avisa e encerra a sessão', async () => {
-    const navegar = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+    const navegar = spyOn(TestBed.inject(NavController), 'navigateRoot').and.resolveTo(true);
     preencherSenha('Antiga@1', 'Nova@12', 'Nova@12');
 
     await componente.trocarSenha();
@@ -76,7 +76,7 @@ describe('PerfilComponent', () => {
 
     expect(notificador.sucesso).toHaveBeenCalledWith('Senha alterada! Entre novamente com a nova senha.');
     expect(TestBed.inject(SessionService).autenticado()).toBeFalse();
-    expect(navegar).toHaveBeenCalledWith(['/login']);
+    expect(navegar).toHaveBeenCalledWith('/login');
   });
 
   it('troca cancelada não chama a API', async () => {
