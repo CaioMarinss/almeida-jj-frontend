@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { SessionService } from '../../core/auth/session.service';
 import { Notificador } from '../../core/notificacao/notificador';
@@ -63,4 +63,18 @@ describe('PerfilComponent', () => {
 
     expect(TestBed.inject(SessionService).usuario()?.nome).toBe('Ana Maria');
   });
+  it('após trocar a senha avisa e encerra a sessão', async () => {
+    const navegar = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+    componente.senhaAtual.set('Antiga@1');
+    componente.novaSenha.set('Nova@12');
+    componente.confirmacaoSenha.set('Nova@12');
+
+    componente.salvar();
+    componente.confirmarTrocaDeSenha();
+    await Promise.resolve();
+
+    expect(TestBed.inject(SessionService).autenticado()).toBeFalse();
+    expect(navegar).toHaveBeenCalledWith(['/login']);
+  });
+
 });

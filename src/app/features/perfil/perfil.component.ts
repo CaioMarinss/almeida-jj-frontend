@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { SessionService } from '../../core/auth/session.service';
 import { ROTULO_PERFIL } from '../../core/auth/usuario';
 import { Notificador } from '../../core/notificacao/notificador';
@@ -18,6 +19,7 @@ export class PerfilComponent {
   private readonly sessao = inject(SessionService);
   private readonly perfilService = inject(PerfilService);
   private readonly notificador = inject(Notificador);
+  private readonly router = inject(Router);
 
   readonly nome = computed(() => this.sessao.usuario()?.nome ?? '');
   readonly email = computed(() => this.sessao.usuario()?.email ?? '');
@@ -57,12 +59,11 @@ export class PerfilComponent {
   confirmarTrocaDeSenha(): void {
     this.confirmandoSenha.set(false);
     this.perfilService.alterarSenha(this.senhaAtual(), this.novaSenha()).subscribe({
-      next: () => {
-        this.senhaAtual.set('');
-        this.novaSenha.set('');
-        this.confirmacaoSenha.set('');
-        void this.notificador.sucesso('Senha alterada com sucesso!');
-      },
+      next: () =>
+        void this.notificador.sucesso('Senha alterada! Entre novamente com a nova senha.').then(() => {
+          this.sessao.encerrar();
+          return this.router.navigate(['/login']);
+        }),
       error: (erro: unknown) => void this.notificador.erroDaApi(erro, 'Erro ao alterar a senha.')
     });
   }
