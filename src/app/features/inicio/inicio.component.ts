@@ -1,18 +1,18 @@
 import { CommonModule } from '@angular/common';
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { SessionService } from '../../core/auth/session.service';
 import { LayoutAppComponent } from '../../shared/ui/layout-app/layout-app.component';
 
 @Component({
-  selector: 'app-dashboard',
-  standalone: true,
+  selector: 'app-inicio',
   imports: [CommonModule, LayoutAppComponent],
-  templateUrl: './dashboard.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrl: './dashboard.component.scss'
+  templateUrl: './inicio.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  styleUrl: './inicio.component.scss'
 })
-export class DashboardComponent {
-  userName = sessionStorage.getItem('username') ?? 'User';
-  role = sessionStorage.getItem('user-is-admin') === 'true' ? 'Admin' : 'Aluno';
+export class InicioComponent {
+  private readonly sessao = inject(SessionService);
+  readonly nome = computed(() => this.sessao.usuario()?.nome ?? '');
 
   metrics = [
     { label: 'Treinos concluídos', value: '18', tone: 'primary' },

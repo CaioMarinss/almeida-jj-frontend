@@ -12,16 +12,12 @@ interface Plano {
 
 @Component({
   selector: 'app-financeiro',
-  standalone: true,
   imports: [CommonModule, LayoutAppComponent],
   templateUrl: './financeiro.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './financeiro.component.scss'
 })
 export class FinanceiroComponent {
-  userName = sessionStorage.getItem('username') ?? 'User';
-  role = sessionStorage.getItem('user-is-admin') === 'true' ? 'Admin' : 'Aluno';
-
   temPlano = true;
 
   planoAtivo: Plano = {

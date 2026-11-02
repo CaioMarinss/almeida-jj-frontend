@@ -12,20 +12,20 @@
     <div class="settings-card profile-card">
       <div class="profile-header">
         <div class="avatar-block">
-          <img [src]="profileImage" alt="Foto do perfil" />
+          <img [src]="imagemPerfil()" alt="Foto do perfil" />
           <label class="upload-button" for="profile-image-input">Alterar foto</label>
           <input
             id="profile-image-input"
             type="file"
             accept="image/*"
-            (change)="onImageChange($event)"
+            (change)="aoTrocarImagem($event)"
           />
         </div>
 
         <div class="profile-summary">
           <p class="eyebrow">Dados pessoais</p>
-          <h2>{{ userName }}</h2>
-          <span>{{ role }}</span>
+          <h2>{{ nome() }}</h2>
+          <span>{{ perfil() }}</span>
         </div>
       </div>
     </div>
@@ -41,14 +41,14 @@
         <input
           id="display-name"
           type="text"
-          [(ngModel)]="editedName"
+          [(ngModel)]="nomeEditado"
           placeholder="Digite seu nome"
         />
       </div>
 
       <div class="field-group">
         <label for="email">E-mail</label>
-        <input id="email" type="email" [value]="email" disabled />
+        <input id="email" type="email" [value]="email()" disabled />
       </div>
 
       <div class="password-card">
@@ -58,11 +58,21 @@
         </div>
 
         <div class="field-group">
+          <label for="current-password">Senha atual</label>
+          <input
+            id="current-password"
+            type="password"
+            [(ngModel)]="senhaAtual"
+            placeholder="Digite sua senha atual"
+          />
+        </div>
+
+        <div class="field-group">
           <label for="new-password">Nova senha</label>
           <input
             id="new-password"
             type="password"
-            [(ngModel)]="newPassword"
+            [(ngModel)]="novaSenha"
             placeholder="Digite sua nova senha"
           />
         </div>
@@ -72,7 +82,7 @@
           <input
             id="confirm-password"
             type="password"
-            [(ngModel)]="confirmPassword"
+            [(ngModel)]="confirmacaoSenha"
             placeholder="Confirme a nova senha"
           />
         </div>
@@ -81,18 +91,18 @@
 
       <div class="actions">
         <button type="button" class="secondary-button">Cancelar</button>
-        <button type="button" class="primary-button" (click)="saveProfile()">Salvar alterações</button>
+        <button type="button" class="primary-button" (click)="salvar()">Salvar alterações</button>
       </div>
     </div>
   </section>
 
   <app-dialogo-confirmacao
-    [visible]="showPasswordPopup"
+    [visible]="confirmandoSenha()"
     title="Trocar senha"
     message="Tem certeza que deseja alterar sua senha?"
     confirmLabel="Sim"
     cancelLabel="Não"
-    (confirm)="confirmPasswordChange()"
-    (cancel)="closePasswordPopup()"
+    (confirm)="confirmarTrocaDeSenha()"
+    (cancel)="confirmandoSenha.set(false)"
   ></app-dialogo-confirmacao>
 </app-layout-app>

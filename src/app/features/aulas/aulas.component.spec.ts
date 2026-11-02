@@ -4,19 +4,19 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { provideNgxMask } from 'ngx-mask';
 
-import { CalendarioComponent } from './calendario.component';
+import { AulasComponent } from './aulas.component';
 
-describe('CalendarioComponent', () => {
-  let component: CalendarioComponent;
-  let fixture: ComponentFixture<CalendarioComponent>;
+describe('AulasComponent', () => {
+  let component: AulasComponent;
+  let fixture: ComponentFixture<AulasComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CalendarioComponent],
+      imports: [AulasComponent],
       providers: [provideRouter([]), provideNgxMask(), provideHttpClient(), provideHttpClientTesting()]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(CalendarioComponent);
+    fixture = TestBed.createComponent(AulasComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

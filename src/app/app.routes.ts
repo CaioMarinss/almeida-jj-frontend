@@ -1,65 +1,55 @@
 import { Routes } from '@angular/router';
-import { LoginComponent } from './features/auth/login/login.component';
-import { CadastroComponent } from './features/auth/cadastro/cadastro.component';
-import { DashboardComponent } from './pages/dashboard/dashboard.component';
-import { AuthGuard } from './services/login/authguard.service';
-import { EsqueciSenhaComponent } from './features/auth/esqueci-senha/esqueci-senha.component';
-import { RedefinirSenhaComponent } from './features/auth/redefinir-senha/redefinir-senha.component';
-import { ReenviarVerificacaoComponent } from './features/auth/reenviar-verificacao/reenviar-verificacao.component';
-import { VerificarComponent } from './features/auth/verificar/verificar.component';
-import { CalendarioComponent } from './pages/calendario/calendario.component';
-import { ConfiguracoesComponent } from './pages/configuracoes/configuracoes.component';
-import { FinanceiroComponent } from './pages/financeiro/financeiro.component';
+import { authGuard } from './core/auth/auth.guard';
+
+const login = () => import('./features/auth/login/login.component').then(m => m.LoginComponent);
 
 export const routes: Routes = [
-    {
-        path: '',
-        component: LoginComponent
-    },
-    {
-        path: 'login',
-        component: LoginComponent
-    },
-    {
-        path: 'cadastro',
-        component: CadastroComponent
-    },
-    {
-        path: 'esquecisenha',
-        component: EsqueciSenhaComponent
-    },
-    {
-        path: 'verificaremail',
-        component: ReenviarVerificacaoComponent
-    },
-    {
-        path: 'resetar',
-        component: RedefinirSenhaComponent,
-        canActivate: [AuthGuard]
-    },
-    {
-        path: 'verificar',
-        component: VerificarComponent,
-        canActivate: [AuthGuard]
-    },
-    {
-        path: 'dashboard',
-        component: DashboardComponent,
-        canActivate: [AuthGuard]
-    },
-    {
-        path: 'calendario',
-        component: CalendarioComponent,
-        canActivate: [AuthGuard]
-    },
-    {
-        path: 'configuracoes',
-        component: ConfiguracoesComponent,
-        canActivate: [AuthGuard]
-    },
-    {
-        path: 'financeiro',
-        component: FinanceiroComponent,
-        canActivate: [AuthGuard]
-    }
+  { path: '', loadComponent: login },
+  { path: 'login', loadComponent: login },
+  {
+    path: 'cadastro',
+    loadComponent: () => import('./features/auth/cadastro/cadastro.component').then(m => m.CadastroComponent)
+  },
+  {
+    path: 'esquecisenha',
+    loadComponent: () =>
+      import('./features/auth/esqueci-senha/esqueci-senha.component').then(m => m.EsqueciSenhaComponent)
+  },
+  {
+    path: 'verificaremail',
+    loadComponent: () =>
+      import('./features/auth/reenviar-verificacao/reenviar-verificacao.component').then(
+        m => m.ReenviarVerificacaoComponent
+      )
+  },
+  {
+    path: 'verificar',
+    loadComponent: () => import('./features/auth/verificar/verificar.component').then(m => m.VerificarComponent)
+  },
+  {
+    path: 'resetar',
+    loadComponent: () =>
+      import('./features/auth/redefinir-senha/redefinir-senha.component').then(m => m.RedefinirSenhaComponent)
+  },
+  {
+    path: 'dashboard',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/inicio/inicio.component').then(m => m.InicioComponent)
+  },
+  {
+    path: 'calendario',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/aulas/aulas.component').then(m => m.AulasComponent)
+  },
+  {
+    path: 'financeiro',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/financeiro/financeiro.component').then(m => m.FinanceiroComponent)
+  },
+  {
+    path: 'configuracoes',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/perfil/perfil.component').then(m => m.PerfilComponent)
+  },
+  { path: '**', redirectTo: '' }
 ];

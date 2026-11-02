@@ -29,7 +29,7 @@
             type="button"
             class="day-cell"
             [class.outside-month]="!item.isCurrentMonth"
-            [class.selected]="item.day === selectedDate.getDate() && item.isCurrentMonth"
+            [class.selected]="item.day === selectedDate().getDate() && item.isCurrentMonth"
             [class.has-class]="item.hasClass"
             (click)="item.isCurrentMonth && selectDay(item.day)"
           >
@@ -41,12 +41,12 @@
 
     <aside class="classes-card">
       <div class="class-header">
-        <p class="eyebrow">{{ selectedDate | date: 'dd MMM yyyy' }}</p>
+        <p class="eyebrow">{{ selectedDate() | date: 'dd MMM yyyy' }}</p>
         <h3>Aulas disponíveis</h3>
       </div>
 
-      <div class="class-list" *ngIf="selectedDayAulas.length; else emptyState">
-        <article class="class-item" *ngFor="let aula of selectedDayAulas">
+      <div class="class-list" *ngIf="selectedDayAulas().length; else emptyState">
+        <article class="class-item" *ngFor="let aula of selectedDayAulas()">
           <div class="class-topline">
             <span class="time">{{ aula.horario }}</span>
             <button

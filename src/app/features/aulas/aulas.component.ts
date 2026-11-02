@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 import { LayoutAppComponent } from '../../shared/ui/layout-app/layout-app.component';
 
 interface Aula {
@@ -12,19 +12,15 @@ interface Aula {
 }
 
 @Component({
-  selector: 'app-calendario',
-  standalone: true,
+  selector: 'app-aulas',
   imports: [CommonModule, LayoutAppComponent],
-  templateUrl: './calendario.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrl: './calendario.component.scss'
+  templateUrl: './aulas.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  styleUrl: './aulas.component.scss'
 })
-export class CalendarioComponent {
-  userName = sessionStorage.getItem('username') ?? 'User';
-  role = sessionStorage.getItem('user-is-admin') === 'true' ? 'Admin' : 'Aluno';
-
+export class AulasComponent {
   currentDate = new Date();
-  selectedDate = new Date(2026, 7, 12);
+  readonly selectedDate = signal(new Date(2026, 7, 12));
 
   weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
@@ -62,7 +58,7 @@ export class CalendarioComponent {
     { day: 31, isCurrentMonth: true }
   ];
 
-  aulas: Record<string, Aula[]> = {
+  readonly aulas = signal<Record<string, Aula[]>>({
     '2026-08-12': [
       { horario: '06:00', nome: 'Musculação', professor: 'Carlos', modalidade: 'Força', vagas: 6, confirmado: true },
       { horario: '08:30', nome: 'Funcional', professor: 'Ana', modalidade: 'Cardio', vagas: 4, confirmado: false },
@@ -76,17 +72,14 @@ export class CalendarioComponent {
       { horario: '06:30', nome: 'CrossFit', professor: 'Diego', modalidade: 'Alta intensidade', vagas: 7, confirmado: false },
       { horario: '19:00', nome: 'Spinning', professor: 'Fernanda', modalidade: 'Cardio', vagas: 8, confirmado: true }
     ]
-  };
+  });
 
-  selectedDateKey = '2026-08-12';
+  private readonly selectedDateKey = computed(() => this.formatDateKey(this.selectedDate()));
 
-  get selectedDayAulas(): Aula[] {
-    return this.aulas[this.selectedDateKey] ?? [];
-  }
+  readonly selectedDayAulas = computed(() => this.aulas()[this.selectedDateKey()] ?? []);
 
   selectDay(day: number): void {
-    this.selectedDate = new Date(2026, 7, day);
-    this.selectedDateKey = this.formatDateKey(this.selectedDate);
+    this.selectedDate.set(new Date(2026, 7, day));
   }
 
   formatDateKey(date: Date): string {
@@ -97,6 +90,10 @@ export class CalendarioComponent {
   }
 
   togglePresenca(aula: Aula): void {
-    aula.confirmado = !aula.confirmado;
+    const chave = this.selectedDateKey();
+    this.aulas.update(aulas => ({
+      ...aulas,
+      [chave]: (aulas[chave] ?? []).map(item => (item === aula ? { ...item, confirmado: !item.confirmado } : item))
+    }));
   }
 }
