@@ -8,10 +8,20 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não lançado]
 
+## [0.1.0] - 2026-11-01
+
 ### Alterado
+- Angular 19 → **22.2** (passando por 20 e 21), TypeScript 6, ngx-mask 22, zone.js 0.16.
+- Mantida a detecção de mudanças via zone.js: `provideZoneChangeDetection()` no `app.config.ts` (o Angular 21+ é zoneless por padrão) e `ChangeDetectionStrategy.Eager` nos componentes (o 22 usa OnPush por padrão).
+- `color-scheme: dark` fixo no `:root` (`styles.scss`). Antes vinha do tema do PrimeNG e só valia com o sistema em modo escuro — em modo claro o texto saía preto.
+- `.gitignore` passa a ignorar `.vercel` e `.env*`.
 - `set-version.sh` passa a indicar o remote `origin` nos próximos passos (o remote duplicado `master` foi removido).
 
+### Removido
+- PrimeNG, `@primeng/themes`, PrimeIcons e `@angular/animations`: não eram usados, e o PrimeNG 22 passou a exigir license key comercial. Bundle inicial de 672 kB para 564 kB.
+
 ### Corrigido
+- Specs do Karma quebrados (providers ausentes e asserções desatualizadas): 21/21 passando.
 - `primeng` e `@primeng/themes` atualizados para 19.1.4. A 19.1.0 exigia exatamente `@angular/cdk@19.2.3`, o que quebrava o `npm install` na Vercel desde 23/08.
 
 ## [0.0.1] - 2026-11-01
