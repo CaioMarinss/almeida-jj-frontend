@@ -1,3 +1,4 @@
+import { Subject } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
@@ -55,4 +56,14 @@ describe('LoginComponent', () => {
 
     expect(auth.login).not.toHaveBeenCalled();
   });
+  it('não envia de novo enquanto o login está em andamento', () => {
+    auth.login.and.returnValue(new Subject<never>());
+
+    componente.submit();
+    componente.submit();
+
+    expect(auth.login).toHaveBeenCalledTimes(1);
+    expect(componente.enviando()).toBeTrue();
+  });
+
 });

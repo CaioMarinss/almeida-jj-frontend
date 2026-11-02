@@ -16,6 +16,7 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 - Consome o novo contrato da API (`/auth/**`, `/alunos/me/senha`) e as mensagens de erro em `ProblemDetail`.
 - Conta não verificada no login leva direto ao reenvio da verificação, com o e-mail preenchido.
 - Troca de senha em Configurações exige a senha atual.
+- Botões dos formulários de autenticação ficam bloqueados enquanto a requisição está em andamento (evita cadastro duplo).
 - E-mail com espaços nas pontas é aceito nos formulários (comum no autocompletar do celular).
 
 ### Corrigido

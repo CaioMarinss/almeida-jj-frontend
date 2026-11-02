@@ -4,7 +4,7 @@ primeiroBotao="Alterar"
 segundoBotao="Voltar"
 (submit)="submit()" 
 (navigate)="voltar()"
-[primeiroBotaoDesabilitado]="!linkValido()"
+[primeiroBotaoDesabilitado]="!linkValido() || enviando()"
 >
 
     @if (!linkValido()) {

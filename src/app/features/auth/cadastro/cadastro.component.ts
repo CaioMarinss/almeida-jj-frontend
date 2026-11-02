@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { finalize } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
 import { Notificador } from '../../../core/notificacao/notificador';
 import { CampoComponent } from '../../../shared/ui/campo/campo.component';
@@ -26,6 +27,8 @@ export class CadastroComponent {
   private readonly notificador = inject(Notificador);
   private readonly router = inject(Router);
 
+  readonly enviando = signal(false);
+
   readonly cadastroForm = new FormGroup(
     {
       nome: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(3)] }),
@@ -41,14 +44,18 @@ export class CadastroComponent {
   );
 
   submit(): void {
+    if (this.enviando()) {
+      return;
+    }
     if (this.cadastroForm.invalid) {
       this.cadastroForm.markAllAsTouched();
       return;
     }
     const { nome, cpf, email, senha } = this.cadastroForm.getRawValue();
+    this.enviando.set(true);
     this.auth
       .cadastrar({ nome: nome.trim(), cpf: cpf.replace(/\D/g, ''), email: normalizarEmail(email), senha })
-      .subscribe({
+      .pipe(finalize(() => this.enviando.set(false))).subscribe({
         next: () =>
           void this.notificador
             .sucesso('Cadastro realizado! Verifique seu e-mail para ativar a conta.')

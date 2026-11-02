@@ -1,3 +1,4 @@
+import { Subject } from 'rxjs';
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { criarAuthService, criarNotificador, provedoresAuth } from '../testes-auth';
@@ -34,4 +35,16 @@ describe('RedefinirSenhaComponent', () => {
 
     expect(auth.redefinirSenha).toHaveBeenCalledWith('TK', 'Nova@12');
   });
+  it('não envia de novo enquanto a redefinição está em andamento', () => {
+    const auth = criarAuthService();
+    auth.redefinirSenha.and.returnValue(new Subject<never>());
+    const { componente } = criar({ token: 'TK' }, auth);
+    componente.formSenha.setValue({ novaSenha: 'Nova@12', confirmarSenha: 'Nova@12' });
+
+    componente.submit();
+    componente.submit();
+
+    expect(auth.redefinirSenha).toHaveBeenCalledTimes(1);
+  });
+
 });

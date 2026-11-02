@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { finalize } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
 import { Notificador } from '../../../core/notificacao/notificador';
 import { CampoComponent } from '../../../shared/ui/campo/campo.component';
@@ -21,18 +22,24 @@ export class LoginComponent {
   private readonly notificador = inject(Notificador);
   private readonly router = inject(Router);
 
+  readonly enviando = signal(false);
+
   readonly loginForm = new FormGroup({
     email: new FormControl('', { nonNullable: true, validators: [Validators.required, emailValidator()] }),
     senha: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(6)] })
   });
 
   submit(): void {
+    if (this.enviando()) {
+      return;
+    }
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
       return;
     }
     const email = normalizarEmail(this.loginForm.getRawValue().email);
-    this.auth.login(email, this.loginForm.getRawValue().senha).subscribe({
+    this.enviando.set(true);
+    this.auth.login(email, this.loginForm.getRawValue().senha).pipe(finalize(() => this.enviando.set(false))).subscribe({
       next: () => void this.router.navigate(['/dashboard']),
       error: (erro: unknown) => {
         if (codigoDeErro(erro) === 'ERR003') {

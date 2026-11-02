@@ -1,4 +1,4 @@
-<app-layout-auth primeiroBotao="Cadastrar" segundoBotao="Faça login" (submit)="submit()"
+<app-layout-auth [primeiroBotaoDesabilitado]="enviando()" primeiroBotao="Cadastrar" segundoBotao="Faça login" (submit)="submit()"
     (navigate)="irParaLogin()">
 
     <form [formGroup]="cadastroForm">

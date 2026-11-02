@@ -1,3 +1,4 @@
+import { Subject } from 'rxjs';
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { criarAuthService, criarNotificador, provedoresAuth } from '../testes-auth';
@@ -30,4 +31,25 @@ describe('CadastroComponent', () => {
       senha: 'Senha@1'
     });
   });
+  it('não envia de novo enquanto o cadastro está em andamento', () => {
+    const auth = criarAuthService();
+    auth.cadastrar.and.returnValue(new Subject<never>());
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ imports: [CadastroComponent], providers: provedoresAuth(auth, criarNotificador()) });
+    const fixture = TestBed.createComponent(CadastroComponent);
+    fixture.detectChanges();
+    fixture.componentInstance.cadastroForm.setValue({
+      nome: 'Ana',
+      cpf: '529.982.247-25',
+      email: 'ana@x.com',
+      senha: 'Senha@1',
+      passwordConfirm: 'Senha@1'
+    });
+
+    fixture.componentInstance.submit();
+    fixture.componentInstance.submit();
+
+    expect(auth.cadastrar).toHaveBeenCalledTimes(1);
+  });
+
 });
