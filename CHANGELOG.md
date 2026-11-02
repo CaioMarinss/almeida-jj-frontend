@@ -8,6 +8,26 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não lançado]
 
+### Alterado
+- Código reorganizado em `core` (sessão, autenticação, HTTP, notificação), `features` (uma pasta por área) e `shared` (componentes, validadores, utilitários).
+- Change detection **zoneless**: `zone.js` removido; estado com signals e todos os componentes `OnPush`. Rotas com carregamento lazy. Bundle inicial de 573 kB para 472 kB.
+- Sessão centralizada no `SessionService` (chaves `ajj.token` e `ajj.usuario`); sessões antigas exigem novo login.
+- Token anexado automaticamente por interceptor; 401 em rota autenticada encerra a sessão e volta ao login.
+- Consome o novo contrato da API (`/auth/**`, `/alunos/me/senha`) e as mensagens de erro em `ProblemDetail`.
+- Conta não verificada no login leva direto ao reenvio da verificação, com o e-mail preenchido.
+- Troca de senha em Configurações exige a senha atual.
+- E-mail com espaços nas pontas é aceito nos formulários (comum no autocompletar do celular).
+
+### Corrigido
+- Sair da conta agora limpa a sessão.
+- Cadastro não grava mais sessão inválida.
+- Links de verificação e redefinição abrem sem exigir login; sem token, mostram "Link inválido ou expirado."
+- Salvar só o nome em Configurações agora atualiza o nome.
+- Perfil exibido como Aluno/Professor a partir do `perfil` da API.
+
+### Removido
+- `LoginService`, `AlertaService`, `AuthGuard` de classe e a tela `home` sem rota.
+
 ## [0.1.0] - 2026-11-01
 
 ### Alterado

@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig } from '@angular/core';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideNgxMask } from 'ngx-mask';
 import { provideRouter } from '@angular/router';
@@ -8,12 +8,8 @@ import { sessaoExpiradaInterceptor } from './core/http/sessao-expirada.intercept
 import { Notificador } from './core/notificacao/notificador';
 import { SweetAlertNotificador } from './core/notificacao/sweet-alert-notificador';
 
-
-
 export const appConfig: ApplicationConfig = {
     providers: [
-        // Angular 21+ é zoneless por padrão; mantém a detecção de mudanças via zone.js.
-        provideZoneChangeDetection(),
         provideRouter(routes),
         provideNgxMask(),
         provideHttpClient(withFetch(), withInterceptors([authInterceptor, sessaoExpiradaInterceptor])),
