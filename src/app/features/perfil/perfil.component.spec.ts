@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
+import { provideIonicAngular } from '@ionic/angular';
 import { of } from 'rxjs';
 import { SessionService } from '../../core/auth/session.service';
 import { Notificador } from '../../core/notificacao/notificador';
@@ -18,6 +19,7 @@ describe('PerfilComponent', () => {
     TestBed.configureTestingModule({
       imports: [PerfilComponent],
       providers: [
+        provideIonicAngular(),
         provideRouter([]),
         { provide: PerfilService, useValue: perfilService },
         { provide: Notificador, useValue: criarNotificador() }

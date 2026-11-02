@@ -6,7 +6,7 @@
     "start": "node scripts/set-environment.mjs && ng serve",
     "build": "node scripts/set-environment.mjs && ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "node scripts/set-environment.mjs && ng test"
+    "test": "node scripts/set-environment.mjs && node --max-old-space-size=6144 ./node_modules/@angular/cli/bin/ng.js test"
   },
   "private": true,
   "dependencies": {

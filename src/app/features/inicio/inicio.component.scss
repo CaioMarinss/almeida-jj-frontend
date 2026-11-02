@@ -1,186 +1,64 @@
-@use "../../../styles/variables" as *;
-
-:host {
-  display: block;
-}
-
-:host ::ng-deep .page-slot {
-  display: block;
-}
-
-.hero-card {
+.saudacao {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  padding: 1.5rem 1.75rem;
-  border-radius: 20px;
-  background: linear-gradient(135deg, rgba(242, 204, 15, 0.18), rgba(255, 255, 255, 0.03));
-  border: 1px solid rgba(242, 204, 15, 0.25);
-  margin-bottom: 1.5rem;
-
-  .eyebrow {
-    margin-bottom: 0.4rem;
-    color: $primary-color;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    font-size: 0.72rem;
-  }
-
-  h2 {
-    max-width: 560px;
-    font-size: clamp(1.3rem, 2vw, 2rem);
-    line-height: 1.3;
-  }
+  gap: var(--ajj-espaco-3);
+  padding-top: calc(var(--ion-safe-area-top, 0px) + var(--ajj-espaco-4));
+  margin-bottom: var(--ajj-espaco-5);
 }
 
-.primary-action,
-.action-item {
-  border: 0;
-  cursor: pointer;
-  transition: transform 0.2s ease, opacity 0.2s ease;
+.saudacao-texto {
+  min-width: 0;
 }
 
-.primary-action {
-  min-width: 150px;
-  padding: 0.9rem 1.2rem;
-  border-radius: 10px;
-  background: $primary-color;
-  color: $secondary-color;
+.saudacao-nome {
+  margin: 0;
+  font-size: 34px;
+  line-height: 1;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  flex: 0 0 44px;
+  height: 44px;
+  border-radius: var(--ajj-raio-p);
+  background: var(--ajj-primaria);
+  color: var(--ajj-sobre-primaria);
+  font-family: var(--ajj-fonte-titulo);
   font-weight: 700;
+  font-size: 22px;
 }
 
-.metrics {
+.checkin {
+  border-left: 4px solid var(--ajj-primaria);
+  margin-bottom: var(--ajj-espaco-3);
+}
+
+.checkin h2 {
+  margin: var(--ajj-espaco-1) 0;
+  font-size: 26px;
+}
+
+.checkin p {
+  margin: 0 0 var(--ajj-espaco-4);
+  font-size: 15px;
+}
+
+.graduacao {
+  margin-bottom: var(--ajj-espaco-3);
+}
+
+.resumo {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--ajj-espaco-3);
 }
 
-.metric-card {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 0.85rem;
-  padding: 1.2rem 1rem;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-
-  span {
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.72);
-  }
-
-  strong {
-    font-size: clamp(1.45rem, 2vw, 2rem);
-  }
-
-  &.primary strong { color: $primary-color; }
-  &.warning strong { color: #ffca6d; }
-  &.accent strong { color: #7ae0d6; }
-  &.neutral strong { color: #d8d8d8; }
-}
-
-.panel-grid {
-  display: grid;
-  grid-template-columns: 1.05fr 1.25fr;
-  gap: 1.25rem;
-}
-
-.panel {
-  padding: 1.2rem;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.panel-header {
-  margin-bottom: 1rem;
-
-  h3 {
-    font-size: 1.05rem;
-  }
-}
-
-.action-list {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.8rem;
-}
-
-.action-item {
-  padding: 0.85rem 0.9rem;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.03);
-  color: $text-color;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.updates-list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
-
-  li {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.8rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  }
-
-  li:last-child {
-    border-bottom: 0;
-    padding-bottom: 0;
-  }
-
-  strong,
-  small {
-    display: block;
-  }
-
-  strong {
-    margin-bottom: 0.2rem;
-    font-size: 0.95rem;
-  }
-
-  small {
-    color: rgba(255, 255, 255, 0.7);
-  }
-}
-
-.dot {
-  width: 10px;
-  height: 10px;
-  margin-top: 0.35rem;
-  border-radius: 50%;
-  background: $primary-color;
-  box-shadow: 0 0 14px rgba(242, 204, 15, 0.75);
-}
-
-.primary-action:hover,
-.action-item:hover {
-  transform: translateY(-1px);
-}
-
-@media (max-width: 900px) {
-  .metrics,
-  .panel-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-@media (max-width: 620px) {
-  .hero-card {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .metrics,
-  .panel-grid,
-  .action-list {
-    grid-template-columns: 1fr;
-  }
+.em-breve {
+  margin: var(--ajj-espaco-2) 0 0;
+  font-family: var(--ajj-fonte-titulo);
+  font-weight: 600;
+  font-size: 20px;
+  text-transform: uppercase;
 }

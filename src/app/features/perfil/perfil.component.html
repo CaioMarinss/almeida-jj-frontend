@@ -1,13 +1,11 @@
-<app-layout-app
-  [heading]="'Configurações do perfil'"
-  [title]="'Perfil'"
-  [navItems]="[
-    { label: 'Visão geral', route: '/dashboard' },
-    { label: 'Treinos', route: '/calendario' },
-    { label: 'Financeiro', route: '/financeiro' },
-    { label: 'Configurações', route: '/configuracoes', active: true }
-  ]"
->
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>Perfil</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="ajj-coluna">
   <section class="settings-page">
     <div class="settings-card profile-card">
       <div class="profile-header">
@@ -105,4 +103,5 @@
     (confirm)="confirmarTrocaDeSenha()"
     (cancel)="confirmandoSenha.set(false)"
   ></app-dialogo-confirmacao>
-</app-layout-app>
+  </div>
+</ion-content>

@@ -1,99 +1,12 @@
-import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
-import { LayoutAppComponent } from '../../shared/ui/layout-app/layout-app.component';
-
-interface Aula {
-  horario: string;
-  nome: string;
-  professor: string;
-  modalidade: string;
-  vagas: number;
-  confirmado: boolean;
-}
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular';
+import { LucideCalendarDays } from '@lucide/angular';
+import { EstadoVazioComponent } from '../../shared/ui/estado-vazio/estado-vazio.component';
 
 @Component({
   selector: 'app-aulas',
-  imports: [CommonModule, LayoutAppComponent],
+  imports: [IonHeader, IonToolbar, IonTitle, IonContent, EstadoVazioComponent, LucideCalendarDays],
   templateUrl: './aulas.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrl: './aulas.component.scss'
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AulasComponent {
-  currentDate = new Date();
-  readonly selectedDate = signal(new Date(2026, 7, 12));
-
-  weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-
-  calendarDays = [
-    { day: 1, isCurrentMonth: false },
-    { day: 2, isCurrentMonth: false },
-    { day: 3, isCurrentMonth: false },
-    { day: 4, isCurrentMonth: false },
-    { day: 5, isCurrentMonth: false },
-    { day: 6, isCurrentMonth: false },
-    { day: 7, isCurrentMonth: true },
-    { day: 8, isCurrentMonth: true },
-    { day: 9, isCurrentMonth: true },
-    { day: 10, isCurrentMonth: true },
-    { day: 11, isCurrentMonth: true },
-    { day: 12, isCurrentMonth: true, hasClass: true },
-    { day: 13, isCurrentMonth: true },
-    { day: 14, isCurrentMonth: true },
-    { day: 15, isCurrentMonth: true },
-    { day: 16, isCurrentMonth: true },
-    { day: 17, isCurrentMonth: true },
-    { day: 18, isCurrentMonth: true },
-    { day: 19, isCurrentMonth: true },
-    { day: 20, isCurrentMonth: true },
-    { day: 21, isCurrentMonth: true },
-    { day: 22, isCurrentMonth: true },
-    { day: 23, isCurrentMonth: true },
-    { day: 24, isCurrentMonth: true },
-    { day: 25, isCurrentMonth: true },
-    { day: 26, isCurrentMonth: true },
-    { day: 27, isCurrentMonth: true },
-    { day: 28, isCurrentMonth: true },
-    { day: 29, isCurrentMonth: true },
-    { day: 30, isCurrentMonth: true },
-    { day: 31, isCurrentMonth: true }
-  ];
-
-  readonly aulas = signal<Record<string, Aula[]>>({
-    '2026-08-12': [
-      { horario: '06:00', nome: 'Musculação', professor: 'Carlos', modalidade: 'Força', vagas: 6, confirmado: true },
-      { horario: '08:30', nome: 'Funcional', professor: 'Ana', modalidade: 'Cardio', vagas: 4, confirmado: false },
-      { horario: '18:00', nome: 'Pilates', professor: 'Bruna', modalidade: 'Mobilidade', vagas: 3, confirmado: false }
-    ],
-    '2026-08-13': [
-      { horario: '07:00', nome: 'Circuito', professor: 'Renato', modalidade: 'HIIT', vagas: 5, confirmado: false },
-      { horario: '17:30', nome: 'Yoga', professor: 'Lívia', modalidade: 'Alongamento', vagas: 2, confirmado: false }
-    ],
-    '2026-08-15': [
-      { horario: '06:30', nome: 'CrossFit', professor: 'Diego', modalidade: 'Alta intensidade', vagas: 7, confirmado: false },
-      { horario: '19:00', nome: 'Spinning', professor: 'Fernanda', modalidade: 'Cardio', vagas: 8, confirmado: true }
-    ]
-  });
-
-  private readonly selectedDateKey = computed(() => this.formatDateKey(this.selectedDate()));
-
-  readonly selectedDayAulas = computed(() => this.aulas()[this.selectedDateKey()] ?? []);
-
-  selectDay(day: number): void {
-    this.selectedDate.set(new Date(2026, 7, day));
-  }
-
-  formatDateKey(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
-
-  togglePresenca(aula: Aula): void {
-    const chave = this.selectedDateKey();
-    this.aulas.update(aulas => ({
-      ...aulas,
-      [chave]: (aulas[chave] ?? []).map(item => (item === aula ? { ...item, confirmado: !item.confirmado } : item))
-    }));
-  }
-}
+export class AulasComponent {}

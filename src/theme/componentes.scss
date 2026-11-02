@@ -49,3 +49,24 @@
 .ajj-suave {
   color: var(--ajj-texto-suave);
 }
+
+.ajj-coluna {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--ajj-espaco-4) var(--ajj-espaco-4) calc(var(--ion-safe-area-bottom, 0px) + var(--ajj-espaco-8));
+}
+
+ion-toolbar {
+  --background: var(--ajj-fundo);
+  --border-width: 0;
+  padding-top: var(--ion-safe-area-top, 0px);
+}
+
+ion-title {
+  font-family: var(--ajj-fonte-titulo);
+  font-weight: 700;
+  font-size: 24px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}

@@ -32,7 +32,7 @@ describe('LoginComponent', () => {
     componente.submit();
 
     expect(auth.login).toHaveBeenCalledWith('ana@example.com', 'Senha@1');
-    expect(navegar).toHaveBeenCalledWith(['/dashboard']);
+    expect(navegar).toHaveBeenCalledWith(['/app/inicio']);
   });
 
   it('conta não verificada avisa e leva ao reenvio com o e-mail', async () => {

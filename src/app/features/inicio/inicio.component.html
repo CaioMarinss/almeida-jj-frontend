@@ -1,52 +1,37 @@
-<app-layout-app [heading]="'Bem-vindo, ' + nome()" [title]="'Dashboard'" [navItems]="[
-  { label: 'Visão geral', route: '/dashboard', active: true },
-  { label: 'Treinos', route: '/calendario' },
-  { label: 'Financeiro', route: '/financeiro' },
-  { label: 'Configurações', route: '/configuracoes' }
-]">
-  <section class="hero-card">
-    <div class="hero-copy">
-      <p class="eyebrow">Seu progresso</p>
-      <h2>Sua rotina de treinos e evolução está organizada em um só lugar.</h2>
+<ion-content>
+  <div class="ajj-coluna">
+    <header class="saudacao">
+      <div class="saudacao-texto">
+        <span class="ajj-rotulo">Oss,</span>
+        <h1 class="saudacao-nome ajj-truncar">{{ primeiroNome() }}</h1>
+      </div>
+      <span class="avatar" aria-hidden="true">{{ inicial() }}</span>
+    </header>
+
+    <section class="ajj-card checkin" aria-labelledby="checkin-titulo">
+      <span class="ajj-rotulo">Check-in</span>
+      <h2 id="checkin-titulo">Em breve</h2>
+      <p class="ajj-suave">Em breve você faz o check-in da aula direto pelo app.</p>
+      <ajj-botao [desabilitado]="true">Fazer check-in</ajj-botao>
+    </section>
+
+    <ajj-estado-vazio
+      class="graduacao"
+      titulo="Sua graduação aparece aqui"
+      texto="Quando o professor registrar sua faixa e seus graus, você acompanha a evolução por aqui."
+    >
+      <svg lucideAward icone aria-hidden="true"></svg>
+    </ajj-estado-vazio>
+
+    <div class="resumo">
+      <section class="ajj-card">
+        <span class="ajj-rotulo">No mês</span>
+        <p class="em-breve">Em breve</p>
+      </section>
+      <section class="ajj-card">
+        <span class="ajj-rotulo">Mensalidade</span>
+        <p class="em-breve">Em breve</p>
+      </section>
     </div>
-
-    <button type="button" class="primary-action">Acessar agenda</button>
-  </section>
-
-  <section class="metrics" aria-label="Métricas do usuário">
-    <article class="metric-card" *ngFor="let metric of metrics" [ngClass]="metric.tone">
-      <span>{{ metric.label }}</span>
-      <strong>{{ metric.value }}</strong>
-    </article>
-  </section>
-
-  <section class="panel-grid">
-    <article class="panel">
-      <div class="panel-header">
-        <h3>Ações rápidas</h3>
-      </div>
-
-      <div class="action-list">
-        <button type="button" *ngFor="let action of quickActions" class="action-item">
-          {{ action }}
-        </button>
-      </div>
-    </article>
-
-    <article class="panel">
-      <div class="panel-header">
-        <h3>Últimas atualizações</h3>
-      </div>
-
-      <ul class="updates-list">
-        <li *ngFor="let item of recentItems">
-          <span class="dot"></span>
-          <div>
-            <strong>{{ item.title }}</strong>
-            <small>{{ item.meta }}</small>
-          </div>
-        </li>
-      </ul>
-    </article>
-  </section>
-</app-layout-app>
+  </div>
+</ion-content>

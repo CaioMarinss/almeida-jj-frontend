@@ -1,33 +1,16 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { provideRouter } from '@angular/router';
-
+import { TestBed } from '@angular/core/testing';
+import { provedoresApp } from '../testes-app';
 import { AulasComponent } from './aulas.component';
 
 describe('AulasComponent', () => {
-  let component: AulasComponent;
-  let fixture: ComponentFixture<AulasComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [AulasComponent],
-      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()]
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(AulasComponent);
-    component = fixture.componentInstance;
+  it('mostra estado vazio sem dados fictícios', async () => {
+    TestBed.configureTestingModule({ imports: [AulasComponent], providers: provedoresApp() });
+    const fixture = TestBed.createComponent(AulasComponent);
     fixture.detectChanges();
-  });
+    await fixture.whenStable();
+    const tela = fixture.nativeElement as HTMLElement;
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-  it('should render the calendar view', () => {
-    const text = fixture.nativeElement.textContent;
-
-    expect(text).toContain('Calendário');
-    expect(fixture.nativeElement.querySelector('.calendar-page')).toBeTruthy();
+    expect(tela.querySelector('ajj-estado-vazio')).toBeTruthy();
+    expect(/\d/.test(tela.textContent ?? '')).toBeFalse();
   });
 });

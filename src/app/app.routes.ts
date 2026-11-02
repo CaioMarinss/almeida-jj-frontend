@@ -32,24 +32,27 @@ export const routes: Routes = [
       import('./features/auth/redefinir-senha/redefinir-senha.component').then(m => m.RedefinirSenhaComponent)
   },
   {
-    path: 'dashboard',
+    path: 'app',
     canActivate: [authGuard],
-    loadComponent: () => import('./features/inicio/inicio.component').then(m => m.InicioComponent)
+    loadComponent: () => import('./features/shell/shell.component').then(m => m.ShellComponent),
+    children: [
+      { path: 'inicio', loadComponent: () => import('./features/inicio/inicio.component').then(m => m.InicioComponent) },
+      { path: 'aulas', loadComponent: () => import('./features/aulas/aulas.component').then(m => m.AulasComponent) },
+      {
+        path: 'presenca',
+        loadComponent: () => import('./features/presenca/presenca.component').then(m => m.PresencaComponent)
+      },
+      {
+        path: 'financeiro',
+        loadComponent: () => import('./features/financeiro/financeiro.component').then(m => m.FinanceiroComponent)
+      },
+      { path: 'perfil', loadComponent: () => import('./features/perfil/perfil.component').then(m => m.PerfilComponent) },
+      { path: '', pathMatch: 'full', redirectTo: 'inicio' }
+    ]
   },
-  {
-    path: 'calendario',
-    canActivate: [authGuard],
-    loadComponent: () => import('./features/aulas/aulas.component').then(m => m.AulasComponent)
-  },
-  {
-    path: 'financeiro',
-    canActivate: [authGuard],
-    loadComponent: () => import('./features/financeiro/financeiro.component').then(m => m.FinanceiroComponent)
-  },
-  {
-    path: 'configuracoes',
-    canActivate: [authGuard],
-    loadComponent: () => import('./features/perfil/perfil.component').then(m => m.PerfilComponent)
-  },
+  { path: 'dashboard', redirectTo: 'app/inicio' },
+  { path: 'calendario', redirectTo: 'app/aulas' },
+  { path: 'financeiro', redirectTo: 'app/financeiro' },
+  { path: 'configuracoes', redirectTo: 'app/perfil' },
   { path: '**', redirectTo: '' }
 ];

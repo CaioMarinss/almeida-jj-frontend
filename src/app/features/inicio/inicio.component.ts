@@ -1,36 +1,20 @@
-import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { IonContent } from '@ionic/angular';
+import { LucideAward } from '@lucide/angular';
 import { SessionService } from '../../core/auth/session.service';
-import { LayoutAppComponent } from '../../shared/ui/layout-app/layout-app.component';
+import { BotaoComponent } from '../../shared/ui/botao/botao.component';
+import { EstadoVazioComponent } from '../../shared/ui/estado-vazio/estado-vazio.component';
 
 @Component({
   selector: 'app-inicio',
-  imports: [CommonModule, LayoutAppComponent],
+  imports: [IonContent, BotaoComponent, EstadoVazioComponent, LucideAward],
   templateUrl: './inicio.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrl: './inicio.component.scss'
+  styleUrl: './inicio.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InicioComponent {
   private readonly sessao = inject(SessionService);
-  readonly nome = computed(() => this.sessao.usuario()?.nome ?? '');
 
-  metrics = [
-    { label: 'Treinos concluídos', value: '18', tone: 'primary' },
-    { label: 'Faltas', value: '02', tone: 'warning' },
-    { label: 'Presença', value: '96%', tone: 'accent' },
-    { label: 'Próximo treino', value: '12/09', tone: 'neutral' }
-  ];
-
-  quickActions = [
-    'Meu progresso',
-    'Agenda',
-    'Treinos',
-    'Configurações'
-  ];
-
-  recentItems = [
-    { title: 'Nova rotina de hipertrofia liberada', meta: 'Hoje • 9:30' },
-    { title: 'Seu plano foi atualizado', meta: 'Ontem • 16:10' },
-    { title: 'Check-in confirmado na academia', meta: 'Segunda • 11:45' }
-  ];
+  readonly primeiroNome = computed(() => (this.sessao.usuario()?.nome ?? '').trim().split(/\s+/)[0].toUpperCase());
+  readonly inicial = computed(() => this.primeiroNome().charAt(0));
 }

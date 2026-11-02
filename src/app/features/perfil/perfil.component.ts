@@ -5,12 +5,12 @@ import { SessionService } from '../../core/auth/session.service';
 import { ROTULO_PERFIL } from '../../core/auth/usuario';
 import { Notificador } from '../../core/notificacao/notificador';
 import { DialogoConfirmacaoComponent } from '../../shared/ui/dialogo-confirmacao/dialogo-confirmacao.component';
-import { LayoutAppComponent } from '../../shared/ui/layout-app/layout-app.component';
+import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular';
 import { PerfilService } from './perfil.service';
 
 @Component({
   selector: 'app-perfil',
-  imports: [FormsModule, LayoutAppComponent, DialogoConfirmacaoComponent],
+  imports: [FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, DialogoConfirmacaoComponent],
   templateUrl: './perfil.component.html',
   styleUrl: './perfil.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

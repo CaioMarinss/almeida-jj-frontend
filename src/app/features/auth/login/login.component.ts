@@ -41,7 +41,7 @@ export class LoginComponent {
     const email = normalizarEmail(this.loginForm.getRawValue().email);
     this.enviando.set(true);
     this.auth.login(email, this.loginForm.getRawValue().senha).pipe(finalize(() => this.enviando.set(false))).subscribe({
-      next: () => void this.router.navigate(['/dashboard']),
+      next: () => void this.router.navigate(['/app/inicio']),
       error: (erro: unknown) => {
         if (codigoDeErro(erro) === 'ERR003') {
           void this.notificador
