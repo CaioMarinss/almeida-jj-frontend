@@ -1,12 +1,12 @@
 import { Routes } from '@angular/router';
-import { LoginComponent } from './pages/login/login.component';
-import { CadastroComponent } from './pages/cadastro/cadastro.component';
+import { LoginComponent } from './features/auth/login/login.component';
+import { CadastroComponent } from './features/auth/cadastro/cadastro.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { AuthGuard } from './services/login/authguard.service';
-import { EsqueciSenhaComponent } from './pages/esquecisenha/esquecisenha.component';
-import { ResetarComponent } from './pages/resetar/resetar.component';
-import { VerificarEmailComponent } from './pages/verificaremail/verificaremail.component';
-import { VerificarComponent } from './pages/verificar/verificar.component';
+import { EsqueciSenhaComponent } from './features/auth/esqueci-senha/esqueci-senha.component';
+import { RedefinirSenhaComponent } from './features/auth/redefinir-senha/redefinir-senha.component';
+import { ReenviarVerificacaoComponent } from './features/auth/reenviar-verificacao/reenviar-verificacao.component';
+import { VerificarComponent } from './features/auth/verificar/verificar.component';
 import { CalendarioComponent } from './pages/calendario/calendario.component';
 import { ConfiguracoesComponent } from './pages/configuracoes/configuracoes.component';
 import { FinanceiroComponent } from './pages/financeiro/financeiro.component';
@@ -30,11 +30,11 @@ export const routes: Routes = [
     },
     {
         path: 'verificaremail',
-        component: VerificarEmailComponent
+        component: ReenviarVerificacaoComponent
     },
     {
         path: 'resetar',
-        component: ResetarComponent,
+        component: RedefinirSenhaComponent,
         canActivate: [AuthGuard]
     },
     {

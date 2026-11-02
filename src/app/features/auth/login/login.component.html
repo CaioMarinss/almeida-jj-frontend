@@ -1,0 +1,28 @@
+<app-layout-auth 
+title="Faça login na sua conta!" 
+primeiroBotao="Login" 
+segundoBotao="Cadastre-se"
+(submit)="submit()" 
+(navigate)="irParaCadastro()"
+>
+
+    <form [formGroup]="loginForm">
+        <app-campo [formGroup]="loginForm" [formControlName]="'email'" [controlName]="'email'" [inputName]="'email'" [type]="'email'"
+            [label]="'Digite seu e-mail'" [placeholder]="'E-mail'">
+            <img src="/assets/svg/email-svgrepo-com.svg" height="20px" />
+        </app-campo>
+
+        <app-campo [formGroup]="loginForm" [formControlName]="'senha'" [controlName]="'senha'" [inputName]="'senha'"
+            [type]="'password'" [label]="'Digite sua senha'" [placeholder]="'**********'">
+            <img src="/assets/svg/padlock-svgrepo-com.svg" height="20px" />
+            
+        </app-campo>
+        
+        <div class="spans">
+            <span (click)="irParaVerificacao()">Verifique seu email</span>
+            <span (click)="irParaEsqueciSenha()">Esqueceu a senha?</span>
+        </div>
+
+    </form>
+
+</app-layout-auth>

@@ -1,0 +1,9 @@
+<app-layout-auth
+  [title]="status() === 'sucesso' ? 'E-mail verificado!' : status() === 'erro' ? 'Erro ao verificar' : 'Verificando...'"
+  primeiroBotao="Enviar novamente"
+  segundoBotao="Voltar"
+  (submit)="reenviar()"
+  (navigate)="voltar()"
+>
+  <p>{{ mensagem() }}</p>
+</app-layout-auth>
