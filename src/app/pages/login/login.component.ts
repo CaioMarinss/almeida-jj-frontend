@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { DefaultLoginLayoutComponent } from '../../components/default-login-layout/default-login-layout.component';
-import { PrimeiroInputComponent } from '../../components/primeiro-input/primeiro-input.component';
+import { LayoutAuthComponent } from '../../shared/ui/layout-auth/layout-auth.component';
+import { CampoComponent } from '../../shared/ui/campo/campo.component';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LoginService } from '../../services/login/login.service';
@@ -14,8 +14,8 @@ interface loginForm {
   selector: 'app-login',
   standalone: true,
   imports: [
-    DefaultLoginLayoutComponent,
-    PrimeiroInputComponent,
+    LayoutAuthComponent,
+    CampoComponent,
     ReactiveFormsModule,
   ],
   providers: [

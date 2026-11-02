@@ -1,15 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { BasePageComponent } from '../../components/base-page/base-page.component';
-import { ConfirmPopupComponent } from '../../components/confirm-popup/confirm-popup.component';
+import { LayoutAppComponent } from '../../shared/ui/layout-app/layout-app.component';
+import { DialogoConfirmacaoComponent } from '../../shared/ui/dialogo-confirmacao/dialogo-confirmacao.component';
 import { AlertaService } from '../../services/alerta.service';
 import { LoginService } from '../../services/login/login.service';
 
 @Component({
   selector: 'app-configuracoes',
   standalone: true,
-  imports: [CommonModule, FormsModule, BasePageComponent, ConfirmPopupComponent],
+  imports: [CommonModule, FormsModule, LayoutAppComponent, DialogoConfirmacaoComponent],
   templateUrl: './configuracoes.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './configuracoes.component.scss'

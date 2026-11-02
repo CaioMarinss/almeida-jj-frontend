@@ -1,4 +1,4 @@
-<app-default-login-layout 
+<app-layout-auth 
 title="Faça login na sua conta!" 
 primeiroBotao="Login" 
 segundoBotao="Cadastre-se"
@@ -7,16 +7,16 @@ segundoBotao="Cadastre-se"
 >
 
     <form [formGroup]="loginForm">
-        <app-primeiro-input [formGroup]="loginForm" [formControlName]="'email'" [controlName]="'email'" [inputName]="'email'" [type]="'email'"
+        <app-campo [formGroup]="loginForm" [formControlName]="'email'" [controlName]="'email'" [inputName]="'email'" [type]="'email'"
             [label]="'Digite seu e-mail'" [placeholder]="'E-mail'">
             <img src="/assets/svg/email-svgrepo-com.svg" height="20px" />
-        </app-primeiro-input>
+        </app-campo>
 
-        <app-primeiro-input [formGroup]="loginForm" [formControlName]="'senha'" [controlName]="'senha'" [inputName]="'senha'"
+        <app-campo [formGroup]="loginForm" [formControlName]="'senha'" [controlName]="'senha'" [inputName]="'senha'"
             [type]="'password'" [label]="'Digite sua senha'" [placeholder]="'**********'">
             <img src="/assets/svg/padlock-svgrepo-com.svg" height="20px" />
             
-        </app-primeiro-input>
+        </app-campo>
         
         <div class="spans">
             <span (click)="verificarEmail()">Verifique seu email</span>
@@ -25,4 +25,4 @@ segundoBotao="Cadastre-se"
 
     </form>
 
-</app-default-login-layout>
+</app-layout-auth>

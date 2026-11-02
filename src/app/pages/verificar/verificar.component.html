@@ -1,4 +1,4 @@
-<app-default-login-layout 
+<app-layout-auth 
   [title]="status === 'sucesso' ? 'E-mail verificado!' : status === 'erro' ? 'Erro ao verificar' : 'Verificando...'" 
   primeiroBotao="Enviar novamente"
   segundoBotao="Voltar"
@@ -6,5 +6,5 @@
   (navigate)="navigate()"
 >
   <p>{{ mensagem }}</p>
-</app-default-login-layout>
+</app-layout-auth>
 

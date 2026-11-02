@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { BasePageComponent } from '../../components/base-page/base-page.component';
+import { LayoutAppComponent } from '../../shared/ui/layout-app/layout-app.component';
 
 interface Aula {
   horario: string;
@@ -14,7 +14,7 @@ interface Aula {
 @Component({
   selector: 'app-calendario',
   standalone: true,
-  imports: [CommonModule, BasePageComponent],
+  imports: [CommonModule, LayoutAppComponent],
   templateUrl: './calendario.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './calendario.component.scss'

@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 
-import { DefaultLoginLayoutComponent } from '../../components/default-login-layout/default-login-layout.component';
-import { PrimeiroInputComponent } from '../../components/primeiro-input/primeiro-input.component';
+import { LayoutAuthComponent } from '../../shared/ui/layout-auth/layout-auth.component';
+import { CampoComponent } from '../../shared/ui/campo/campo.component';
 
 import {
   FormControl,
@@ -15,15 +15,15 @@ import { LoginService } from '../../services/login/login.service';
 import { AlertaService } from '../../services/alerta.service';
 import { CommonModule } from '@angular/common';
 
-import { cpfValidator } from '../../validators/cpf.validator';
-import { normalizarEmail } from '../../utils/email.util';
+import { cpfValidator } from '../../shared/validators/cpf.validator';
+import { normalizarEmail } from '../../shared/utils/email.util';
 
 @Component({
   selector: 'app-cadastro',
   standalone: true,
   imports: [
-    DefaultLoginLayoutComponent,
-    PrimeiroInputComponent,
+    LayoutAuthComponent,
+    CampoComponent,
     ReactiveFormsModule,
     CommonModule
   ],

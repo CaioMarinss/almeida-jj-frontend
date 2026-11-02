@@ -1,0 +1,21 @@
+<div [formGroup]="formGroup()" class="input-wrapper">
+    <label [for]="inputName()">{{ label() }}</label>
+    <div class="input-content">
+        <input
+        [id]="inputName()"
+        [type]="type()"
+        [placeholder]="placeholder()"
+        [value]="value()"
+        [mask]="mask()"
+        (input)="aoDigitar($event)"
+        (blur)="aoSair()"
+        />
+        <div class="icon">
+            <ng-content></ng-content>
+        </div>
+    </div>
+
+    @if (mensagemErro()) {
+        <small class="input-error">{{ mensagemErro() }}</small>
+    }
+</div>

@@ -2,8 +2,8 @@ import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LoginService } from '../../services/login/login.service';
-import { PrimeiroInputComponent } from '../../components/primeiro-input/primeiro-input.component';
-import { DefaultLoginLayoutComponent } from '../../components/default-login-layout/default-login-layout.component';
+import { CampoComponent } from '../../shared/ui/campo/campo.component';
+import { LayoutAuthComponent } from '../../shared/ui/layout-auth/layout-auth.component';
 import { AlertaService } from '../../services/alerta.service';
 
 @Component({
@@ -12,8 +12,8 @@ import { AlertaService } from '../../services/alerta.service';
   styleUrls: ['./resetar.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
-    DefaultLoginLayoutComponent,
-    PrimeiroInputComponent,
+    LayoutAuthComponent,
+    CampoComponent,
     ReactiveFormsModule
   ]
 })

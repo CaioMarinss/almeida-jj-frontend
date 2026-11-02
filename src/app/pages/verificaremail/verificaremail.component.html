@@ -1,4 +1,4 @@
-<app-default-login-layout 
+<app-layout-auth 
 title="Vamos verificar seu email!" 
 primeiroBotao="Enviar email" 
 segundoBotao="Voltar"
@@ -7,12 +7,12 @@ segundoBotao="Voltar"
 >
 
     <form [formGroup]="emailForm">
-        <app-primeiro-input [formGroup]="emailForm" [formControlName]="'email'" [controlName]="'email'" [inputName]="'email'" [type]="'email'"
+        <app-campo [formGroup]="emailForm" [formControlName]="'email'" [controlName]="'email'" [inputName]="'email'" [type]="'email'"
             [label]="'Digite seu e-mail'" [placeholder]="'E-mail'">
             <img src="/assets/svg/email-svgrepo-com.svg" height="20px" />
-        </app-primeiro-input>
+        </app-campo>
 
         
     </form>
 
-</app-default-login-layout>
+</app-layout-auth>

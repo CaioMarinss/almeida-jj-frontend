@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { DefaultLoginLayoutComponent } from '../../components/default-login-layout/default-login-layout.component';
+import { LayoutAuthComponent } from '../../shared/ui/layout-auth/layout-auth.component';
 import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -11,7 +11,7 @@ import { environment } from '../../../environments/environment';
   standalone: true,
   imports: [
     CommonModule,
-    DefaultLoginLayoutComponent,
+    LayoutAuthComponent,
   ],
   templateUrl: './verificar.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,

@@ -1,8 +1,6 @@
-<app-base-page
+<app-layout-app
   [heading]="'Configurações do perfil'"
   [title]="'Perfil'"
-  [userName]="userName"
-  [role]="role"
   [navItems]="[
     { label: 'Visão geral', route: '/dashboard' },
     { label: 'Treinos', route: '/calendario' },
@@ -88,7 +86,7 @@
     </div>
   </section>
 
-  <app-confirm-popup
+  <app-dialogo-confirmacao
     [visible]="showPasswordPopup"
     title="Trocar senha"
     message="Tem certeza que deseja alterar sua senha?"
@@ -96,5 +94,5 @@
     cancelLabel="Não"
     (confirm)="confirmPasswordChange()"
     (cancel)="closePasswordPopup()"
-  ></app-confirm-popup>
-</app-base-page>
+  ></app-dialogo-confirmacao>
+</app-layout-app>

@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { BasePageComponent } from '../../components/base-page/base-page.component';
+import { LayoutAppComponent } from '../../shared/ui/layout-app/layout-app.component';
 
 interface Plano {
   nome: string;
@@ -13,7 +13,7 @@ interface Plano {
 @Component({
   selector: 'app-financeiro',
   standalone: true,
-  imports: [CommonModule, BasePageComponent],
+  imports: [CommonModule, LayoutAppComponent],
   templateUrl: './financeiro.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './financeiro.component.scss'

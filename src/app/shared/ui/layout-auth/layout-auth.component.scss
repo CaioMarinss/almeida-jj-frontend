@@ -1,4 +1,4 @@
-@use "../../../styles/variables" as *;
+@use "../../../../styles/variables" as *;
 
 main {
     display: flex;
@@ -18,7 +18,7 @@ main {
 
     .main-section {
         flex-grow: 1;
-        background: url("../../../../public/imgs/alunosPB.jpeg") center / cover no-repeat;
+        background: url("../../../../../public/imgs/alunosPB.jpeg") center / cover no-repeat;
     }
 
     .form-section {
@@ -105,7 +105,7 @@ main {
         .form-section {
 
             flex-grow: 1;
-            background: url("../../../../public/imgs/alunosPBescuro.jpeg") center / cover no-repeat;
+            background: url("../../../../../public/imgs/alunosPBescuro.jpeg") center / cover no-repeat;
 
             
 

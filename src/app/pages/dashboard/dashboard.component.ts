@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { BasePageComponent } from '../../components/base-page/base-page.component';
+import { LayoutAppComponent } from '../../shared/ui/layout-app/layout-app.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, BasePageComponent],
+  imports: [CommonModule, LayoutAppComponent],
   templateUrl: './dashboard.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './dashboard.component.scss'
