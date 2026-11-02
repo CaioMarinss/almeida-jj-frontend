@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { NavController } from '@ionic/angular';
-import { of } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { of, throwError } from 'rxjs';
 import { SessionService } from '../../core/auth/session.service';
 import { criarNotificador } from '../auth/testes-auth';
 import { logar, provedoresApp } from '../testes-app';
@@ -59,12 +60,18 @@ describe('PerfilComponent', () => {
     expect(perfilService.alterarSenha).not.toHaveBeenCalled();
   });
 
-  it('salvar só o nome atualiza a sessão', () => {
-    componente.nomeForm.setValue({ nome: 'Ana Maria' });
+  it('não oferece edição de nome enquanto a API não salva', () => {
+    expect(tela.textContent).not.toContain('Salvar nome');
+    expect(tela.querySelector('ion-input#nome')).toBeNull();
+  });
 
-    componente.salvarNome();
+  it('sessão expirada na troca de senha não mostra alerta de erro', async () => {
+    perfilService.alterarSenha.and.returnValue(throwError(() => new HttpErrorResponse({ status: 401 })));
+    preencherSenha('Antiga@1', 'Nova@12', 'Nova@12');
 
-    expect(TestBed.inject(SessionService).usuario()?.nome).toBe('Ana Maria');
+    await componente.trocarSenha();
+
+    expect(notificador.erroDaApi).not.toHaveBeenCalled();
   });
 
   it('após trocar a senha avisa e encerra a sessão', async () => {

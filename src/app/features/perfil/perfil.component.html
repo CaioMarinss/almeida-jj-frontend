@@ -15,15 +15,6 @@
       <span class="ajj-chip">{{ perfil() }}</span>
     </section>
 
-    <section class="ajj-card bloco" aria-labelledby="titulo-nome">
-      <h2 id="titulo-nome">Nome</h2>
-      <form [formGroup]="nomeForm" (keyup.enter)="salvarNome()">
-        <app-campo [formGroup]="nomeForm" formControlName="nome" controlName="nome" inputName="nome"
-          label="Nome completo" autocomplete="name" />
-        <ajj-botao variante="secundario" (clique)="salvarNome()">Salvar nome</ajj-botao>
-      </form>
-    </section>
-
     <section class="ajj-card bloco" aria-labelledby="titulo-senha">
       <h2 id="titulo-senha">Trocar senha</h2>
       <form [formGroup]="senhaForm" (keyup.enter)="trocarSenha()">

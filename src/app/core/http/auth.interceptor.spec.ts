@@ -33,6 +33,14 @@ describe('authInterceptor', () => {
     expect(controle.expectOne(`${environment.apiUrl}/alunos/me`).request.headers.get('Authorization')).toBe('Bearer TK');
   });
 
+  it('não anexa em domínio que só começa com a URL da API', () => {
+    logar();
+    const parecido = `${environment.apiUrl}.evil.net/x`;
+    http.get(parecido).subscribe();
+
+    expect(controle.expectOne(parecido).request.headers.has('Authorization')).toBeFalse();
+  });
+
   it('não anexa sem token', () => {
     http.get(`${environment.apiUrl}/alunos/me`).subscribe();
 

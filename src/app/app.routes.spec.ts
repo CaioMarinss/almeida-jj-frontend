@@ -15,6 +15,11 @@ describe('rotas', () => {
     expect(filhos().map(r => r.path)).toEqual(['inicio', 'aulas', 'presenca', 'financeiro', 'perfil', '']);
   });
 
+  it('login e raiz levam quem já está logado para o início', () => {
+    expect(rota('')?.canActivate?.length).toBe(1);
+    expect(rota('login')?.canActivate?.length).toBe(1);
+  });
+
   it('rotas antigas redirecionam para as abas novas', () => {
     expect(rota('dashboard')?.redirectTo).toBe('app/inicio');
     expect(rota('calendario')?.redirectTo).toBe('app/aulas');

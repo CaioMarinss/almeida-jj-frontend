@@ -5,7 +5,8 @@ import { SessionService } from '../auth/session.service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const token = inject(SessionService).token();
-  if (!token || !req.url.startsWith(environment.apiUrl)) {
+  const paraApi = req.url === environment.apiUrl || req.url.startsWith(`${environment.apiUrl}/`);
+  if (!token || !paraApi) {
     return next(req);
   }
   return next(req.clone({ setHeaders: { Authorization: `Bearer ${token}` } }));

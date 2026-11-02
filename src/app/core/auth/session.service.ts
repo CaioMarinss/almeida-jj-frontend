@@ -4,6 +4,16 @@ import { Usuario } from './usuario';
 const CHAVE_TOKEN = 'ajj.token';
 const CHAVE_USUARIO = 'ajj.usuario';
 
+function expirado(token: string): boolean {
+  try {
+    const payload = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const { exp } = JSON.parse(atob(payload)) as { exp?: unknown };
+    return typeof exp === 'number' && exp * 1000 <= Date.now();
+  } catch {
+    return false;
+  }
+}
+
 @Injectable({ providedIn: 'root' })
 export class SessionService {
   private readonly tokenAtual = signal<string | null>(null);
@@ -27,14 +37,16 @@ export class SessionService {
     this.usuarioAtual.set(usuario);
   }
 
-  atualizarNome(nome: string): void {
-    const usuario = this.usuarioAtual();
-    if (!usuario) {
-      return;
+  sessaoValida(): boolean {
+    const token = this.tokenAtual();
+    if (!token || !this.usuarioAtual()) {
+      return false;
     }
-    const atualizado = { ...usuario, nome };
-    sessionStorage.setItem(CHAVE_USUARIO, JSON.stringify(atualizado));
-    this.usuarioAtual.set(atualizado);
+    if (expirado(token)) {
+      this.encerrar();
+      return false;
+    }
+    return true;
   }
 
   encerrar(): void {
@@ -47,9 +59,11 @@ export class SessionService {
   private restaurar(): void {
     const token = sessionStorage.getItem(CHAVE_TOKEN);
     const usuario = this.lerUsuario();
-    if (token && usuario) {
+    if (token && usuario && !expirado(token)) {
       this.tokenAtual.set(token);
       this.usuarioAtual.set(usuario);
+    } else {
+      this.encerrar();
     }
   }
 

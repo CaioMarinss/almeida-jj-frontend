@@ -2,6 +2,12 @@ import { TestBed } from '@angular/core/testing';
 import { SessionService } from './session.service';
 import { Usuario } from './usuario';
 
+function jwt(segundosAteExpirar: number): string {
+  const exp = Math.floor(Date.now() / 1000) + segundosAteExpirar;
+  const payload = btoa(JSON.stringify({ exp })).replace(/=+$/, '').replace(/\+/g, '-').replace(/\//g, '_');
+  return `cabecalho.${payload}.assinatura`;
+}
+
 describe('SessionService', () => {
   const usuario: Usuario = { id: 1, nome: 'Ana', email: 'ana@example.com', perfil: 'ALUNO' };
 
@@ -47,13 +53,27 @@ describe('SessionService', () => {
     expect(nova().autenticado()).toBeFalse();
   });
 
-  it('atualizarNome muda o signal e a sessão', () => {
+  it('descarta ao restaurar um token expirado', () => {
+    nova().iniciar(jwt(-60), usuario);
+
+    const restaurada = nova();
+
+    expect(restaurada.autenticado()).toBeFalse();
+    expect(sessionStorage.getItem('ajj.token')).toBeNull();
+  });
+
+  it('sessaoValida encerra a sessão quando o token expira', () => {
     const sessao = nova();
-    sessao.iniciar('TK', usuario);
+    sessao.iniciar(jwt(-1), usuario);
 
-    sessao.atualizarNome('Ana Maria');
+    expect(sessao.sessaoValida()).toBeFalse();
+    expect(sessao.autenticado()).toBeFalse();
+  });
 
-    expect(sessao.usuario()?.nome).toBe('Ana Maria');
-    expect(nova().usuario()?.nome).toBe('Ana Maria');
+  it('sessaoValida aceita token dentro da validade', () => {
+    const sessao = nova();
+    sessao.iniciar(jwt(3600), usuario);
+
+    expect(sessao.sessaoValida()).toBeTrue();
   });
 });

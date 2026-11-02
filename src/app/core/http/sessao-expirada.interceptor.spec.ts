@@ -4,7 +4,9 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { environment } from '../../../environments/environment';
+import { criarNotificador } from '../../features/auth/testes-auth';
 import { SessionService } from '../auth/session.service';
+import { Notificador } from '../notificacao/notificador';
 import { sessaoExpiradaInterceptor } from './sessao-expirada.interceptor';
 
 describe('sessaoExpiradaInterceptor', () => {
@@ -12,14 +14,17 @@ describe('sessaoExpiradaInterceptor', () => {
   let controle: HttpTestingController;
   let sessao: SessionService;
   let navegar: jasmine.Spy;
+  let notificador: ReturnType<typeof criarNotificador>;
 
   beforeEach(() => {
     sessionStorage.clear();
+    notificador = criarNotificador();
     TestBed.configureTestingModule({
       providers: [
         provideRouter([]),
         provideHttpClient(withInterceptors([sessaoExpiradaInterceptor])),
-        provideHttpClientTesting()
+        provideHttpClientTesting(),
+        { provide: Notificador, useValue: notificador }
       ]
     });
     http = TestBed.inject(HttpClient);
@@ -44,6 +49,7 @@ describe('sessaoExpiradaInterceptor', () => {
 
     expect(sessao.autenticado()).toBeFalse();
     expect(navegar).toHaveBeenCalledWith('/login');
+    expect(notificador.aviso).toHaveBeenCalledWith('Sua sessão expirou. Entre novamente.');
   });
 
   it('401 no login não encerra a sessão', () => {

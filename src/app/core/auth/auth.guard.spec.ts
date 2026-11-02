@@ -21,6 +21,16 @@ describe('authGuard', () => {
     expect(TestBed.inject(Router).serializeUrl(resultado as UrlTree)).toBe('/login');
   });
 
+  it('com token expirado limpa a sessão e redireciona para o login', () => {
+    const payload = btoa(JSON.stringify({ exp: Math.floor(Date.now() / 1000) - 60 }));
+    TestBed.inject(SessionService).iniciar(`h.${payload}.s`, { id: 1, nome: 'Ana', email: 'a@x.com', perfil: 'ALUNO' });
+
+    const resultado = executar();
+
+    expect(TestBed.inject(Router).serializeUrl(resultado as UrlTree)).toBe('/login');
+    expect(TestBed.inject(SessionService).autenticado()).toBeFalse();
+  });
+
   it('com sessão libera', () => {
     TestBed.inject(SessionService).iniciar('TK', { id: 1, nome: 'Ana', email: 'a@x.com', perfil: 'ALUNO' });
 

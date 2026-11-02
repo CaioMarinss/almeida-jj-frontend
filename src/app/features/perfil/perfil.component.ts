@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { IonContent, IonHeader, IonTitle, IonToolbar, NavController } from '@ionic/angular';
@@ -38,13 +39,6 @@ export class PerfilComponent {
 
   readonly trocandoSenha = signal(false);
 
-  readonly nomeForm = new FormGroup({
-    nome: new FormControl(this.nome(), {
-      nonNullable: true,
-      validators: [Validators.required, Validators.minLength(3)]
-    })
-  });
-
   readonly senhaForm = new FormGroup(
     {
       senhaAtual: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -53,15 +47,6 @@ export class PerfilComponent {
     },
     { validators: senhasIguais }
   );
-
-  salvarNome(): void {
-    if (this.nomeForm.invalid) {
-      this.nomeForm.markAllAsTouched();
-      return;
-    }
-    this.sessao.atualizarNome(this.nomeForm.getRawValue().nome.trim());
-    void this.notificador.sucesso('Nome atualizado!');
-  }
 
   async trocarSenha(): Promise<void> {
     if (this.trocandoSenha()) {
@@ -87,6 +72,9 @@ export class PerfilComponent {
       this.sessao.encerrar();
       await this.nav.navigateRoot('/login');
     } catch (erro: unknown) {
+      if (erro instanceof HttpErrorResponse && erro.status === 401) {
+        return;
+      }
       await this.notificador.erroDaApi(erro, 'Erro ao alterar a senha.');
     } finally {
       this.trocandoSenha.set(false);
