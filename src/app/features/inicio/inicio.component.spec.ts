@@ -2,7 +2,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
-import { provideNgxMask } from 'ngx-mask';
 
 import { InicioComponent } from './inicio.component';
 
@@ -13,7 +12,7 @@ describe('InicioComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [InicioComponent],
-      providers: [provideRouter([]), provideNgxMask(), provideHttpClient(), provideHttpClientTesting()]
+      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()]
     })
     .compileComponents();
 

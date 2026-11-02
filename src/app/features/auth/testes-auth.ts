@@ -1,6 +1,6 @@
 import { EnvironmentProviders, Provider } from '@angular/core';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
-import { provideNgxMask } from 'ngx-mask';
+import { provideIonicAngular } from '@ionic/angular';
 import { AuthService } from '../../core/auth/auth.service';
 import { Notificador } from '../../core/notificacao/notificador';
 
@@ -32,7 +32,7 @@ export function provedoresAuth(
 ): (Provider | EnvironmentProviders)[] {
   return [
     provideRouter([]),
-    provideNgxMask(),
+    provideIonicAngular(),
     { provide: AuthService, useValue: auth },
     { provide: Notificador, useValue: notificador },
     { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap(query) } } }

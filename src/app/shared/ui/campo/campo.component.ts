@@ -1,14 +1,15 @@
 import { ChangeDetectionStrategy, Component, computed, forwardRef, input, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { ControlValueAccessor, FormGroup, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
-import { NgxMaskDirective } from 'ngx-mask';
+import { ControlValueAccessor, FormGroup, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { IonInput } from '@ionic/angular';
 import { startWith, switchMap } from 'rxjs';
+import { formatarCpf } from '../../utils/cpf.util';
 
 type TipoCampo = 'text' | 'email' | 'password';
 
 @Component({
   selector: 'app-campo',
-  imports: [ReactiveFormsModule, NgxMaskDirective],
+  imports: [IonInput],
   providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => CampoComponent), multi: true }],
   templateUrl: './campo.component.html',
   styleUrl: './campo.component.scss',
@@ -20,10 +21,12 @@ export class CampoComponent implements ControlValueAccessor {
   readonly label = input('');
   readonly inputName = input('');
   readonly controlName = input('');
-  readonly mask = input('');
+  readonly formato = input<'cpf' | null>(null);
+  readonly autocomplete = input('off');
   readonly formGroup = input.required<FormGroup>();
 
   readonly value = signal('');
+  readonly desabilitado = signal(false);
 
   private readonly eventosDoFormulario = toSignal(
     toObservable(this.formGroup).pipe(switchMap(form => form.events.pipe(startWith(null))))
@@ -54,11 +57,15 @@ export class CampoComponent implements ControlValueAccessor {
     return '';
   });
 
+  readonly modoTeclado = computed(() => (this.formato() === 'cpf' ? 'numeric' : null));
+  readonly idErro = computed(() => `${this.inputName()}-erro`);
+
   private onChange: (valor: string) => void = () => undefined;
   private onTouched: () => void = () => undefined;
 
   aoDigitar(evento: Event): void {
-    const valor = (evento.target as HTMLInputElement).value;
+    const bruto = String((evento as CustomEvent<{ value?: string | null }>).detail?.value ?? '');
+    const valor = this.formato() === 'cpf' ? formatarCpf(bruto) : bruto;
     this.value.set(valor);
     this.onChange(valor);
   }
@@ -77,5 +84,9 @@ export class CampoComponent implements ControlValueAccessor {
 
   registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
+  }
+
+  setDisabledState(desabilitado: boolean): void {
+    this.desabilitado.set(desabilitado);
   }
 }

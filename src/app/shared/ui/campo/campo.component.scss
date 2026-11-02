@@ -1,37 +1,30 @@
-@use "../../../../styles/variables" as *;
+:host {
+  display: block;
+  margin-bottom: var(--ajj-espaco-4);
+}
 
+ion-input {
+  --background: var(--ajj-superficie);
+  --border-color: var(--ajj-borda);
+  --border-radius: var(--ajj-raio-p);
+  --highlight-color-focused: var(--ajj-primaria);
+  --padding-start: 14px;
+  --padding-end: 14px;
+  --color: var(--ajj-texto);
+  min-height: 52px;
+  font-size: 16px;
+}
 
-.input-wrapper{
-    text-align: start;
-    
-    .input-content{
-        width: 100%;
-        border-radius: 8px;
-        display: flex;
+ion-input::part(label) {
+  font-family: var(--ajj-fonte-titulo);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ajj-texto-suave);
+}
 
-        .icon{
-            padding: 10px;
-            background-color: $primary-color;
-            align-items: center;
-            justify-content: center;
-            display: flex;
-            border-radius: 0 10px 10px 0;
-        }
-
-        input{
-            border: none;
-            background-color: $fundo-input;
-            border-radius: 10px 0 0 10px;
-            font-size: 13px;
-            padding: 10px 20px ;
-            width: 100%;
-        }
-    }
-
-    .input-error {
-        display: block;
-        color: #ff6b6b;
-        font-size: 12px;
-        margin: 5px 4px 0;
-    }
+.erro {
+  display: block;
+  margin: 6px 4px 0;
+  color: var(--ajj-perigo);
+  font-size: 14px;
 }

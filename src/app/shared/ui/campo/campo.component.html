@@ -1,21 +1,21 @@
-<div [formGroup]="formGroup()" class="input-wrapper">
-    <label [for]="inputName()">{{ label() }}</label>
-    <div class="input-content">
-        <input
-        [id]="inputName()"
-        [type]="type()"
-        [placeholder]="placeholder()"
-        [value]="value()"
-        [mask]="mask()"
-        (input)="aoDigitar($event)"
-        (blur)="aoSair()"
-        />
-        <div class="icon">
-            <ng-content></ng-content>
-        </div>
-    </div>
+<ion-input
+  fill="outline"
+  labelPlacement="stacked"
+  [label]="label()"
+  [id]="inputName()"
+  [name]="inputName()"
+  [type]="type()"
+  [placeholder]="placeholder()"
+  [value]="value()"
+  [disabled]="desabilitado()"
+  [autocomplete]="$any(autocomplete())"
+  [attr.inputmode]="modoTeclado()"
+  [attr.aria-invalid]="mensagemErro() ? 'true' : null"
+  [attr.aria-describedby]="mensagemErro() ? idErro() : null"
+  (ionInput)="aoDigitar($event)"
+  (ionBlur)="aoSair()"
+/>
 
-    @if (mensagemErro()) {
-        <small class="input-error">{{ mensagemErro() }}</small>
-    }
-</div>
+@if (mensagemErro()) {
+  <small class="erro" role="alert" [id]="idErro()">{{ mensagemErro() }}</small>
+}
