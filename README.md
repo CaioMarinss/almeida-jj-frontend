@@ -6,8 +6,7 @@ API: repositório `almeida-jj-api` (privado).
 
 ## Stack
 
-- Angular 19 (standalone components) · TypeScript · SCSS
-- PrimeNG 19 (tema Aura) · PrimeIcons
+- Angular 22 (standalone components) · TypeScript · SCSS
 - ngx-mask · SweetAlert2
 - Karma + Jasmine (testes)
 

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { DefaultLoginLayoutComponent } from '../../components/default-login-layout/default-login-layout.component';
 import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
@@ -14,6 +14,7 @@ import { environment } from '../../../environments/environment';
     DefaultLoginLayoutComponent,
   ],
   templateUrl: './verificar.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './verificar.component.scss'
 })
 export class VerificarComponent implements OnInit {

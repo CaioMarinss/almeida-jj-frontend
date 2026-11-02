@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LoginService } from '../../services/login/login.service';
@@ -10,6 +10,7 @@ import { AlertaService } from '../../services/alerta.service';
   selector: 'app-resetar',
   templateUrl: './resetar.component.html',
   styleUrls: ['./resetar.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     DefaultLoginLayoutComponent,
     PrimeiroInputComponent,

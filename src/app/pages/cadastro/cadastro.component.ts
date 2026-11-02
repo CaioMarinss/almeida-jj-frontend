@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 import { DefaultLoginLayoutComponent } from '../../components/default-login-layout/default-login-layout.component';
 import { PrimeiroInputComponent } from '../../components/primeiro-input/primeiro-input.component';
@@ -31,6 +31,7 @@ import { normalizarEmail } from '../../utils/email.util';
     LoginService
   ],
   templateUrl: './cadastro.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './cadastro.component.scss'
 })
 export class CadastroComponent {

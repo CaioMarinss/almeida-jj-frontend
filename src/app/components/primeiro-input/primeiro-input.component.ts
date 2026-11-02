@@ -1,4 +1,4 @@
-import { Component, forwardRef, Input } from '@angular/core';
+import { Component, forwardRef, Input, ChangeDetectionStrategy } from '@angular/core';
 import { ControlValueAccessor, FormGroup, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { NgxMaskDirective } from 'ngx-mask';
 
@@ -19,6 +19,7 @@ type InputTypes = "text" | "email" |"password"
     }
   ],
   templateUrl: './primeiro-input.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './primeiro-input.component.scss'
 })
 export class PrimeiroInputComponent implements ControlValueAccessor{

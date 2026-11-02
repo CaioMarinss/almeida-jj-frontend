@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { BasePageComponent } from '../../components/base-page/base-page.component';
 
 interface Aula {
@@ -16,6 +16,7 @@ interface Aula {
   standalone: true,
   imports: [CommonModule, BasePageComponent],
   templateUrl: './calendario.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './calendario.component.scss'
 })
 export class CalendarioComponent {

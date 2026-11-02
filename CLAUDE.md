@@ -19,7 +19,7 @@ npm test         # Karma + Jasmine
 
 ## Stack
 
-Angular 19.2, standalone components (no NgModules), SCSS, PrimeNG 19 (Aura theme via `providePrimeNG`), primeicons, ngx-mask, SweetAlert2, `HttpClient` with `withFetch()`. App config in `src/app/app.config.ts`, routes in `src/app/app.routes.ts`.
+Angular 22.2, standalone components (no NgModules), zone.js change detection (`provideZoneChangeDetection`, components use `ChangeDetectionStrategy.Eager`), SCSS, ngx-mask, SweetAlert2, `HttpClient` with `withFetch()`. App config in `src/app/app.config.ts`, routes in `src/app/app.routes.ts`.
 
 ## Structure (`src/app`)
 
