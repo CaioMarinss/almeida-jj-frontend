@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { ConfirmPopupComponent } from '../confirm-popup/confirm-popup.component';
 
@@ -14,6 +14,7 @@ export interface BasePageNavItem {
   standalone: true,
   imports: [CommonModule, RouterLink, ConfirmPopupComponent],
   templateUrl: './base-page.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './base-page.component.scss'
 })
 export class BasePageComponent {

@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'app-confirm-popup',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './confirm-popup.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './confirm-popup.component.scss'
 })
 export class ConfirmPopupComponent {

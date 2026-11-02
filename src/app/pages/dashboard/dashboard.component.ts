@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { BasePageComponent } from '../../components/base-page/base-page.component';
 
 @Component({
@@ -7,6 +7,7 @@ import { BasePageComponent } from '../../components/base-page/base-page.componen
   standalone: true,
   imports: [CommonModule, BasePageComponent],
   templateUrl: './dashboard.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent {

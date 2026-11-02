@@ -1,5 +1,10 @@
 /* You can add global styles to this file, and also import other style files */
-@use "primeicons/primeicons.css";
+
+/* O app tem visual escuro fixo: texto padrão claro e controles nativos escuros.
+   (Antes isso vinha do tema do PrimeNG, e só quando o SO estava em modo escuro.) */
+:root {
+    color-scheme: dark;
+}
 
 html {
     scrollbar-gutter: stable;
