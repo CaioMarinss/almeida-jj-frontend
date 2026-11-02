@@ -6,102 +6,37 @@
 
 <ion-content>
   <div class="ajj-coluna">
-  <section class="settings-page">
-    <div class="settings-card profile-card">
-      <div class="profile-header">
-        <div class="avatar-block">
-          <img [src]="imagemPerfil()" alt="Foto do perfil" />
-          <label class="upload-button" for="profile-image-input">Alterar foto</label>
-          <input
-            id="profile-image-input"
-            type="file"
-            accept="image/*"
-            (change)="aoTrocarImagem($event)"
-          />
-        </div>
-
-        <div class="profile-summary">
-          <p class="eyebrow">Dados pessoais</p>
-          <h2>{{ nome() }}</h2>
-          <span>{{ perfil() }}</span>
-        </div>
+    <section class="ajj-card identidade" aria-label="Seus dados">
+      <span class="avatar" aria-hidden="true">{{ inicial() }}</span>
+      <div class="dados">
+        <strong class="nome ajj-truncar">{{ nome() }}</strong>
+        <span class="email ajj-truncar ajj-suave">{{ email() }}</span>
       </div>
-    </div>
+      <span class="ajj-chip">{{ perfil() }}</span>
+    </section>
 
-    <div class="settings-card form-card">
-      <div class="form-header">
-        <p class="eyebrow">Editar perfil</p>
-        <h3>Personalize seu nome e foto</h3>
-      </div>
+    <section class="ajj-card bloco" aria-labelledby="titulo-nome">
+      <h2 id="titulo-nome">Nome</h2>
+      <form [formGroup]="nomeForm" (keyup.enter)="salvarNome()">
+        <app-campo [formGroup]="nomeForm" formControlName="nome" controlName="nome" inputName="nome"
+          label="Nome completo" autocomplete="name" />
+        <ajj-botao variante="secundario" (clique)="salvarNome()">Salvar nome</ajj-botao>
+      </form>
+    </section>
 
-      <div class="field-group">
-        <label for="display-name">Nome completo</label>
-        <input
-          id="display-name"
-          type="text"
-          [(ngModel)]="nomeEditado"
-          placeholder="Digite seu nome"
-        />
-      </div>
+    <section class="ajj-card bloco" aria-labelledby="titulo-senha">
+      <h2 id="titulo-senha">Trocar senha</h2>
+      <form [formGroup]="senhaForm" (keyup.enter)="trocarSenha()">
+        <app-campo [formGroup]="senhaForm" formControlName="senhaAtual" controlName="senhaAtual" inputName="senhaAtual"
+          type="password" label="Senha atual" autocomplete="current-password" />
+        <app-campo [formGroup]="senhaForm" formControlName="novaSenha" controlName="novaSenha" inputName="novaSenha"
+          type="password" label="Nova senha" placeholder="Mínimo de 6 caracteres" autocomplete="new-password" />
+        <app-campo [formGroup]="senhaForm" formControlName="passwordConfirm" controlName="passwordConfirm"
+          inputName="passwordConfirm" type="password" label="Confirme a nova senha" autocomplete="new-password" />
+        <ajj-botao [carregando]="trocandoSenha()" (clique)="trocarSenha()">Trocar senha</ajj-botao>
+      </form>
+    </section>
 
-      <div class="field-group">
-        <label for="email">E-mail</label>
-        <input id="email" type="email" [value]="email()" disabled />
-      </div>
-
-      <div class="password-card">
-        <div class="form-header">
-          <p class="eyebrow">Segurança</p>
-          <h3>Trocar senha</h3>
-        </div>
-
-        <div class="field-group">
-          <label for="current-password">Senha atual</label>
-          <input
-            id="current-password"
-            type="password"
-            [(ngModel)]="senhaAtual"
-            placeholder="Digite sua senha atual"
-          />
-        </div>
-
-        <div class="field-group">
-          <label for="new-password">Nova senha</label>
-          <input
-            id="new-password"
-            type="password"
-            [(ngModel)]="novaSenha"
-            placeholder="Digite sua nova senha"
-          />
-        </div>
-
-        <div class="field-group">
-          <label for="confirm-password">Confirmar nova senha</label>
-          <input
-            id="confirm-password"
-            type="password"
-            [(ngModel)]="confirmacaoSenha"
-            placeholder="Confirme a nova senha"
-          />
-        </div>
-
-      </div>
-
-      <div class="actions">
-        <button type="button" class="secondary-button">Cancelar</button>
-        <button type="button" class="primary-button" (click)="salvar()">Salvar alterações</button>
-      </div>
-    </div>
-  </section>
-
-  <app-dialogo-confirmacao
-    [visible]="confirmandoSenha()"
-    title="Trocar senha"
-    message="Tem certeza que deseja alterar sua senha?"
-    confirmLabel="Sim"
-    cancelLabel="Não"
-    (confirm)="confirmarTrocaDeSenha()"
-    (cancel)="confirmandoSenha.set(false)"
-  ></app-dialogo-confirmacao>
+    <ajj-botao variante="texto" class="sair" (clique)="sair()">Sair da conta</ajj-botao>
   </div>
 </ion-content>

@@ -1,16 +1,23 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular';
+import { firstValueFrom } from 'rxjs';
+import { SaidaService } from '../../core/auth/saida.service';
 import { SessionService } from '../../core/auth/session.service';
 import { ROTULO_PERFIL } from '../../core/auth/usuario';
 import { Notificador } from '../../core/notificacao/notificador';
-import { DialogoConfirmacaoComponent } from '../../shared/ui/dialogo-confirmacao/dialogo-confirmacao.component';
-import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular';
+import { BotaoComponent } from '../../shared/ui/botao/botao.component';
+import { CampoComponent } from '../../shared/ui/campo/campo.component';
 import { PerfilService } from './perfil.service';
+
+function senhasIguais(form: AbstractControl): ValidationErrors | null {
+  return form.get('novaSenha')?.value === form.get('passwordConfirm')?.value ? null : { senhasDiferentes: true };
+}
 
 @Component({
   selector: 'app-perfil',
-  imports: [FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, DialogoConfirmacaoComponent],
+  imports: [ReactiveFormsModule, IonHeader, IonToolbar, IonTitle, IonContent, CampoComponent, BotaoComponent],
   templateUrl: './perfil.component.html',
   styleUrl: './perfil.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -19,6 +26,7 @@ export class PerfilComponent {
   private readonly sessao = inject(SessionService);
   private readonly perfilService = inject(PerfilService);
   private readonly notificador = inject(Notificador);
+  private readonly saida = inject(SaidaService);
   private readonly router = inject(Router);
 
   readonly nome = computed(() => this.sessao.usuario()?.nome ?? '');
@@ -27,61 +35,66 @@ export class PerfilComponent {
     const usuario = this.sessao.usuario();
     return usuario ? ROTULO_PERFIL[usuario.perfil] : '';
   });
+  readonly inicial = computed(() => this.nome().charAt(0).toUpperCase());
 
-  readonly imagemPerfil = signal('https://images.unsplash.com/photo-1541534401786-2077eed87a74?auto=format&fit=crop&w=400&q=80');
-  readonly nomeEditado = signal(this.nome());
-  readonly senhaAtual = signal('');
-  readonly novaSenha = signal('');
-  readonly confirmacaoSenha = signal('');
-  readonly confirmandoSenha = signal(false);
+  readonly trocandoSenha = signal(false);
 
-  salvar(): void {
-    this.salvarNome();
-    if (!this.senhaAtual() && !this.novaSenha() && !this.confirmacaoSenha()) {
-      void this.notificador.sucesso('Alterações salvas com sucesso!');
+  readonly nomeForm = new FormGroup({
+    nome: new FormControl(this.nome(), {
+      nonNullable: true,
+      validators: [Validators.required, Validators.minLength(3)]
+    })
+  });
+
+  readonly senhaForm = new FormGroup(
+    {
+      senhaAtual: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+      novaSenha: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(6)] }),
+      passwordConfirm: new FormControl('', { nonNullable: true, validators: [Validators.required] })
+    },
+    { validators: senhasIguais }
+  );
+
+  salvarNome(): void {
+    if (this.nomeForm.invalid) {
+      this.nomeForm.markAllAsTouched();
       return;
     }
-    if (!this.senhaAtual() || !this.novaSenha() || !this.confirmacaoSenha()) {
-      void this.notificador.aviso('Preencha a senha atual, a nova senha e a confirmação.');
-      return;
-    }
-    if (this.novaSenha().length < 6) {
-      void this.notificador.aviso('A nova senha deve ter pelo menos 6 caracteres.');
-      return;
-    }
-    if (this.novaSenha() !== this.confirmacaoSenha()) {
-      void this.notificador.aviso('As senhas não coincidem.');
-      return;
-    }
-    this.confirmandoSenha.set(true);
+    this.sessao.atualizarNome(this.nomeForm.getRawValue().nome.trim());
+    void this.notificador.sucesso('Nome atualizado!');
   }
 
-  confirmarTrocaDeSenha(): void {
-    this.confirmandoSenha.set(false);
-    this.perfilService.alterarSenha(this.senhaAtual(), this.novaSenha()).subscribe({
-      next: () =>
-        void this.notificador.sucesso('Senha alterada! Entre novamente com a nova senha.').then(() => {
-          this.sessao.encerrar();
-          return this.router.navigate(['/login']);
-        }),
-      error: (erro: unknown) => void this.notificador.erroDaApi(erro, 'Erro ao alterar a senha.')
-    });
-  }
-
-  aoTrocarImagem(evento: Event): void {
-    const arquivo = (evento.target as HTMLInputElement).files?.[0];
-    if (!arquivo) {
+  async trocarSenha(): Promise<void> {
+    if (this.trocandoSenha()) {
       return;
     }
-    const leitor = new FileReader();
-    leitor.onload = () => this.imagemPerfil.set(leitor.result as string);
-    leitor.readAsDataURL(arquivo);
+    if (this.senhaForm.invalid) {
+      this.senhaForm.markAllAsTouched();
+      return;
+    }
+    this.trocandoSenha.set(true);
+    try {
+      const confirmado = await this.notificador.confirmar(
+        'Trocar senha',
+        'Tem certeza que deseja alterar sua senha?',
+        'Alterar'
+      );
+      if (!confirmado) {
+        return;
+      }
+      const { senhaAtual, novaSenha } = this.senhaForm.getRawValue();
+      await firstValueFrom(this.perfilService.alterarSenha(senhaAtual, novaSenha), { defaultValue: undefined });
+      await this.notificador.sucesso('Senha alterada! Entre novamente com a nova senha.');
+      this.sessao.encerrar();
+      await this.router.navigate(['/login']);
+    } catch (erro: unknown) {
+      await this.notificador.erroDaApi(erro, 'Erro ao alterar a senha.');
+    } finally {
+      this.trocandoSenha.set(false);
+    }
   }
 
-  private salvarNome(): void {
-    const nome = this.nomeEditado().trim();
-    if (nome && nome !== this.nome()) {
-      this.sessao.atualizarNome(nome);
-    }
+  sair(): Promise<void> {
+    return this.saida.sair();
   }
 }

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import {
   IonContent,
   IonItem,
@@ -12,9 +12,9 @@ import {
   IonTabs
 } from '@ionic/angular';
 import { LucideCalendarDays, LucideCircleCheck, LucideHouse, LucideLogOut, LucideUser, LucideWallet } from '@lucide/angular';
+import { SaidaService } from '../../core/auth/saida.service';
 import { SessionService } from '../../core/auth/session.service';
 import { ROTULO_PERFIL } from '../../core/auth/usuario';
-import { Notificador } from '../../core/notificacao/notificador';
 
 @Component({
   selector: 'app-shell',
@@ -43,8 +43,7 @@ import { Notificador } from '../../core/notificacao/notificador';
 })
 export class ShellComponent {
   private readonly sessao = inject(SessionService);
-  private readonly notificador = inject(Notificador);
-  private readonly router = inject(Router);
+  private readonly saida = inject(SaidaService);
 
   readonly nome = computed(() => this.sessao.usuario()?.nome ?? '');
   readonly perfil = computed(() => {
@@ -53,11 +52,7 @@ export class ShellComponent {
   });
   readonly inicial = computed(() => this.nome().charAt(0).toUpperCase());
 
-  async sair(): Promise<void> {
-    if (!(await this.notificador.confirmar('Sair', 'Deseja sair da sua conta?', 'Sair'))) {
-      return;
-    }
-    this.sessao.encerrar();
-    await this.router.navigateByUrl('/login', { replaceUrl: true });
+  sair(): Promise<void> {
+    return this.saida.sair();
   }
 }
