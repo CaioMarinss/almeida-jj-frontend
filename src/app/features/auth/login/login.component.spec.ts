@@ -66,4 +66,17 @@ describe('LoginComponent', () => {
     expect(componente.enviando()).toBeTrue();
   });
 
+  it('botão principal mostra carregando durante o envio', async () => {
+    auth.login.and.returnValue(new Subject<never>());
+    const fixture = TestBed.createComponent(LoginComponent);
+    fixture.detectChanges();
+    fixture.componentInstance.loginForm.setValue({ email: 'ana@example.com', senha: 'Senha@1' });
+
+    fixture.componentInstance.submit();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(fixture.nativeElement.querySelector('ajj-botao ion-spinner')).toBeTruthy();
+  });
+
 });

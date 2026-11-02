@@ -1,35 +1,24 @@
-<app-layout-auth [primeiroBotaoDesabilitado]="enviando()" primeiroBotao="Cadastrar" segundoBotao="Faça login" (submit)="submit()"
-    (navigate)="irParaLogin()">
+<app-layout-auth titulo="Criar conta" subtitulo="Cadastre-se para acompanhar seus treinos.">
+  <form class="ajj-auth-form" [formGroup]="cadastroForm" (keyup.enter)="submit()">
+    <app-campo [formGroup]="cadastroForm" formControlName="nome" controlName="nome" inputName="nome" type="text"
+      label="Nome completo" placeholder="Seu nome" autocomplete="name" />
+    <app-campo [formGroup]="cadastroForm" formControlName="cpf" controlName="cpf" inputName="cpf" type="text"
+      label="CPF" placeholder="000.000.000-00" formato="cpf" />
+    <app-campo [formGroup]="cadastroForm" formControlName="email" controlName="email" inputName="email" type="email"
+      label="E-mail" placeholder="seu@email.com" autocomplete="email" />
+    <app-campo [formGroup]="cadastroForm" formControlName="senha" controlName="senha" inputName="senha" type="password"
+      label="Senha" placeholder="Mínimo de 6 caracteres" autocomplete="new-password" />
+    <app-campo [formGroup]="cadastroForm" formControlName="passwordConfirm" controlName="passwordConfirm"
+      inputName="passwordConfirm" type="password" label="Confirme a senha" placeholder="Repita a senha"
+      autocomplete="new-password" />
 
-    <form [formGroup]="cadastroForm">
+    <div class="ajj-auth-acoes">
+      <ajj-botao [carregando]="enviando()" (clique)="submit()">Criar conta</ajj-botao>
+    </div>
+  </form>
 
-        <app-campo [formGroup]="cadastroForm" [formControlName]="'nome'" [controlName]="'nome'" [inputName]="'name'" [type]="'text'"
-            [label]="'Digite seu nome'" [placeholder]="'Nome'">
-            <img src="/assets/svg/user-svgrepo-com.svg" height="20px" />
-        </app-campo>
-
-        <app-campo [formGroup]="cadastroForm" [formControlName]="'cpf'" [controlName]="'cpf'" [inputName]="'cpf'"
-            [type]="'text'" [label]="'Digite seu CPF'" [placeholder]="'123.456.789-01'" formato="cpf">
-            <img src="/assets/svg/user-svgrepo-com.svg" height="20px" />
-        </app-campo>
-
-        <app-campo [formGroup]="cadastroForm" [formControlName]="'email'" [controlName]="'email'" [inputName]="'email'"
-            [type]="'email'" [label]="'Digite seu e-mail'" [placeholder]="'E-mail'">
-            <img src="/assets/svg/email-svgrepo-com.svg" height="20px" />
-        </app-campo>
-        
-        <app-campo [formGroup]="cadastroForm" [formControlName]="'senha'" [controlName]="'senha'" [inputName]="'senha'"
-            [type]="'password'" [label]="'Digite sua senha'" [placeholder]="'**********'">
-            <img src="/assets/svg/padlock-svgrepo-com.svg" height="20px" />
-        </app-campo>
-
-        <app-campo [formGroup]="cadastroForm" [formControlName]="'passwordConfirm'" [controlName]="'passwordConfirm'"
-            [inputName]="'passwordConfirm'" [type]="'password'" [label]="'Confirme sua senha'"
-            [placeholder]="'**********'">
-            <img src="/assets/svg/padlock-svgrepo-com.svg" height="20px" />
-        </app-campo>
-
-
-    </form>
-
+  <p class="ajj-rodape-auth">
+    Já tem conta?
+    <button type="button" class="ajj-link" (click)="irParaLogin()">Entrar</button>
+  </p>
 </app-layout-auth>

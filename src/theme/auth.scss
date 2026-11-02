@@ -1,0 +1,38 @@
+.ajj-auth-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.ajj-auth-acoes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ajj-espaco-3);
+  margin-top: var(--ajj-espaco-2);
+}
+
+.ajj-link {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: var(--ajj-espaco-3) var(--ajj-espaco-1);
+  min-height: 44px;
+  color: var(--ajj-primaria);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ajj-links {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin: calc(-1 * var(--ajj-espaco-2)) 0 var(--ajj-espaco-4);
+}
+
+.ajj-rodape-auth {
+  margin-top: var(--ajj-espaco-5);
+  text-align: center;
+  color: var(--ajj-texto-suave);
+  font-size: 15px;
+}

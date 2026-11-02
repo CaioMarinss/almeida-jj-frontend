@@ -1,122 +1,58 @@
-@use "../../../../styles/variables" as *;
-
-main {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    background-color: $bg-sombra;
-
-    section {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 100%;
-    }
-
-    .main-section {
-        flex-grow: 1;
-        background: url("../../../../../public/imgs/alunosPB.jpeg") center / cover no-repeat;
-    }
-
-    .form-section {
-        flex-grow: 0.3;
-        padding: 0 35px;
-
-
-        .formulario {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 5% 0;
-        }
-
-        img {
-            filter: drop-shadow(0 0 10px $secondary-color);
-            width: 20vw;
-            margin-bottom: 10px;
-        }
-
-        h1 {
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        .btn-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            gap: 10px 0;
-
-            button {
-                width: 80%;
-                font-size: 14px;
-                font-weight: 600;
-                border-radius: 8px;
-                padding: 12px 0;
-                background-color: transparent;
-                cursor: pointer;
-
-                &.primeiro-btn {
-                    border: 1px solid $secondary-color;
-                    background-color: $primary-color;
-                    color: $secondary-color;
-                    filter: drop-shadow(0 0 10px $secondary-color);
-                }
-
-                &.segundo-btn {
-                    border: 1px solid $primary-color;
-                    color: $primary-color;
-                }
-
-            }
-
-            .divider {
-                display: flex;
-                width: 30%;
-                font-size: 14px;
-                color: $bg-sombra-claro;
-                font-weight: 400;
-                align-items: center;
-                justify-content: center;
-                text-transform: uppercase;
-                gap: 20px;
-
-                div {
-                    min-width: 100%;
-                    flex-grow: 1;
-                    height: 1px;
-                    background-color: $bg-sombra-claro
-                }
-            }
-        }
-
-    }
+:host {
+  display: contents;
 }
 
-@media (max-width: 700px) {
-    main {
-        display: block;
+.pagina {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
 
-        .form-section {
+.capa {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-height: 200px;
+  padding: calc(var(--ion-safe-area-top, 0px) + var(--ajj-espaco-6)) var(--ajj-espaco-5) var(--ajj-espaco-5);
+  background:
+    linear-gradient(180deg, rgba(11, 11, 12, 0.35) 0%, var(--ajj-fundo) 100%),
+    repeating-linear-gradient(-55deg, transparent 0 18px, rgba(242, 204, 15, 0.06) 18px 20px),
+    url('/assets/imgs/alunosPB.jpeg') center 30% / cover no-repeat;
+}
 
-            flex-grow: 1;
-            background: url("../../../../../public/imgs/alunosPBescuro.jpeg") center / cover no-repeat;
+.logo {
+  width: 180px;
+  max-width: 60%;
+  height: auto;
+}
 
-            
+.conteudo {
+  flex: 1;
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+  padding: var(--ajj-espaco-4) var(--ajj-espaco-5) calc(var(--ion-safe-area-bottom, 0px) + var(--ajj-espaco-8));
+}
 
-            img {
-                width: 50vw;
-            }
-        }
+.titulo {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1.05;
+}
 
+.subtitulo {
+  margin: var(--ajj-espaco-2) 0 var(--ajj-espaco-6);
+  color: var(--ajj-texto-suave);
+  font-size: 16px;
+}
 
-        .main-section {
-            display: none;
-        }
-    }
+@media (min-width: 992px) {
+  .capa {
+    min-height: 260px;
+    justify-content: center;
+  }
+
+  .logo {
+    width: 220px;
+  }
 }

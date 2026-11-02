@@ -1,28 +1,20 @@
-<app-layout-auth [primeiroBotaoDesabilitado]="enviando()" 
-title="Faça login na sua conta!" 
-primeiroBotao="Login" 
-segundoBotao="Cadastre-se"
-(submit)="submit()" 
-(navigate)="irParaCadastro()"
->
+<app-layout-auth titulo="Entrar" subtitulo="Bem-vindo de volta. Oss!">
+  <form class="ajj-auth-form" [formGroup]="loginForm" (keyup.enter)="submit()">
+    <app-campo [formGroup]="loginForm" formControlName="email" controlName="email" inputName="email" type="email"
+      label="E-mail" placeholder="seu@email.com" autocomplete="email" />
+    <app-campo [formGroup]="loginForm" formControlName="senha" controlName="senha" inputName="senha" type="password"
+      label="Senha" placeholder="••••••••" autocomplete="current-password" />
 
-    <form [formGroup]="loginForm">
-        <app-campo [formGroup]="loginForm" [formControlName]="'email'" [controlName]="'email'" [inputName]="'email'" [type]="'email'"
-            [label]="'Digite seu e-mail'" [placeholder]="'E-mail'">
-            <img src="/assets/svg/email-svgrepo-com.svg" height="20px" />
-        </app-campo>
+    <div class="ajj-links">
+      <button type="button" class="ajj-link" (click)="irParaVerificacao()">Verificar e-mail</button>
+      <button type="button" class="ajj-link" (click)="irParaEsqueciSenha()">Esqueci a senha</button>
+    </div>
 
-        <app-campo [formGroup]="loginForm" [formControlName]="'senha'" [controlName]="'senha'" [inputName]="'senha'"
-            [type]="'password'" [label]="'Digite sua senha'" [placeholder]="'**********'">
-            <img src="/assets/svg/padlock-svgrepo-com.svg" height="20px" />
-            
-        </app-campo>
-        
-        <div class="spans">
-            <span (click)="irParaVerificacao()">Verifique seu email</span>
-            <span (click)="irParaEsqueciSenha()">Esqueceu a senha?</span>
-        </div>
+    <ajj-botao [carregando]="enviando()" (clique)="submit()">Entrar</ajj-botao>
+  </form>
 
-    </form>
-
+  <p class="ajj-rodape-auth">
+    Novo por aqui?
+    <button type="button" class="ajj-link" (click)="irParaCadastro()">Criar conta</button>
+  </p>
 </app-layout-auth>

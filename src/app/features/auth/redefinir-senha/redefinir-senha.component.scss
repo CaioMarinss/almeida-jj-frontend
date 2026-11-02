@@ -1,9 +1,1 @@
-@use "../../../../styles/variables" as *;
-form{
-    width: 80%;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-
-
-}
+.aviso { margin: 0 0 16px; color: var(--ajj-perigo); font-weight: 600; }

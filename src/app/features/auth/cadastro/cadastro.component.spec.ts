@@ -52,4 +52,26 @@ describe('CadastroComponent', () => {
     expect(auth.cadastrar).toHaveBeenCalledTimes(1);
   });
 
+  it('botão principal mostra carregando durante o envio', async () => {
+    const auth = criarAuthService();
+    auth.cadastrar.and.returnValue(new Subject<never>());
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ imports: [CadastroComponent], providers: provedoresAuth(auth, criarNotificador()) });
+    const fixture = TestBed.createComponent(CadastroComponent);
+    fixture.detectChanges();
+    fixture.componentInstance.cadastroForm.setValue({
+      nome: 'Ana',
+      cpf: '529.982.247-25',
+      email: 'ana@x.com',
+      senha: 'Senha@1',
+      passwordConfirm: 'Senha@1'
+    });
+
+    fixture.componentInstance.submit();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(fixture.nativeElement.querySelector('ajj-botao ion-spinner')).toBeTruthy();
+  });
+
 });

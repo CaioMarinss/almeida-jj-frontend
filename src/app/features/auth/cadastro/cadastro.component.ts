@@ -6,6 +6,7 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { Notificador } from '../../../core/notificacao/notificador';
 import { CampoComponent } from '../../../shared/ui/campo/campo.component';
 import { LayoutAuthComponent } from '../../../shared/ui/layout-auth/layout-auth.component';
+import { BotaoComponent } from '../../../shared/ui/botao/botao.component';
 import { emailValidator } from '../../../shared/validators/email.validator';
 import { AbstractControl, ValidationErrors } from '@angular/forms';
 import { cpfValidator } from '../../../shared/validators/cpf.validator';
@@ -17,7 +18,7 @@ function senhasIguais(form: AbstractControl): ValidationErrors | null {
 
 @Component({
   selector: 'app-cadastro',
-  imports: [LayoutAuthComponent, CampoComponent, ReactiveFormsModule],
+  imports: [LayoutAuthComponent, BotaoComponent, CampoComponent, ReactiveFormsModule],
   templateUrl: './cadastro.component.html',
   styleUrl: './cadastro.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

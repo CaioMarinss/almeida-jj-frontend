@@ -6,13 +6,14 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { Notificador } from '../../../core/notificacao/notificador';
 import { CampoComponent } from '../../../shared/ui/campo/campo.component';
 import { LayoutAuthComponent } from '../../../shared/ui/layout-auth/layout-auth.component';
+import { BotaoComponent } from '../../../shared/ui/botao/botao.component';
 import { emailValidator } from '../../../shared/validators/email.validator';
 import { codigoDeErro, mensagemDeErro } from '../../../core/http/erro-api';
 import { normalizarEmail } from '../../../shared/utils/email.util';
 
 @Component({
   selector: 'app-login',
-  imports: [LayoutAuthComponent, CampoComponent, ReactiveFormsModule],
+  imports: [LayoutAuthComponent, BotaoComponent, CampoComponent, ReactiveFormsModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

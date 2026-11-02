@@ -1,27 +1,18 @@
-<app-layout-auth 
-title="Vamos trocar a senha?" 
-primeiroBotao="Alterar" 
-segundoBotao="Voltar"
-(submit)="submit()" 
-(navigate)="voltar()"
-[primeiroBotaoDesabilitado]="!linkValido() || enviando()"
->
+<app-layout-auth titulo="Nova senha" subtitulo="Escolha uma senha com pelo menos 6 caracteres.">
+  @if (!linkValido()) {
+    <p class="aviso" role="alert">Link inválido ou expirado.</p>
+  }
 
-    @if (!linkValido()) {
-        <p>Link inválido ou expirado.</p>
-    }
+  <form class="ajj-auth-form" [formGroup]="formSenha" (keyup.enter)="submit()">
+    <app-campo [formGroup]="formSenha" formControlName="novaSenha" controlName="novaSenha" inputName="novaSenha"
+      type="password" label="Nova senha" placeholder="Nova senha" autocomplete="new-password" />
+    <app-campo [formGroup]="formSenha" formControlName="confirmarSenha" controlName="confirmarSenha"
+      inputName="confirmarSenha" type="password" label="Confirme a senha" placeholder="Repita a senha"
+      autocomplete="new-password" />
 
-    <form [formGroup]="formSenha">
-        <app-campo [formGroup]="formSenha" [formControlName]="'novaSenha'" [controlName]="'novaSenha'" [inputName]="'novaSenha'" [type]="'password'"
-            [label]="'Qual será sua nova senha?'" [placeholder]="'Nova senha'">
-            <img src="/assets/svg/padlock-svgrepo-com.svg" height="20px" />
-        </app-campo>
-        <app-campo [formGroup]="formSenha" [formControlName]="'confirmarSenha'" [controlName]="'confirmarSenha'" [inputName]="'confirmarSenha'" [type]="'password'"
-            [label]="'Confirme sua nova senha...'" [placeholder]="'Repita a senha'">
-            <img src="/assets/svg/padlock-svgrepo-com.svg" height="20px" />
-        </app-campo>
-
-        
-    </form>
-
+    <div class="ajj-auth-acoes">
+      <ajj-botao [carregando]="enviando()" [desabilitado]="!linkValido()" (clique)="submit()">Salvar senha</ajj-botao>
+      <ajj-botao variante="texto" (clique)="voltar()">Voltar ao login</ajj-botao>
+    </div>
+  </form>
 </app-layout-auth>

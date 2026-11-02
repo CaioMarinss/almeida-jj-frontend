@@ -3,12 +3,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { mensagemDeErro } from '../../../core/http/erro-api';
 import { LayoutAuthComponent } from '../../../shared/ui/layout-auth/layout-auth.component';
+import { BotaoComponent } from '../../../shared/ui/botao/botao.component';
 
 type Status = 'carregando' | 'sucesso' | 'erro';
 
 @Component({
   selector: 'app-verificar',
-  imports: [LayoutAuthComponent],
+  imports: [LayoutAuthComponent, BotaoComponent],
   templateUrl: './verificar.component.html',
   styleUrl: './verificar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

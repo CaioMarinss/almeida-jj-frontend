@@ -6,11 +6,12 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { Notificador } from '../../../core/notificacao/notificador';
 import { CampoComponent } from '../../../shared/ui/campo/campo.component';
 import { LayoutAuthComponent } from '../../../shared/ui/layout-auth/layout-auth.component';
+import { BotaoComponent } from '../../../shared/ui/botao/botao.component';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-redefinir-senha',
-  imports: [LayoutAuthComponent, CampoComponent, ReactiveFormsModule],
+  imports: [LayoutAuthComponent, BotaoComponent, CampoComponent, ReactiveFormsModule],
   templateUrl: './redefinir-senha.component.html',
   styleUrl: './redefinir-senha.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
