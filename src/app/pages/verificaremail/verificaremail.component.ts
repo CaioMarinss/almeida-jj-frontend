@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { DefaultLoginLayoutComponent } from '../../components/default-login-layout/default-login-layout.component';
 import { PrimeiroInputComponent } from '../../components/primeiro-input/primeiro-input.component';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -14,6 +14,7 @@ import { LoginService } from '../../services/login/login.service';
     ReactiveFormsModule
   ],
   templateUrl: './verificaremail.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './verificaremail.component.scss'
 })
 export class VerificarEmailComponent {

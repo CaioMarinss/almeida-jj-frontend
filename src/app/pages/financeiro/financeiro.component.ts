@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { BasePageComponent } from '../../components/base-page/base-page.component';
 
 interface Plano {
@@ -15,6 +15,7 @@ interface Plano {
   standalone: true,
   imports: [CommonModule, BasePageComponent],
   templateUrl: './financeiro.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './financeiro.component.scss'
 })
 export class FinanceiroComponent {

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BasePageComponent } from '../../components/base-page/base-page.component';
 import { ConfirmPopupComponent } from '../../components/confirm-popup/confirm-popup.component';
@@ -11,6 +11,7 @@ import { LoginService } from '../../services/login/login.service';
   standalone: true,
   imports: [CommonModule, FormsModule, BasePageComponent, ConfirmPopupComponent],
   templateUrl: './configuracoes.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './configuracoes.component.scss'
 })
 export class ConfiguracoesComponent {
