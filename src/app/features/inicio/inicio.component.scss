@@ -1,0 +1,64 @@
+.saudacao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ajj-espaco-3);
+  padding-top: calc(var(--ion-safe-area-top, 0px) + var(--ajj-espaco-4));
+  margin-bottom: var(--ajj-espaco-5);
+}
+
+.saudacao-texto {
+  min-width: 0;
+}
+
+.saudacao-nome {
+  margin: 0;
+  font-size: 34px;
+  line-height: 1;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  flex: 0 0 44px;
+  height: 44px;
+  border-radius: var(--ajj-raio-p);
+  background: var(--ajj-primaria);
+  color: var(--ajj-sobre-primaria);
+  font-family: var(--ajj-fonte-titulo);
+  font-weight: 700;
+  font-size: 22px;
+}
+
+.checkin {
+  border-left: 4px solid var(--ajj-primaria);
+  margin-bottom: var(--ajj-espaco-3);
+}
+
+.checkin h2 {
+  margin: var(--ajj-espaco-1) 0;
+  font-size: 26px;
+}
+
+.checkin p {
+  margin: 0 0 var(--ajj-espaco-4);
+  font-size: 15px;
+}
+
+.graduacao {
+  margin-bottom: var(--ajj-espaco-3);
+}
+
+.resumo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--ajj-espaco-3);
+}
+
+.em-breve {
+  margin: var(--ajj-espaco-2) 0 0;
+  font-family: var(--ajj-fonte-titulo);
+  font-weight: 600;
+  font-size: 20px;
+  text-transform: uppercase;
+}

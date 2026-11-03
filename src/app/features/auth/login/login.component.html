@@ -1,0 +1,20 @@
+<app-layout-auth titulo="Entrar" subtitulo="Bem-vindo de volta. Oss!">
+  <form class="ajj-auth-form" [formGroup]="loginForm" (keyup.enter)="submit()">
+    <app-campo [formGroup]="loginForm" formControlName="email" controlName="email" inputName="email" type="email"
+      label="E-mail" placeholder="seu@email.com" autocomplete="email" />
+    <app-campo [formGroup]="loginForm" formControlName="senha" controlName="senha" inputName="senha" type="password"
+      label="Senha" placeholder="••••••••" autocomplete="current-password" />
+
+    <div class="ajj-links">
+      <button type="button" class="ajj-link" (click)="irParaVerificacao()">Verificar e-mail</button>
+      <button type="button" class="ajj-link" (click)="irParaEsqueciSenha()">Esqueci a senha</button>
+    </div>
+
+    <ajj-botao [carregando]="enviando()" (clique)="submit()">Entrar</ajj-botao>
+  </form>
+
+  <p class="ajj-rodape-auth">
+    Novo por aqui?
+    <button type="button" class="ajj-link" (click)="irParaCadastro()">Criar conta</button>
+  </p>
+</app-layout-auth>

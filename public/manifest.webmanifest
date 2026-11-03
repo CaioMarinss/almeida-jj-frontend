@@ -1,0 +1,17 @@
+{
+  "name": "Almeida JJ",
+  "short_name": "Almeida JJ",
+  "description": "App dos alunos da Almeida Jiu-Jitsu.",
+  "lang": "pt-BR",
+  "start_url": "/app/inicio",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0B0B0C",
+  "theme_color": "#0B0B0C",
+  "icons": [
+    { "src": "/assets/icons/icone-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/icons/icone-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/icons/icone-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

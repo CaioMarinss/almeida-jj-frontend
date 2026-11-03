@@ -1,0 +1,49 @@
+.identidade {
+  display: flex;
+  align-items: center;
+  gap: var(--ajj-espaco-3);
+  margin-bottom: var(--ajj-espaco-3);
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  flex: 0 0 52px;
+  height: 52px;
+  border-radius: var(--ajj-raio-m);
+  background: var(--ajj-primaria);
+  color: var(--ajj-sobre-primaria);
+  font-family: var(--ajj-fonte-titulo);
+  font-weight: 700;
+  font-size: 26px;
+}
+
+.dados {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.nome {
+  font-family: var(--ajj-fonte-titulo);
+  font-size: 20px;
+  text-transform: uppercase;
+}
+
+.email {
+  font-size: 15px;
+}
+
+.bloco {
+  margin-bottom: var(--ajj-espaco-3);
+}
+
+.bloco h2 {
+  margin: 0 0 var(--ajj-espaco-4);
+  font-size: 20px;
+}
+
+.sair {
+  margin-top: var(--ajj-espaco-4);
+}

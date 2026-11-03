@@ -1,0 +1,61 @@
+<ion-split-pane when="lg" contentId="conteudo">
+  <ion-menu contentId="conteudo" [swipeGesture]="false">
+    <ion-content>
+      <div class="menu">
+        <img class="logo" src="assets/imgs/logoRetangularRemovedBG.png" alt="Almeida Jiu-Jitsu" />
+
+        <div class="usuario">
+          <span class="avatar" aria-hidden="true">{{ inicial() }}</span>
+          <div class="identidade">
+            <strong class="ajj-truncar">{{ nome() }}</strong>
+            <span class="ajj-suave">{{ perfil() }}</span>
+          </div>
+        </div>
+
+        <ion-list lines="none" class="itens">
+          <ion-item button detail="false" routerLink="/app/inicio" routerLinkActive="ativo">
+            <svg lucideHouse aria-hidden="true" slot="start"></svg><ion-label>Início</ion-label>
+          </ion-item>
+          <ion-item button detail="false" routerLink="/app/aulas" routerLinkActive="ativo">
+            <svg lucideCalendarDays aria-hidden="true" slot="start"></svg><ion-label>Aulas</ion-label>
+          </ion-item>
+          <ion-item button detail="false" routerLink="/app/presenca" routerLinkActive="ativo">
+            <svg lucideCircleCheck aria-hidden="true" slot="start"></svg><ion-label>Presença</ion-label>
+          </ion-item>
+          <ion-item button detail="false" routerLink="/app/financeiro" routerLinkActive="ativo">
+            <svg lucideWallet aria-hidden="true" slot="start"></svg><ion-label>Financeiro</ion-label>
+          </ion-item>
+          <ion-item button detail="false" routerLink="/app/perfil" routerLinkActive="ativo">
+            <svg lucideUser aria-hidden="true" slot="start"></svg><ion-label>Perfil</ion-label>
+          </ion-item>
+        </ion-list>
+
+        <ion-item button detail="false" lines="none" class="sair" (click)="sair()">
+          <svg lucideLogOut aria-hidden="true" slot="start"></svg><ion-label>Sair</ion-label>
+        </ion-item>
+      </div>
+    </ion-content>
+  </ion-menu>
+
+  <div class="ion-page" id="conteudo">
+    <ion-tabs>
+      <ion-tab-bar slot="bottom">
+        <ion-tab-button tab="inicio">
+          <svg lucideHouse aria-hidden="true"></svg><ion-label>Início</ion-label>
+        </ion-tab-button>
+        <ion-tab-button tab="aulas">
+          <svg lucideCalendarDays aria-hidden="true"></svg><ion-label>Aulas</ion-label>
+        </ion-tab-button>
+        <ion-tab-button tab="presenca">
+          <svg lucideCircleCheck aria-hidden="true"></svg><ion-label>Presença</ion-label>
+        </ion-tab-button>
+        <ion-tab-button tab="financeiro">
+          <svg lucideWallet aria-hidden="true"></svg><ion-label>Financeiro</ion-label>
+        </ion-tab-button>
+        <ion-tab-button tab="perfil">
+          <svg lucideUser aria-hidden="true"></svg><ion-label>Perfil</ion-label>
+        </ion-tab-button>
+      </ion-tab-bar>
+    </ion-tabs>
+  </div>
+</ion-split-pane>

@@ -1,0 +1,57 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NavController } from '@ionic/angular';
+import { SessionService } from '../../core/auth/session.service';
+import { criarNotificador } from '../auth/testes-auth';
+import { logar, provedoresApp } from '../testes-app';
+import { ShellComponent } from './shell.component';
+
+describe('ShellComponent', () => {
+  const notificador = criarNotificador();
+  let fixture: ComponentFixture<ShellComponent>;
+  let sessao: SessionService;
+
+  beforeEach(async () => {
+    sessionStorage.clear();
+    notificador.confirmar.and.resolveTo(true);
+    TestBed.configureTestingModule({ imports: [ShellComponent], providers: provedoresApp(notificador) });
+    sessao = TestBed.inject(SessionService);
+    logar(sessao, 'Bruno Lima', 'PROFESSOR');
+    fixture = TestBed.createComponent(ShellComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+  });
+
+  afterEach(() => sessionStorage.clear());
+
+  it('mostra nome e perfil da sessão no menu', () => {
+    const texto: string = fixture.nativeElement.querySelector('ion-menu').textContent;
+
+    expect(texto).toContain('Bruno Lima');
+    expect(texto).toContain('Professor');
+  });
+
+  it('tem cinco abas', () => {
+    const abas = Array.from(fixture.nativeElement.querySelectorAll('ion-tab-button')).map(
+      a => (a as HTMLElement).getAttribute('tab')
+    );
+
+    expect(abas).toEqual(['inicio', 'aulas', 'presenca', 'financeiro', 'perfil']);
+  });
+
+  it('sair confirmado encerra a sessão e navega para o login', async () => {
+    const navegar = spyOn(TestBed.inject(NavController), 'navigateRoot').and.resolveTo(true);
+
+    await fixture.componentInstance.sair();
+
+    expect(sessao.autenticado()).toBeFalse();
+    expect(navegar).toHaveBeenCalledWith('/login');
+  });
+
+  it('sair cancelado mantém a sessão', async () => {
+    notificador.confirmar.and.resolveTo(false);
+
+    await fixture.componentInstance.sair();
+
+    expect(sessao.autenticado()).toBeTrue();
+  });
+});

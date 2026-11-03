@@ -1,0 +1,37 @@
+<ion-content>
+  <div class="ajj-coluna">
+    <header class="saudacao">
+      <div class="saudacao-texto">
+        <span class="ajj-rotulo">Oss,</span>
+        <h1 class="saudacao-nome ajj-truncar">{{ primeiroNome() }}</h1>
+      </div>
+      <span class="avatar" aria-hidden="true">{{ inicial() }}</span>
+    </header>
+
+    <section class="ajj-card checkin" aria-labelledby="checkin-titulo">
+      <span class="ajj-rotulo">Check-in</span>
+      <h2 id="checkin-titulo">Em breve</h2>
+      <p class="ajj-suave">Em breve você faz o check-in da aula direto pelo app.</p>
+      <ajj-botao [desabilitado]="true">Fazer check-in</ajj-botao>
+    </section>
+
+    <ajj-estado-vazio
+      class="graduacao"
+      titulo="Sua graduação aparece aqui"
+      texto="Quando o professor registrar sua faixa e seus graus, você acompanha a evolução por aqui."
+    >
+      <svg lucideAward icone aria-hidden="true"></svg>
+    </ajj-estado-vazio>
+
+    <div class="resumo">
+      <section class="ajj-card">
+        <span class="ajj-rotulo">No mês</span>
+        <p class="em-breve">Em breve</p>
+      </section>
+      <section class="ajj-card">
+        <span class="ajj-rotulo">Mensalidade</span>
+        <p class="em-breve">Em breve</p>
+      </section>
+    </div>
+  </div>
+</ion-content>

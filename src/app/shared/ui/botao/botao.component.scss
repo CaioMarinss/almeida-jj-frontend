@@ -1,0 +1,19 @@
+:host {
+  display: block;
+}
+
+ion-button {
+  --border-radius: var(--ajj-raio-p);
+  min-height: 48px;
+  margin: 0;
+  font-family: var(--ajj-fonte-titulo);
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+ion-spinner {
+  width: 22px;
+  height: 22px;
+}

@@ -1,0 +1,21 @@
+<ion-input
+  fill="outline"
+  labelPlacement="stacked"
+  [label]="label()"
+  [id]="inputName()"
+  [name]="inputName()"
+  [type]="type()"
+  [placeholder]="placeholder()"
+  [value]="value()"
+  [disabled]="desabilitado()"
+  [autocomplete]="$any(autocomplete())"
+  [attr.inputmode]="modoTeclado()"
+  [attr.aria-invalid]="mensagemErro() ? 'true' : null"
+  [attr.aria-describedby]="mensagemErro() ? idErro() : null"
+  (ionInput)="aoDigitar($event)"
+  (ionBlur)="aoSair()"
+/>
+
+@if (mensagemErro()) {
+  <small class="erro" role="alert" [id]="idErro()">{{ mensagemErro() }}</small>
+}

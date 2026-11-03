@@ -1,0 +1,18 @@
+<app-layout-auth titulo="Nova senha" subtitulo="Escolha uma senha com pelo menos 6 caracteres.">
+  @if (!linkValido()) {
+    <p class="aviso" role="alert">Link inválido ou expirado.</p>
+  }
+
+  <form class="ajj-auth-form" [formGroup]="formSenha" (keyup.enter)="submit()">
+    <app-campo [formGroup]="formSenha" formControlName="novaSenha" controlName="novaSenha" inputName="novaSenha"
+      type="password" label="Nova senha" placeholder="Nova senha" autocomplete="new-password" />
+    <app-campo [formGroup]="formSenha" formControlName="confirmarSenha" controlName="confirmarSenha"
+      inputName="confirmarSenha" type="password" label="Confirme a senha" placeholder="Repita a senha"
+      autocomplete="new-password" />
+
+    <div class="ajj-auth-acoes">
+      <ajj-botao [carregando]="enviando()" [desabilitado]="!linkValido()" (clique)="submit()">Salvar senha</ajj-botao>
+      <ajj-botao variante="texto" (clique)="voltar()">Voltar ao login</ajj-botao>
+    </div>
+  </form>
+</app-layout-auth>

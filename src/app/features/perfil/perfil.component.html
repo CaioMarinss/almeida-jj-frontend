@@ -1,0 +1,33 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>Perfil</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="ajj-coluna">
+    <section class="ajj-card identidade" aria-label="Seus dados">
+      <span class="avatar" aria-hidden="true">{{ inicial() }}</span>
+      <div class="dados">
+        <strong class="nome ajj-truncar">{{ nome() }}</strong>
+        <span class="email ajj-truncar ajj-suave">{{ email() }}</span>
+      </div>
+      <span class="ajj-chip">{{ perfil() }}</span>
+    </section>
+
+    <section class="ajj-card bloco" aria-labelledby="titulo-senha">
+      <h2 id="titulo-senha">Trocar senha</h2>
+      <form [formGroup]="senhaForm" (keyup.enter)="trocarSenha()">
+        <app-campo [formGroup]="senhaForm" formControlName="senhaAtual" controlName="senhaAtual" inputName="senhaAtual"
+          type="password" label="Senha atual" autocomplete="current-password" />
+        <app-campo [formGroup]="senhaForm" formControlName="novaSenha" controlName="novaSenha" inputName="novaSenha"
+          type="password" label="Nova senha" placeholder="Mínimo de 6 caracteres" autocomplete="new-password" />
+        <app-campo [formGroup]="senhaForm" formControlName="passwordConfirm" controlName="passwordConfirm"
+          inputName="passwordConfirm" type="password" label="Confirme a nova senha" autocomplete="new-password" />
+        <ajj-botao [carregando]="trocandoSenha()" (clique)="trocarSenha()">Trocar senha</ajj-botao>
+      </form>
+    </section>
+
+    <ajj-botao variante="texto" class="sair" (clique)="sair()">Sair da conta</ajj-botao>
+  </div>
+</ion-content>

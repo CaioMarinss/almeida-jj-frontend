@@ -1,0 +1,15 @@
+<ion-button
+  expand="block"
+  color="primary"
+  [fill]="preenchimento()"
+  [type]="tipo()"
+  [disabled]="bloqueado()"
+  [attr.aria-busy]="carregando()"
+  (click)="aoClicar()"
+>
+  @if (carregando()) {
+    <ion-spinner name="crescent" aria-hidden="true" />
+  } @else {
+    <ng-content />
+  }
+</ion-button>

@@ -1,0 +1,11 @@
+<app-layout-auth titulo="Verificar e-mail" subtitulo="Enviaremos um novo link de ativação da sua conta.">
+  <form class="ajj-auth-form" [formGroup]="emailForm" (keyup.enter)="submit()">
+    <app-campo [formGroup]="emailForm" formControlName="email" controlName="email" inputName="email" type="email"
+      label="E-mail" placeholder="seu@email.com" autocomplete="email" />
+
+    <div class="ajj-auth-acoes">
+      <ajj-botao [carregando]="enviando()" (clique)="submit()">Reenviar link</ajj-botao>
+      <ajj-botao variante="texto" (clique)="voltar()">Voltar ao login</ajj-botao>
+    </div>
+  </form>
+</app-layout-auth>

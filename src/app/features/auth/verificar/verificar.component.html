@@ -1,0 +1,14 @@
+<app-layout-auth
+  [titulo]="status() === 'sucesso' ? 'E-mail verificado' : status() === 'erro' ? 'Não deu certo' : 'Verificando…'"
+>
+  <p class="mensagem" role="status">{{ mensagem() }}</p>
+
+  <div class="ajj-auth-acoes">
+    @if (status() === 'sucesso') {
+      <ajj-botao (clique)="voltar()">Entrar</ajj-botao>
+    } @else if (status() === 'erro') {
+      <ajj-botao (clique)="reenviar()">Enviar novo link</ajj-botao>
+      <ajj-botao variante="texto" (clique)="voltar()">Voltar ao login</ajj-botao>
+    }
+  </div>
+</app-layout-auth>

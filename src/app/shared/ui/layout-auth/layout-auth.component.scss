@@ -1,0 +1,58 @@
+:host {
+  display: contents;
+}
+
+.pagina {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.capa {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-height: 200px;
+  padding: calc(var(--ion-safe-area-top, 0px) + var(--ajj-espaco-6)) var(--ajj-espaco-5) var(--ajj-espaco-5);
+  background:
+    linear-gradient(180deg, rgba(11, 11, 12, 0.35) 0%, var(--ajj-fundo) 100%),
+    repeating-linear-gradient(-55deg, transparent 0 18px, rgba(242, 204, 15, 0.06) 18px 20px),
+    url('/assets/imgs/alunosPB.jpeg') center 30% / cover no-repeat;
+}
+
+.logo {
+  width: 180px;
+  max-width: 60%;
+  height: auto;
+}
+
+.conteudo {
+  flex: 1;
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+  padding: var(--ajj-espaco-4) var(--ajj-espaco-5) calc(var(--ion-safe-area-bottom, 0px) + var(--ajj-espaco-8));
+}
+
+.titulo {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1.05;
+}
+
+.subtitulo {
+  margin: var(--ajj-espaco-2) 0 var(--ajj-espaco-6);
+  color: var(--ajj-texto-suave);
+  font-size: 16px;
+}
+
+@media (min-width: 992px) {
+  .capa {
+    min-height: 260px;
+    justify-content: center;
+  }
+
+  .logo {
+    width: 220px;
+  }
+}

@@ -1,0 +1,15 @@
+<ion-content [fullscreen]="true">
+  <div class="pagina">
+    <header class="capa">
+      <img class="logo" src="assets/imgs/logoRetangularRemovedBG.png" alt="Almeida Jiu-Jitsu" />
+    </header>
+
+    <main class="conteudo">
+      <h1 class="titulo">{{ titulo() }}</h1>
+      @if (subtitulo()) {
+        <p class="subtitulo">{{ subtitulo() }}</p>
+      }
+      <ng-content />
+    </main>
+  </div>
+</ion-content>
