@@ -8,6 +8,8 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não lançado]
 
+## [0.2.0] - 2026-11-02
+
 ### Adicionado
 - Novo visual "esportivo" (fundo escuro, amarelo de destaque, Oswald e Barlow) com componentes Ionic 9 e ícones Lucide em todas as telas.
 - Navegação de app na área logada (`/app/*`): abas embaixo no celular e menu lateral no computador (a partir de 992 px).
