@@ -8,6 +8,10 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não lançado]
 
+### Adicionado
+- Regras de senha forte (mínimo 8 caracteres, maiúscula, minúscula, número, caractere especial, sem espaços) no cadastro, na redefinição e na troca de senha, com lista de regras que acompanha a digitação.
+- Testes ponta a ponta (Playwright) em `e2e/`, rodando no GitHub Actions a cada push ou PR para `dev`.
+
 ## [0.2.0] - 2026-11-02
 
 ### Adicionado

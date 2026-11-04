@@ -13,6 +13,7 @@ export API_URL="http://localhost:8080"
 npm start        # writes src/environments/environment.ts, then ng serve (http://localhost:4200)
 npm run build    # same env generation, then ng build
 npm test         # Karma + Jasmine
+npm run e2e      # Playwright end-to-end (Docker: Postgres + Mailpit + API built from ../almeidaPresenca)
 ```
 
 `src/environments/environment.ts` is **generated** by `scripts/set-environment.mjs` from `API_URL` (trailing slash stripped). It is tracked in git, so avoid committing a non-local URL.
@@ -30,8 +31,8 @@ Angular 22.2, standalone components, **zoneless** change detection (no zone.js),
 - `features/auth/` — `login`, `cadastro`, `esqueci-senha`, `reenviar-verificacao`, `verificar`, `redefinir-senha` (`testes-auth.ts` holds spec helpers)
 - `features/shell/` — logged-in shell: `ion-split-pane` (side `ion-menu` at ≥ 992 px) + `ion-tabs` with a bottom tab bar (hidden when the menu is visible)
 - `features/inicio`, `aulas`, `presenca`, `financeiro` — logged-in screens, **empty states only** (no fake data); `features/perfil` (+ `PerfilService` for password change; no name editing until the API has `PUT /alunos/me`). `features/testes-app.ts` holds spec helpers.
-- `shared/ui/` — `campo` (`ControlValueAccessor` over `ion-input`; `formato="cpf"` formats as you type; error message derived from `formGroup().events`), `botao` (`ajj-botao`: `variante`, `carregando`, `desabilitado`, `tipo`, output `clique`), `estado-vazio` (`ajj-estado-vazio`), `barra-faixa` (`ajj-barra-faixa`, belt with 0–4 degrees), `layout-auth` (inputs `titulo`, `subtitulo`; content projected)
-- `shared/validators/` (`cpfValidator`, `emailValidator` — trims before validating), `shared/utils/` (`email.util.ts`, `cpf.util.ts` with `formatarCpf`)
+- `shared/ui/` — `campo` (`ControlValueAccessor` over `ion-input`; `formato="cpf"` formats as you type; error message derived from `formGroup().events`), `botao` (`ajj-botao`: `variante`, `carregando`, `desabilitado`, `tipo`, output `clique`), `estado-vazio` (`ajj-estado-vazio`), `barra-faixa` (`ajj-barra-faixa`, belt with 0–4 degrees), `layout-auth` (inputs `titulo`, `subtitulo`; content projected), `regras-senha` (`ajj-regras-senha`, input `senha`: live checklist of `REGRAS_SENHA`, used under every new-password field)
+- `shared/validators/` (`cpfValidator`, `emailValidator` — trims before validating; `senhaForteValidator` + `REGRAS_SENHA` — min 8 chars, upper, lower, digit, special, no spaces; same rules as the API's `@SenhaForte`), `shared/utils/` (`email.util.ts`, `cpf.util.ts` with `formatarCpf`)
 
 Rules: components never touch `sessionStorage` nor build API URLs; services do. No code comments (SCSS included). No fake data on any screen.
 
@@ -58,6 +59,8 @@ Errors come as `ProblemDetail` (`detail`, `codigo`). Login with `codigo === 'ERR
 ## Tests
 
 Karma + Jasmine, zoneless TestBed. In specs call `fixture.detectChanges()` then `await fixture.whenStable()`. No Chrome in WSL: download `chrome-headless-shell` with `npx @puppeteer/browsers install chrome-headless-shell@stable` and set `CHROME_BIN`; run `npx ng test --watch=false --browsers=ChromeHeadless`.
+
+E2E (Playwright, `e2e/`, config in `playwright.config.ts`): `e2e/docker-compose.yml` runs Postgres (tmpfs), Mailpit (SMTP sink, UI/API on 18025) and the API (port 18080, built from `ALMEIDA_API_DIR`, default `../almeidaPresenca`); the front runs with `ng serve --configuration e2e` on 4300, which swaps in `src/environments/environment.e2e.ts`. Global setup/teardown start and stop the stack (`E2E_MANTER_AMBIENTE=1` keeps it). Tests create their own accounts (random e-mail/CPF) and read verification/reset links from Mailpit. Projects: `desktop` and `celular` (Pixel 7); `workers: 2` (more workers starve WSL/CI and make navigations time out). Ionic clones focused inputs on mobile (`.cloned-input`), so field locators exclude it. Not part of `npm test`. CI: `.github/workflows/e2e.yml` runs it on push/PR to `dev` against the API's `dev` branch (checked out with the `API_DEPLOY_KEY` secret, a read-only deploy key of the private API repo) and uploads `e2e/relatorio` as the `relatorio-e2e` artifact; the API repo has the mirror workflow (checks out this repo's `dev`). No local git hooks. Release order: when a change spans both repos, merge/push the API's `dev` first and wait for its e2e to pass, then the front (each workflow tests against the other repo's `dev`).
 
 ## Design system
 
