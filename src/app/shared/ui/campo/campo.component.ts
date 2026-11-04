@@ -48,6 +48,9 @@ export class CampoComponent implements ControlValueAccessor {
     if (controle.hasError('minlength')) {
       return `Digite pelo menos ${controle.getError('minlength').requiredLength} caracteres.`;
     }
+    if (controle.hasError('senhaFraca')) {
+      return 'A senha não atende a todos os requisitos.';
+    }
     if (controle.hasError('cpfInvalido')) {
       return 'Digite um CPF válido.';
     }

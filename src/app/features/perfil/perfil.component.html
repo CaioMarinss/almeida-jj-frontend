@@ -21,7 +21,8 @@
         <app-campo [formGroup]="senhaForm" formControlName="senhaAtual" controlName="senhaAtual" inputName="senhaAtual"
           type="password" label="Senha atual" autocomplete="current-password" />
         <app-campo [formGroup]="senhaForm" formControlName="novaSenha" controlName="novaSenha" inputName="novaSenha"
-          type="password" label="Nova senha" placeholder="Mínimo de 6 caracteres" autocomplete="new-password" />
+          type="password" label="Nova senha" placeholder="Crie uma senha forte" autocomplete="new-password" />
+        <ajj-regras-senha [senha]="novaSenha()" />
         <app-campo [formGroup]="senhaForm" formControlName="passwordConfirm" controlName="passwordConfirm"
           inputName="passwordConfirm" type="password" label="Confirme a nova senha" autocomplete="new-password" />
         <ajj-botao [carregando]="trocandoSenha()" (clique)="trocarSenha()">Trocar senha</ajj-botao>

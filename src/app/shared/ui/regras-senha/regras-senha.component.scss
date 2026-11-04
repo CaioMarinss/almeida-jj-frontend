@@ -1,0 +1,46 @@
+:host {
+  display: block;
+  margin: calc(-1 * var(--ajj-espaco-2)) var(--ajj-espaco-1) var(--ajj-espaco-4);
+}
+
+.regras {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+  color: var(--ajj-texto-suave);
+}
+
+li {
+  display: flex;
+  align-items: baseline;
+  gap: var(--ajj-espaco-2);
+  transition: color 150ms ease-out;
+}
+
+.marca {
+  width: 1em;
+  text-align: center;
+  font-weight: 700;
+}
+
+.cumprida {
+  color: var(--ajj-sucesso);
+}
+
+.oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  li {
+    transition: none;
+  }
+}

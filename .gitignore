@@ -42,3 +42,7 @@ testem.log
 Thumbs.db
 .vercel
 .env*
+
+# Testes e2e (Playwright)
+/e2e/resultados/
+/e2e/relatorio/

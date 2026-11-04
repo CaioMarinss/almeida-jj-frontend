@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { provideIonicAngular } from '@ionic/angular';
+import { senhaForteValidator } from '../../validators/senha-forte.validator';
 import { CampoComponent } from './campo.component';
 
 @Component({
@@ -9,12 +10,14 @@ import { CampoComponent } from './campo.component';
   template: `<form [formGroup]="form">
     <app-campo [formGroup]="form" formControlName="email" controlName="email" inputName="email" label="E-mail" />
     <app-campo [formGroup]="form" formControlName="cpf" controlName="cpf" inputName="cpf" label="CPF" formato="cpf" />
+    <app-campo [formGroup]="form" formControlName="senha" controlName="senha" inputName="senha" label="Senha" type="password" />
   </form>`
 })
 class HospedeiroComponent {
   readonly form = new FormGroup({
     email: new FormControl('', Validators.required),
-    cpf: new FormControl('')
+    cpf: new FormControl(''),
+    senha: new FormControl('', senhaForteValidator())
   });
 }
 
@@ -63,5 +66,14 @@ describe('CampoComponent', () => {
     const cpf: HTMLElement = fixture.nativeElement.querySelectorAll('ion-input')[1];
 
     expect(cpf.getAttribute('inputmode')).toBe('numeric');
+  });
+
+  it('mostra erro de senha fraca e some quando a senha fica forte', async () => {
+    await digitar(2, 'fraca');
+    const erroDaSenha = () => fixture.nativeElement.querySelectorAll('app-campo')[2].querySelector('.erro');
+    expect(erroDaSenha()?.textContent).toContain('A senha não atende a todos os requisitos.');
+
+    await digitar(2, 'Forte@123');
+    expect(erroDaSenha()).toBeNull();
   });
 });

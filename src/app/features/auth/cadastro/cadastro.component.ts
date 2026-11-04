@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
@@ -11,6 +12,8 @@ import { emailValidator } from '../../../shared/validators/email.validator';
 import { AbstractControl, ValidationErrors } from '@angular/forms';
 import { cpfValidator } from '../../../shared/validators/cpf.validator';
 import { normalizarEmail } from '../../../shared/utils/email.util';
+import { senhaForteValidator } from '../../../shared/validators/senha-forte.validator';
+import { RegrasSenhaComponent } from '../../../shared/ui/regras-senha/regras-senha.component';
 
 function senhasIguais(form: AbstractControl): ValidationErrors | null {
   return form.get('senha')?.value === form.get('passwordConfirm')?.value ? null : { senhasDiferentes: true };
@@ -18,7 +21,7 @@ function senhasIguais(form: AbstractControl): ValidationErrors | null {
 
 @Component({
   selector: 'app-cadastro',
-  imports: [LayoutAuthComponent, BotaoComponent, CampoComponent, ReactiveFormsModule],
+  imports: [LayoutAuthComponent, BotaoComponent, CampoComponent, RegrasSenhaComponent, ReactiveFormsModule],
   templateUrl: './cadastro.component.html',
   styleUrl: './cadastro.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -35,14 +38,13 @@ export class CadastroComponent {
       nome: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(3)] }),
       cpf: new FormControl('', { nonNullable: true, validators: [Validators.required, cpfValidator()] }),
       email: new FormControl('', { nonNullable: true, validators: [Validators.required, emailValidator()] }),
-      senha: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(6)] }),
-      passwordConfirm: new FormControl('', {
-        nonNullable: true,
-        validators: [Validators.required, Validators.minLength(6)]
-      })
+      senha: new FormControl('', { nonNullable: true, validators: [Validators.required, senhaForteValidator()] }),
+      passwordConfirm: new FormControl('', { nonNullable: true, validators: [Validators.required] })
     },
     { validators: senhasIguais }
   );
+
+  readonly senha = toSignal(this.cadastroForm.controls.senha.valueChanges, { initialValue: '' });
 
   submit(): void {
     if (this.enviando()) {

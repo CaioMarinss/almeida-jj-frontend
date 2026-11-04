@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { IonContent, IonHeader, IonTitle, IonToolbar, NavController } from '@ionic/angular';
 import { firstValueFrom } from 'rxjs';
@@ -10,6 +11,8 @@ import { Notificador } from '../../core/notificacao/notificador';
 import { BotaoComponent } from '../../shared/ui/botao/botao.component';
 import { CampoComponent } from '../../shared/ui/campo/campo.component';
 import { PerfilService } from './perfil.service';
+import { senhaForteValidator } from '../../shared/validators/senha-forte.validator';
+import { RegrasSenhaComponent } from '../../shared/ui/regras-senha/regras-senha.component';
 
 function senhasIguais(form: AbstractControl): ValidationErrors | null {
   return form.get('novaSenha')?.value === form.get('passwordConfirm')?.value ? null : { senhasDiferentes: true };
@@ -17,7 +20,7 @@ function senhasIguais(form: AbstractControl): ValidationErrors | null {
 
 @Component({
   selector: 'app-perfil',
-  imports: [ReactiveFormsModule, IonHeader, IonToolbar, IonTitle, IonContent, CampoComponent, BotaoComponent],
+  imports: [ReactiveFormsModule, IonHeader, IonToolbar, IonTitle, IonContent, CampoComponent, BotaoComponent, RegrasSenhaComponent],
   templateUrl: './perfil.component.html',
   styleUrl: './perfil.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -42,11 +45,13 @@ export class PerfilComponent {
   readonly senhaForm = new FormGroup(
     {
       senhaAtual: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-      novaSenha: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(6)] }),
+      novaSenha: new FormControl('', { nonNullable: true, validators: [Validators.required, senhaForteValidator()] }),
       passwordConfirm: new FormControl('', { nonNullable: true, validators: [Validators.required] })
     },
     { validators: senhasIguais }
   );
+
+  readonly novaSenha = toSignal(this.senhaForm.controls.novaSenha.valueChanges, { initialValue: '' });
 
   async trocarSenha(): Promise<void> {
     if (this.trocandoSenha()) {
