@@ -24,13 +24,13 @@ Angular 22.2, standalone components, **zoneless** change detection (no zone.js),
 
 ## Structure (`src/app`)
 
-- `core/auth/` — `SessionService` (only owner of `sessionStorage`: keys `ajj.token`, `ajj.usuario`; exposes `usuario`/`autenticado` signals; `encerrar()` logs out; `sessaoValida()` also ends the session when the JWT `exp` has passed), `SaidaService` (confirm → `encerrar()` → `NavController.navigateRoot('/login')`; used by shell and perfil), `AuthService` (all `/auth/**` calls), `authGuard` (functional, redirects to `/login`), `visitanteGuard` (on `''`/`login`, sends a logged-in user to `/app/inicio`), `usuario.ts` (`Usuario`, `Perfil`, `ROTULO_PERFIL`)
+- `core/auth/` — `SessionService` (only owner of `sessionStorage`: keys `ajj.token`, `ajj.usuario`; exposes `usuario`/`autenticado` signals; `encerrar()` logs out; `sessaoValida()` also ends the session when the JWT `exp` has passed), `SaidaService` (confirm → `encerrar()` → `NavController.navigateRoot('/login')`; used by shell and perfil), `AuthService` (all `/auth/**` calls), `authGuard` (functional, redirects to `/login`), `visitanteGuard` (on `''`/`login`, sends a logged-in user to `/app/inicio`), `donoGuard` (functional, only `perfil === 'DONO'` passes, else `/app/inicio`), `usuario.ts` (`Usuario`, `Perfil` = `'ALUNO' | 'PROFESSOR' | 'DONO'`, `ROTULO_PERFIL`)
 - `core/http/` — `authInterceptor` (adds `Bearer` only to `environment.apiUrl` URLs), `sessaoExpiradaInterceptor` (401 outside `/auth/**` → logout + `/login` + "Sua sessão expirou" toast), `erro-api.ts` (`mensagemDeErro`/`codigoDeErro` read the API `ProblemDetail`)
 - `core/notificacao/` — `Notificador` (abstract class used as DI token: `sucesso`, `aviso`, `erro`, `erroDaApi`, `confirmar`) + `IonicNotificador` (toasts via `ToastController`, errors/confirmations via `AlertController`; a second `confirmar` while one is open resolves `false`). Inject `Notificador`, never the Ionic controllers directly.
 - `core/pwa/` — `AtualizacaoAppService` (started by `provideAppInitializer`; on `VERSION_READY` asks to update and reloads, reloads on `unrecoverable`, checks for updates when the tab becomes visible)
 - `features/auth/` — `login`, `cadastro`, `esqueci-senha`, `reenviar-verificacao`, `verificar`, `redefinir-senha` (`testes-auth.ts` holds spec helpers)
 - `features/shell/` — logged-in shell: `ion-split-pane` (side `ion-menu` at ≥ 992 px) + `ion-tabs` with a bottom tab bar (hidden when the menu is visible)
-- `features/inicio`, `aulas`, `presenca`, `financeiro` — logged-in screens, **empty states only** (no fake data); `features/perfil` (+ `PerfilService` for password change; no name editing until the API has `PUT /alunos/me`). `features/testes-app.ts` holds spec helpers.
+- `features/inicio`, `aulas`, `presenca`, `financeiro` — logged-in screens, **empty states only** (no fake data); `features/perfil` (+ `PerfilService` for password change; no name editing until the API has `PUT /alunos/me`; shows a "Gerenciar professores" button only to the dono), `features/professores` (dono only: lists active people via `GET /alunos` and toggles Aluno ↔ Professor with confirmation; `ProfessoresService`, `PessoaAcademia`). `features/testes-app.ts` holds spec helpers.
 - `shared/ui/` — `campo` (`ControlValueAccessor` over `ion-input`; `formato="cpf"` formats as you type; error message derived from `formGroup().events`), `botao` (`ajj-botao`: `variante`, `carregando`, `desabilitado`, `tipo`, output `clique`), `estado-vazio` (`ajj-estado-vazio`), `barra-faixa` (`ajj-barra-faixa`, belt with 0–4 degrees), `layout-auth` (inputs `titulo`, `subtitulo`; content projected), `regras-senha` (`ajj-regras-senha`, input `senha`: live checklist of `REGRAS_SENHA`, used under every new-password field)
 - `shared/validators/` (`cpfValidator`, `emailValidator` — trims before validating; `senhaForteValidator` + `REGRAS_SENHA` — min 8 chars, upper, lower, digit, special, no spaces; same rules as the API's `@SenhaForte`), `shared/utils/` (`email.util.ts`, `cpf.util.ts` with `formatarCpf`)
 
@@ -39,7 +39,7 @@ Rules: components never touch `sessionStorage` nor build API URLs; services do. 
 ## Routes
 
 Public: `''`/`login`, `cadastro`, `esquecisenha`, `verificaremail` (accepts `?email=`), `verificar?token=` and `resetar?token=` (links from API e-mails).
-Logged in (`app`, behind `authGuard`, rendered inside `ShellComponent`): `/app/inicio` (default), `/app/aulas`, `/app/presenca`, `/app/financeiro`, `/app/perfil`. Login success goes to `/app/inicio`.
+Logged in (`app`, behind `authGuard`, rendered inside `ShellComponent`): `/app/inicio` (default), `/app/aulas`, `/app/presenca`, `/app/financeiro`, `/app/perfil`, `/app/professores` (`donoGuard`; side menu item only for the dono, no tab — on mobile it is reached from Perfil). Roles are a ladder DONO > PROFESSOR > ALUNO; the label shown is the user's `perfil`. Login success goes to `/app/inicio`.
 Old URLs redirect: `/dashboard`→`/app/inicio`, `/calendario`→`/app/aulas`, `/financeiro`→`/app/financeiro`, `/configuracoes`→`/app/perfil`. Unknown paths redirect to `''`.
 
 ## Backend endpoints used
@@ -53,6 +53,8 @@ Old URLs redirect: `/dashboard`→`/app/inicio`, `/calendario`→`/app/aulas`, `
 | POST | `/auth/senha/esqueci` `{email}` | `AuthService.esqueciSenha` |
 | POST | `/auth/senha/redefinir` `{token, novaSenha}` | `AuthService.redefinirSenha` |
 | PUT | `/alunos/me/senha` `{senhaAtual, novaSenha}` | `PerfilService.alterarSenha` |
+| GET | `/alunos` → `[{id, nome, email, perfil}]` (professor/dono) | `ProfessoresService.listar` |
+| PUT | `/alunos/{id}/perfil` `{perfil: 'PROFESSOR' \| 'ALUNO'}` (dono) | `ProfessoresService.alterarPerfil` |
 
 Errors come as `ProblemDetail` (`detail`, `codigo`). Login with `codigo === 'ERR003'` (account not verified) sends the user to `/verificaremail?email=`.
 

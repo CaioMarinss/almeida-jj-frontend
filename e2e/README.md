@@ -47,7 +47,8 @@ e2e/
 ├── tests/               cenários (um arquivo por fluxo)
 └── suporte/
     ├── ambiente.ts      docker compose e espera de serviços
-    ├── contas.ts        cria conta já verificada pela API
+    ├── banco.ts         executarSql: roda SQL no Postgres do ambiente (ex.: criar dono)
+    ├── contas.ts        cria conta verificada (criarContaAtiva), dono (criarDono), token e id pela API
     ├── dados.ts         senhas de teste, e-mail e CPF válidos aleatórios
     ├── mailpit.ts       busca e-mail e extrai o link
     └── telas.ts         helpers de tela (campo, botão, toast, alerta, login)
@@ -55,7 +56,7 @@ e2e/
 
 ## Cenários
 
-São 22 testes, que viram 34 execuções: os 22 rodam no desktop e 12 rodam de novo no celular.
+São 29 testes, que viram 44 execuções: os 29 rodam no desktop e 15 rodam de novo no celular.
 
 ### Cadastro (`tests/cadastro.spec.ts`), desktop e celular
 
@@ -89,6 +90,20 @@ Chamam a API direto, sem abrir tela. Garantem que a regra vale mesmo para quem p
 | Redefinição com senha fraca | A API responde 400 antes mesmo de validar o token. |
 | Troca de senha logado | `PUT /alunos/me/senha` recusa senha fraca (400 com o motivo) e aceita senha forte (204). |
 | Login de conta antiga | Contas criadas antes das regras, com senha fora do padrão, continuam conseguindo fazer login (as regras não são aplicadas no login). |
+
+### Cargos (`tests/cargos.spec.ts`)
+
+A conta de dono é criada pelo próprio teste (`criarDono`: cadastro pela API + `UPDATE ... CARGO = 'D'` no banco do ambiente).
+
+| Cenário | Onde roda | O que verifica |
+|---|---|---|
+| O dono vê o cargo e chega em Professores pelo perfil | desktop e celular | Chip "Dono" no Perfil; "Gerenciar professores" abre `/app/professores` com a lista. |
+| O dono promove e rebaixa um aluno | desktop e celular | "Tornar professor" com confirmação e toast; o aluno entra e vê "Professor". "Remover professor" volta para "Aluno", e o aluno confirma ao entrar. |
+| Aluno e professor não acessam Professores | desktop e celular | Nenhum dos dois vê "Gerenciar professores", e abrir `/app/professores` leva para `/app/inicio`. |
+| O menu lateral do dono tem Professores | só desktop | O item do menu abre a tela. |
+| API: professor e aluno não alteram cargo | só desktop | `PUT /alunos/{id}/perfil` responde 403 para os dois. |
+| API: o cargo de outro dono não muda pelo app | só desktop | 422 com `codigo` `ERR010`. |
+| API: ninguém vira dono pelo app | só desktop | `{"perfil":"DONO"}` responde 400. |
 
 ## No GitHub (Actions)
 

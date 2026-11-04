@@ -8,6 +8,14 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não lançado]
 
+### Adicionado
+- Cargo **Dono** no perfil (Dono > Professor > Aluno).
+- Tela **Professores** (`/app/professores`), só para o dono: torna um aluno professor ou tira o cargo, com confirmação. Acesso pelo menu lateral no computador e por "Gerenciar professores" no Perfil.
+- Testes e2e de cargos (`e2e/tests/cargos.spec.ts`).
+
+### Alterado
+- O ambiente dos testes e2e (`docker-compose.yml`) passa a vir do repositório da API.
+
 ## [0.2.1] - 2026-11-04
 
 ### Adicionado
