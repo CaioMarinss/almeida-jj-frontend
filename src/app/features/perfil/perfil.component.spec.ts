@@ -36,6 +36,15 @@ describe('PerfilComponent', () => {
   const preencherSenha = (atual: string, nova: string, confirmacao: string) =>
     componente.senhaForm.setValue({ senhaAtual: atual, novaSenha: nova, passwordConfirm: confirmacao });
 
+  it('mostra o chip Dono para o dono', async () => {
+    logar(TestBed.inject(SessionService), 'Carla Dias', 'DONO');
+    const fixture = TestBed.createComponent(PerfilComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(fixture.nativeElement.querySelector('.ajj-chip').textContent).toContain('Dono');
+  });
+
   it('mostra identidade com nome e e-mail truncáveis', () => {
     expect(tela.querySelector('.nome')?.classList).toContain('ajj-truncar');
     expect(tela.querySelector('.email')?.classList).toContain('ajj-truncar');
