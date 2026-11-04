@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
@@ -8,10 +9,12 @@ import { CampoComponent } from '../../../shared/ui/campo/campo.component';
 import { LayoutAuthComponent } from '../../../shared/ui/layout-auth/layout-auth.component';
 import { BotaoComponent } from '../../../shared/ui/botao/botao.component';
 import { ActivatedRoute } from '@angular/router';
+import { senhaForteValidator } from '../../../shared/validators/senha-forte.validator';
+import { RegrasSenhaComponent } from '../../../shared/ui/regras-senha/regras-senha.component';
 
 @Component({
   selector: 'app-redefinir-senha',
-  imports: [LayoutAuthComponent, BotaoComponent, CampoComponent, ReactiveFormsModule],
+  imports: [LayoutAuthComponent, BotaoComponent, CampoComponent, RegrasSenhaComponent, ReactiveFormsModule],
   templateUrl: './redefinir-senha.component.html',
   styleUrl: './redefinir-senha.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -27,9 +30,11 @@ export class RedefinirSenhaComponent {
   readonly linkValido = () => !!this.token;
 
   readonly formSenha = new FormGroup({
-    novaSenha: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(6)] }),
+    novaSenha: new FormControl('', { nonNullable: true, validators: [Validators.required, senhaForteValidator()] }),
     confirmarSenha: new FormControl('', { nonNullable: true, validators: [Validators.required] })
   });
+
+  readonly novaSenha = toSignal(this.formSenha.controls.novaSenha.valueChanges, { initialValue: '' });
 
   submit(): void {
     if (this.enviando()) {

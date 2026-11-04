@@ -36,7 +36,14 @@ Acesse `http://localhost:4200`.
 ```bash
 npm run build   # build de produção em dist/almeida-jj
 npm test        # testes unitários
+npm run e2e     # testes ponta a ponta (veja abaixo)
 ```
+
+## Testes ponta a ponta (e2e)
+
+Testam o sistema inteiro como um usuário: navegador real (Playwright) → front → API → Postgres, com os e-mails capturados pelo Mailpit. Precisam do Docker e do repositório da API em `../almeidaPresenca`. Rodam com `npm run e2e` e, no GitHub Actions, a cada push ou PR para `dev`.
+
+Tudo sobre a suíte (como rodar, como funciona, lista de cenários, CI e a ordem de subida API → front) está em [`e2e/README.md`](e2e/README.md).
 
 ## Telas
 

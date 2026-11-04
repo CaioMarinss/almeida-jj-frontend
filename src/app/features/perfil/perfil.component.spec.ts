@@ -43,17 +43,17 @@ describe('PerfilComponent', () => {
   });
 
   it('envia a senha atual e a nova', async () => {
-    preencherSenha('Antiga@1', 'Nova@12', 'Nova@12');
+    preencherSenha('Antiga@1', 'Nova@123', 'Nova@123');
 
     await componente.trocarSenha();
 
-    expect(perfilService.alterarSenha).toHaveBeenCalledWith('Antiga@1', 'Nova@12');
+    expect(perfilService.alterarSenha).toHaveBeenCalledWith('Antiga@1', 'Nova@123');
   });
 
   it('bloqueia senha curta ou diferente', async () => {
     preencherSenha('Antiga@1', '123', '123');
     await componente.trocarSenha();
-    preencherSenha('Antiga@1', 'Nova@12', 'Outra@12');
+    preencherSenha('Antiga@1', 'Nova@123', 'Outra@123');
     await componente.trocarSenha();
 
     expect(notificador.confirmar).not.toHaveBeenCalled();
@@ -67,7 +67,7 @@ describe('PerfilComponent', () => {
 
   it('sessão expirada na troca de senha não mostra alerta de erro', async () => {
     perfilService.alterarSenha.and.returnValue(throwError(() => new HttpErrorResponse({ status: 401 })));
-    preencherSenha('Antiga@1', 'Nova@12', 'Nova@12');
+    preencherSenha('Antiga@1', 'Nova@123', 'Nova@123');
 
     await componente.trocarSenha();
 
@@ -76,7 +76,7 @@ describe('PerfilComponent', () => {
 
   it('após trocar a senha avisa e encerra a sessão', async () => {
     const navegar = spyOn(TestBed.inject(NavController), 'navigateRoot').and.resolveTo(true);
-    preencherSenha('Antiga@1', 'Nova@12', 'Nova@12');
+    preencherSenha('Antiga@1', 'Nova@123', 'Nova@123');
 
     await componente.trocarSenha();
     await Promise.resolve();
@@ -88,7 +88,7 @@ describe('PerfilComponent', () => {
 
   it('troca cancelada não chama a API', async () => {
     notificador.confirmar.and.resolveTo(false);
-    preencherSenha('Antiga@1', 'Nova@12', 'Nova@12');
+    preencherSenha('Antiga@1', 'Nova@123', 'Nova@123');
 
     await componente.trocarSenha();
 
@@ -96,11 +96,32 @@ describe('PerfilComponent', () => {
   });
 
   it('duplo toque em trocar senha chama a API uma vez', async () => {
-    preencherSenha('Antiga@1', 'Nova@12', 'Nova@12');
+    preencherSenha('Antiga@1', 'Nova@123', 'Nova@123');
 
     await Promise.all([componente.trocarSenha(), componente.trocarSenha()]);
 
     expect(notificador.confirmar).toHaveBeenCalledTimes(1);
     expect(perfilService.alterarSenha).toHaveBeenCalledTimes(1);
+  });
+
+  it('bloqueia nova senha que não cumpre as regras', async () => {
+    for (const fraca of ['novasenha1', 'NOVASENHA@1', 'NovaSenha@', 'NovaSenha1', 'Nova @123']) {
+      preencherSenha('Antiga@1', fraca, fraca);
+      await componente.trocarSenha();
+    }
+
+    expect(perfilService.alterarSenha).not.toHaveBeenCalled();
+  });
+
+  it('aceita senha atual fora das regras novas', async () => {
+    preencherSenha('fraca', 'Nova@123', 'Nova@123');
+
+    await componente.trocarSenha();
+
+    expect(perfilService.alterarSenha).toHaveBeenCalledWith('fraca', 'Nova@123');
+  });
+
+  it('mostra a lista de regras da nova senha', () => {
+    expect(tela.querySelectorAll('ajj-regras-senha li').length).toBe(6);
   });
 });

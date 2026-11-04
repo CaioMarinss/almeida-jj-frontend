@@ -1,0 +1,67 @@
+name: e2e
+
+on:
+  push:
+    branches: [dev]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.claude/**'
+      - '.agents/**'
+      - '.superpowers/**'
+      - 'src/**/*.spec.ts'
+  pull_request:
+    branches: [dev]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.claude/**'
+      - '.agents/**'
+      - '.superpowers/**'
+      - 'src/**/*.spec.ts'
+  workflow_dispatch:
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/checkout@v5
+        with:
+          repository: CaioMarinss/almeida-jj-api
+          ref: dev
+          ssh-key: ${{ secrets.API_DEPLOY_KEY }}
+          path: api
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npx playwright install --with-deps chromium
+
+      - run: npm run e2e
+        env:
+          ALMEIDA_API_DIR: ${{ github.workspace }}/api
+          E2E_MANTER_AMBIENTE: "1"
+
+      - if: failure()
+        run: docker compose -f e2e/docker-compose.yml logs api
+        env:
+          ALMEIDA_API_DIR: ${{ github.workspace }}/api
+          E2E_MANTER_AMBIENTE: "1"
+
+      - if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: relatorio-e2e
+          path: e2e/relatorio/
+          retention-days: 14

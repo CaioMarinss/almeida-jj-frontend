@@ -1,0 +1,9 @@
+<ul class="regras" aria-label="Requisitos da senha">
+  @for (regra of regras(); track regra.id) {
+    <li [class.cumprida]="regra.cumprida" [attr.data-regra]="regra.id">
+      <span class="marca" aria-hidden="true">{{ regra.cumprida ? '✓' : '•' }}</span>
+      <span>{{ regra.rotulo }}</span>
+      <span class="oculto">{{ regra.cumprida ? '(atendido)' : '(pendente)' }}</span>
+    </li>
+  }
+</ul>

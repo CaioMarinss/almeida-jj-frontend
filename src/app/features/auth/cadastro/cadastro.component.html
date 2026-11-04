@@ -7,7 +7,8 @@
     <app-campo [formGroup]="cadastroForm" formControlName="email" controlName="email" inputName="email" type="email"
       label="E-mail" placeholder="seu@email.com" autocomplete="email" />
     <app-campo [formGroup]="cadastroForm" formControlName="senha" controlName="senha" inputName="senha" type="password"
-      label="Senha" placeholder="Mínimo de 6 caracteres" autocomplete="new-password" />
+      label="Senha" placeholder="Crie uma senha forte" autocomplete="new-password" />
+    <ajj-regras-senha [senha]="senha()" />
     <app-campo [formGroup]="cadastroForm" formControlName="passwordConfirm" controlName="passwordConfirm"
       inputName="passwordConfirm" type="password" label="Confirme a senha" placeholder="Repita a senha"
       autocomplete="new-password" />
