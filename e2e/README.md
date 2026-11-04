@@ -96,6 +96,7 @@ Chamam a API direto, sem abrir tela. Garantem que a regra vale mesmo para quem p
 `.github/workflows/e2e.yml` roda a suíte a cada push ou PR para `dev`, usando a branch `dev` da API. Também dá para rodar à mão em **Actions → e2e → Run workflow**. O repositório da API tem o mesmo workflow, que usa a `dev` deste repositório.
 
 - O push **não é bloqueado**. Se algum teste falhar, o commit fica com ❌, o GitHub avisa por e-mail e o relatório HTML fica para baixar em **Actions → execução → Artifacts → `relatorio-e2e`**. Quando falha, o log da API também aparece na execução.
+- O workflow **não roda** quando o push ou PR só muda arquivos que não afetam o e2e: `*.md`, `docs/`, arquivos de IA (`.claude/`, `.agents/`, `.superpowers/`) e testes unitários (`src/**/*.spec.ts`). Basta um arquivo fora dessa lista para ele rodar. Mudanças em `e2e/` sempre disparam o workflow. A lista fica em `paths-ignore`, no `.github/workflows/e2e.yml`.
 - No CI, um teste que falha roda de novo uma vez. Se passar na segunda tentativa, ele aparece como "flaky".
 - A API é privada, então o workflow baixa ela com a deploy key (só leitura) guardada no secret `API_DEPLOY_KEY`.
 
