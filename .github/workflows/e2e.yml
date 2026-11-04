@@ -46,7 +46,7 @@ jobs:
           E2E_MANTER_AMBIENTE: "1"
 
       - if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: relatorio-e2e
           path: e2e/relatorio/
