@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
+import { donoGuard } from './core/auth/dono.guard';
 import { visitanteGuard } from './core/auth/visitante.guard';
 
 const login = () => import('./features/auth/login/login.component').then(m => m.LoginComponent);
@@ -48,6 +49,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/financeiro/financeiro.component').then(m => m.FinanceiroComponent)
       },
       { path: 'perfil', loadComponent: () => import('./features/perfil/perfil.component').then(m => m.PerfilComponent) },
+      {
+        path: 'professores',
+        canActivate: [donoGuard],
+        loadComponent: () => import('./features/professores/professores.component').then(m => m.ProfessoresComponent)
+      },
       { path: '', pathMatch: 'full', redirectTo: 'inicio' }
     ]
   },

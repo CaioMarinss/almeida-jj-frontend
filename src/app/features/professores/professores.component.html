@@ -1,0 +1,42 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>Professores</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="ajj-coluna">
+    <p class="ajj-suave introducao">Escolha quem dá aula na academia. Professores têm tudo do aluno e as funções de professor.</p>
+
+    @if (carregando()) {
+      <div class="carregando"><ion-spinner name="crescent" aria-label="Carregando alunos" /></div>
+    } @else if (pessoas().length === 0) {
+      <ajj-estado-vazio titulo="Nenhum aluno ativo" texto="Quando alguém criar a conta e verificar o e-mail, aparece aqui.">
+        <svg lucideUsers icone aria-hidden="true"></svg>
+      </ajj-estado-vazio>
+    } @else {
+      <ul class="lista">
+        @for (pessoa of pessoas(); track pessoa.id) {
+          <li class="ajj-card pessoa" [attr.data-email]="pessoa.email">
+            <div class="dados">
+              <strong class="ajj-truncar">{{ pessoa.nome }}</strong>
+              <span class="ajj-suave ajj-truncar">{{ pessoa.email }}</span>
+            </div>
+            <span class="ajj-chip">{{ rotulo[pessoa.perfil] }}</span>
+            @if (pessoa.perfil !== 'DONO') {
+              <ajj-botao
+                class="acao"
+                [variante]="pessoa.perfil === 'ALUNO' ? 'primario' : 'secundario'"
+                [carregando]="alterando() === pessoa.id"
+                [desabilitado]="alterando() !== null && alterando() !== pessoa.id"
+                (clique)="alternar(pessoa)"
+              >
+                {{ pessoa.perfil === 'ALUNO' ? 'Tornar professor' : 'Remover professor' }}
+              </ajj-botao>
+            }
+          </li>
+        }
+      </ul>
+    }
+  </div>
+</ion-content>

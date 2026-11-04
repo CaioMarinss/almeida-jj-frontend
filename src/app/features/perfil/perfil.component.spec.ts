@@ -45,6 +45,19 @@ describe('PerfilComponent', () => {
     expect(fixture.nativeElement.querySelector('.ajj-chip').textContent).toContain('Dono');
   });
 
+  it('mostra Gerenciar professores só para o dono', async () => {
+    expect(tela.querySelector('[routerLink="/app/professores"]')).toBeNull();
+
+    logar(TestBed.inject(SessionService), 'Carla Dias', 'DONO');
+    const fixture = TestBed.createComponent(PerfilComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(fixture.nativeElement.querySelector('[routerLink="/app/professores"]')?.textContent).toContain(
+      'Gerenciar professores'
+    );
+  });
+
   it('mostra identidade com nome e e-mail truncáveis', () => {
     expect(tela.querySelector('.nome')?.classList).toContain('ajj-truncar');
     expect(tela.querySelector('.email')?.classList).toContain('ajj-truncar');

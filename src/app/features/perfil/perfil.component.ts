@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { IonContent, IonHeader, IonTitle, IonToolbar, NavController } from '@ionic/angular';
+import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { SaidaService } from '../../core/auth/saida.service';
 import { SessionService } from '../../core/auth/session.service';
@@ -20,7 +21,7 @@ function senhasIguais(form: AbstractControl): ValidationErrors | null {
 
 @Component({
   selector: 'app-perfil',
-  imports: [ReactiveFormsModule, IonHeader, IonToolbar, IonTitle, IonContent, CampoComponent, BotaoComponent, RegrasSenhaComponent],
+  imports: [ReactiveFormsModule, RouterLink, IonHeader, IonToolbar, IonTitle, IonContent, CampoComponent, BotaoComponent, RegrasSenhaComponent],
   templateUrl: './perfil.component.html',
   styleUrl: './perfil.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -39,6 +40,7 @@ export class PerfilComponent {
     return usuario ? ROTULO_PERFIL[usuario.perfil] : '';
   });
   readonly inicial = computed(() => this.nome().charAt(0).toUpperCase());
+  readonly ehDono = computed(() => this.sessao.usuario()?.perfil === 'DONO');
 
   readonly trocandoSenha = signal(false);
 

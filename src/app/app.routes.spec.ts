@@ -1,4 +1,5 @@
 import { Route } from '@angular/router';
+import { donoGuard } from './core/auth/dono.guard';
 import { routes } from './app.routes';
 
 describe('rotas', () => {
@@ -12,7 +13,11 @@ describe('rotas', () => {
 
   it('a área logada fica em /app e exige autenticação', () => {
     expect(rota('app')?.canActivate?.length).toBe(1);
-    expect(filhos().map(r => r.path)).toEqual(['inicio', 'aulas', 'presenca', 'financeiro', 'perfil', '']);
+    expect(filhos().map(r => r.path)).toEqual(['inicio', 'aulas', 'presenca', 'financeiro', 'perfil', 'professores', '']);
+  });
+
+  it('professores só abre para o dono', () => {
+    expect(filhos().find(r => r.path === 'professores')?.canActivate).toEqual([donoGuard]);
   });
 
   it('login e raiz levam quem já está logado para o início', () => {
