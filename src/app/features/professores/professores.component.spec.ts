@@ -126,13 +126,38 @@ describe('ProfessoresComponent', () => {
     expect(fixture.componentInstance.alterando()).toBeNull();
   });
 
-  it('erro ao carregar mostra o erro da API e o estado vazio', async () => {
+  it('erro ao carregar avisa, mostra o estado de erro e permite tentar de novo', async () => {
     const erro = new Error('falhou');
     service.listar.and.returnValue(throwError(() => erro));
     await criar();
 
     expect(notificador.erroDaApi).toHaveBeenCalledWith(erro, 'Não foi possível carregar os alunos.');
+    const estado: string = fixture.nativeElement.querySelector('ajj-estado-vazio.erro-carga')?.textContent ?? '';
+    expect(estado).toContain('Não foi possível carregar os alunos');
+    expect(estado).toContain('Tentar de novo');
+    expect(estado).not.toContain('Nenhum aluno ativo');
+
+    service.listar.and.returnValue(of([dora, bia]));
+    await fixture.componentInstance.carregar();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.erro-carga')).toBeNull();
+    expect(linha('bia@x.com')).not.toBeNull();
+  });
+
+  it('para de carregar antes de o alerta de erro ser fechado', async () => {
+    service.listar.and.returnValue(throwError(() => new Error('falhou')));
+    notificador.erroDaApi.and.returnValue(new Promise<void>(() => undefined));
+    await criar();
+
     expect(fixture.componentInstance.carregando()).toBeFalse();
+  });
+
+  it('só com o dono na lista mostra o estado vazio abaixo dele', async () => {
+    service.listar.and.returnValue(of([dora]));
+    await criar();
+
+    expect(linha('dora@x.com')).not.toBeNull();
     expect(fixture.nativeElement.querySelector('ajj-estado-vazio')?.textContent).toContain('Nenhum aluno ativo');
   });
 

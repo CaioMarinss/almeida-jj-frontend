@@ -10,33 +10,41 @@
 
     @if (carregando()) {
       <div class="carregando"><ion-spinner name="crescent" aria-label="Carregando alunos" /></div>
-    } @else if (pessoas().length === 0) {
-      <ajj-estado-vazio titulo="Nenhum aluno ativo" texto="Quando alguém criar a conta e verificar o e-mail, aparece aqui.">
+    } @else if (erroCarga()) {
+      <ajj-estado-vazio class="erro-carga" titulo="Não foi possível carregar os alunos" texto="Confira sua conexão e tente de novo.">
         <svg lucideUsers icone aria-hidden="true"></svg>
+        <ajj-botao variante="secundario" (clique)="carregar()">Tentar de novo</ajj-botao>
       </ajj-estado-vazio>
     } @else {
-      <ul class="lista">
-        @for (pessoa of pessoas(); track pessoa.id) {
-          <li class="ajj-card pessoa" [attr.data-email]="pessoa.email">
-            <div class="dados">
-              <strong class="ajj-truncar">{{ pessoa.nome }}</strong>
-              <span class="ajj-suave ajj-truncar">{{ pessoa.email }}</span>
-            </div>
-            <span class="ajj-chip">{{ rotulo[pessoa.perfil] }}</span>
-            @if (pessoa.perfil !== 'DONO') {
-              <ajj-botao
-                class="acao"
-                [variante]="pessoa.perfil === 'ALUNO' ? 'primario' : 'secundario'"
-                [carregando]="alterando() === pessoa.id"
-                [desabilitado]="alterando() !== null && alterando() !== pessoa.id"
-                (clique)="alternar(pessoa)"
-              >
-                {{ pessoa.perfil === 'ALUNO' ? 'Tornar professor' : 'Remover professor' }}
-              </ajj-botao>
-            }
-          </li>
-        }
-      </ul>
+      @if (pessoas().length > 0) {
+        <ul class="lista">
+          @for (pessoa of pessoas(); track pessoa.id) {
+            <li class="ajj-card pessoa" [attr.data-email]="pessoa.email">
+              <div class="dados">
+                <strong class="ajj-truncar">{{ pessoa.nome }}</strong>
+                <span class="ajj-suave ajj-truncar">{{ pessoa.email }}</span>
+              </div>
+              <span class="ajj-chip">{{ rotulo[pessoa.perfil] }}</span>
+              @if (pessoa.perfil !== 'DONO') {
+                <ajj-botao
+                  class="acao"
+                  [variante]="pessoa.perfil === 'ALUNO' ? 'primario' : 'secundario'"
+                  [carregando]="alterando() === pessoa.id"
+                  [desabilitado]="alterando() !== null && alterando() !== pessoa.id"
+                  (clique)="alternar(pessoa)"
+                >
+                  {{ pessoa.perfil === 'ALUNO' ? 'Tornar professor' : 'Remover professor' }}
+                </ajj-botao>
+              }
+            </li>
+          }
+        </ul>
+      }
+      @if (semAlunos()) {
+        <ajj-estado-vazio titulo="Nenhum aluno ativo" texto="Quando alguém criar a conta e verificar o e-mail, aparece aqui.">
+          <svg lucideUsers icone aria-hidden="true"></svg>
+        </ajj-estado-vazio>
+      }
     }
   </div>
 </ion-content>

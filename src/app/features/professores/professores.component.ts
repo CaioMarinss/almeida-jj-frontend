@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { IonContent, IonHeader, IonSpinner, IonTitle, IonToolbar } from '@ionic/angular';
 import { LucideUsers } from '@lucide/angular';
 import { firstValueFrom } from 'rxjs';
@@ -23,6 +23,8 @@ export class ProfessoresComponent {
   readonly pessoas = signal<PessoaAcademia[]>([]);
   readonly carregando = signal(true);
   readonly alterando = signal<number | null>(null);
+  readonly erroCarga = signal(false);
+  readonly semAlunos = computed(() => this.pessoas().every(p => p.perfil === 'DONO'));
 
   constructor() {
     void this.carregar();
@@ -58,13 +60,16 @@ export class ProfessoresComponent {
     }
   }
 
-  private async carregar(): Promise<void> {
+  async carregar(): Promise<void> {
+    this.carregando.set(true);
+    this.erroCarga.set(false);
     try {
       this.pessoas.set(await firstValueFrom(this.service.listar()));
-    } catch (erro: unknown) {
-      await this.notificador.erroDaApi(erro, 'Não foi possível carregar os alunos.');
-    } finally {
       this.carregando.set(false);
+    } catch (erro: unknown) {
+      this.carregando.set(false);
+      this.erroCarga.set(true);
+      await this.notificador.erroDaApi(erro, 'Não foi possível carregar os alunos.');
     }
   }
 }

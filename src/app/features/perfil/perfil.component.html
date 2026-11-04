@@ -16,7 +16,7 @@
     </section>
 
     @if (ehDono()) {
-      <ajj-botao variante="secundario" class="gerenciar" routerLink="/app/professores">Gerenciar professores</ajj-botao>
+      <ajj-botao variante="secundario" class="gerenciar" (clique)="abrirProfessores()">Gerenciar professores</ajj-botao>
     }
 
     <section class="ajj-card bloco" aria-labelledby="titulo-senha">

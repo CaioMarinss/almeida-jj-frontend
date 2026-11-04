@@ -1,6 +1,6 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { NavController } from '@ionic/angular';
-import { HttpErrorResponse } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
 import { SessionService } from '../../core/auth/session.service';
 import { criarNotificador } from '../auth/testes-auth';
@@ -45,17 +45,20 @@ describe('PerfilComponent', () => {
     expect(fixture.nativeElement.querySelector('.ajj-chip').textContent).toContain('Dono');
   });
 
-  it('mostra Gerenciar professores só para o dono', async () => {
-    expect(tela.querySelector('[routerLink="/app/professores"]')).toBeNull();
+  it('mostra Gerenciar professores só para o dono, com um único foco, e abre a tela', async () => {
+    expect(tela.querySelector('ajj-botao.gerenciar')).toBeNull();
 
     logar(TestBed.inject(SessionService), 'Carla Dias', 'DONO');
     const fixture = TestBed.createComponent(PerfilComponent);
     fixture.detectChanges();
     await fixture.whenStable();
+    const gerenciar: HTMLElement = fixture.nativeElement.querySelector('ajj-botao.gerenciar');
+    const navegar = spyOn(TestBed.inject(NavController), 'navigateForward').and.resolveTo(true);
 
-    expect(fixture.nativeElement.querySelector('[routerLink="/app/professores"]')?.textContent).toContain(
-      'Gerenciar professores'
-    );
+    expect(gerenciar.textContent).toContain('Gerenciar professores');
+    expect(gerenciar.hasAttribute('tabindex')).toBeFalse();
+    await fixture.componentInstance.abrirProfessores();
+    expect(navegar).toHaveBeenCalledWith('/app/professores');
   });
 
   it('mostra identidade com nome e e-mail truncáveis', () => {
