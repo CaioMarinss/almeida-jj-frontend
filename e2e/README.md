@@ -7,7 +7,7 @@ Não rodam no `npm test`. No GitHub, rodam a cada push ou PR para `dev` nos dois
 ## Pré-requisitos
 
 - Docker rodando.
-- Repositório da API em `../almeidaPresenca` (ou informe `ALMEIDA_API_DIR=/caminho/da/api`). O e2e usa a **branch que estiver aberta** no repositório da API.
+- Repositório da API em `../almeidaPresenca` (ou informe `ALMEIDA_API_DIR=/caminho/da/api`). O e2e usa a **branch que estiver aberta** no repositório da API, inclusive o ambiente: o `docker-compose.yml` (banco, Mailpit e API) mora na API, em `almeidaPresenca/e2e/docker-compose.yml`, para o banco de teste sempre combinar com a branch dela.
 - Portas livres: 4300 (front), 18080 (API) e 18025 (Mailpit).
 - `npm install` feito. Na primeira vez, instale o navegador com `npx playwright install chromium`.
 
@@ -22,16 +22,16 @@ npx playwright test --ui                         # modo interativo, passo a pass
 npx playwright test --headed                     # mostra o navegador
 npm run e2e:relatorio                            # relatório HTML da última execução (prints e trace das falhas)
 E2E_MANTER_AMBIENTE=1 npm run e2e                # mantém os containers no fim; e-mails em http://localhost:18025
-docker compose -f e2e/docker-compose.yml down -v # desliga o ambiente mantido
+docker compose -f ../almeidaPresenca/e2e/docker-compose.yml down -v # desliga o ambiente mantido
 ```
 
 ## Como funciona
 
 | Peça | Onde | O que faz |
 |---|---|---|
-| Postgres | `docker-compose.yml` | Banco em memória (tmpfs), criado com `init.sql` e `populate.sql` da API. Some ao derrubar. |
-| Mailpit | `docker-compose.yml` | Servidor SMTP falso. A API envia os e-mails para ele, e os testes leem pela API dele (porta 18025). |
-| API | `docker-compose.yml` | Build do repositório da API, na porta 18080, com segredo de teste e e-mail por SMTP no Mailpit. |
+| Postgres | `almeidaPresenca/e2e/docker-compose.yml` | Banco em memória (tmpfs), criado com `init.sql` e `populate.sql` da API. Some ao derrubar. |
+| Mailpit | `almeidaPresenca/e2e/docker-compose.yml` | Servidor SMTP falso. A API envia os e-mails para ele, e os testes leem pela API dele (porta 18025). |
+| API | `almeidaPresenca/e2e/docker-compose.yml` | Build do repositório da API, na porta 18080, com segredo de teste e e-mail por SMTP no Mailpit. |
 | Front | `../playwright.config.ts` | `ng serve --configuration e2e` na porta 4300. Essa configuração troca o `environment.ts` por `src/environments/environment.e2e.ts`, que aponta para a API em 18080. |
 
 - `suporte/subir-ambiente.ts` e `suporte/derrubar-ambiente.ts` sobem e derrubam os containers antes e depois da suíte. Com `E2E_SEM_DOCKER=1`, nenhum container é gerenciado e você usa um ambiente que já esteja no ar.
@@ -44,7 +44,6 @@ docker compose -f e2e/docker-compose.yml down -v # desliga o ambiente mantido
 
 ```
 e2e/
-├── docker-compose.yml   Postgres + Mailpit + API
 ├── tests/               cenários (um arquivo por fluxo)
 └── suporte/
     ├── ambiente.ts      docker compose e espera de serviços
