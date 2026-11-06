@@ -8,6 +8,8 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não lançado]
 
+## [0.2.2] - 2026-11-05
+
 ### Adicionado
 - Cargo **Dono** no perfil (Dono > Professor > Aluno).
 - Tela **Professores** (`/app/professores`), só para o dono: torna um aluno professor ou tira o cargo, com confirmação. Acesso pelo menu lateral no computador e por "Gerenciar professores" no Perfil.
