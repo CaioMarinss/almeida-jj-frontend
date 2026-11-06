@@ -1,0 +1,17 @@
+name: keep-alive da API
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Chama a API no Render
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 120 --retry 2 --retry-all-errors https://almeida-jj-api.onrender.com/ || true)
+          echo "HTTP $code"
+          case "$code" in 000|5*) exit 1 ;; esac
