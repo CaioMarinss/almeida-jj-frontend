@@ -30,6 +30,25 @@ describe('ShellComponent', () => {
     expect(texto).toContain('Professor');
   });
 
+  it('mostra Dono para o dono', async () => {
+    logar(sessao, 'Carla Dias', 'DONO');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(fixture.nativeElement.querySelector('ion-menu').textContent).toContain('Dono');
+  });
+
+  it('mostra o item Professores só para o dono', async () => {
+    const itemProfessores = () => fixture.nativeElement.querySelector('ion-menu [routerLink="/app/professores"]');
+    expect(itemProfessores()).toBeNull();
+
+    logar(sessao, 'Carla Dias', 'DONO');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(itemProfessores()?.textContent).toContain('Professores');
+  });
+
   it('tem cinco abas', () => {
     const abas = Array.from(fixture.nativeElement.querySelectorAll('ion-tab-button')).map(
       a => (a as HTMLElement).getAttribute('tab')

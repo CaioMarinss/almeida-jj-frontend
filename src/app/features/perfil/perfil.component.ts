@@ -39,6 +39,7 @@ export class PerfilComponent {
     return usuario ? ROTULO_PERFIL[usuario.perfil] : '';
   });
   readonly inicial = computed(() => this.nome().charAt(0).toUpperCase());
+  readonly ehDono = computed(() => this.sessao.usuario()?.perfil === 'DONO');
 
   readonly trocandoSenha = signal(false);
 
@@ -84,6 +85,10 @@ export class PerfilComponent {
     } finally {
       this.trocandoSenha.set(false);
     }
+  }
+
+  abrirProfessores(): Promise<boolean> {
+    return this.nav.navigateForward('/app/professores');
   }
 
   sair(): Promise<void> {

@@ -55,12 +55,18 @@ Tudo sobre a suíte (como rodar, como funciona, lista de cenários, CI e a ordem
 | `/esquecisenha` | Solicitar recuperação de senha | público |
 | `/verificar?token=` | Ativação da conta (link do e-mail) | token na URL |
 | `/resetar?token=` | Definir nova senha (link do e-mail) | token na URL |
-| `/dashboard` | Visão geral | logado |
-| `/calendario` | Treinos | logado |
-| `/financeiro` | Financeiro | logado |
-| `/configuracoes` | Perfil e troca de senha | logado |
+| `/app/inicio` | Início | logado |
+| `/app/aulas` | Aulas (estado vazio por enquanto) | logado |
+| `/app/presenca` | Presença (estado vazio por enquanto) | logado |
+| `/app/financeiro` | Financeiro (estado vazio por enquanto) | logado |
+| `/app/perfil` | Perfil, cargo e troca de senha; botão "Gerenciar professores" para o dono | logado |
+| `/app/professores` | Tornar um aluno professor ou tirar o cargo de professor | **só dono** (`donoGuard`) |
 
-> Dashboard, treinos e financeiro ainda usam dados de exemplo — os endpoints correspondentes estão em desenvolvimento na API.
+As rotas antigas (`/dashboard`, `/calendario`, `/financeiro`, `/configuracoes`) redirecionam para as abas novas.
+
+### Cargos
+
+O perfil mostra o cargo da pessoa: **Dono**, **Professor** ou **Aluno**. Os cargos são em escada: o dono tem tudo do professor, e o professor tem tudo do aluno. Só o dono vê a tela Professores, pelo menu lateral no computador ou pelo botão "Gerenciar professores" no Perfil. Tornar alguém dono é feito só no banco, pela API.
 
 ## Autenticação
 

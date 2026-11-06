@@ -1,7 +1,11 @@
 import { execSync } from 'node:child_process';
 import { resolve } from 'node:path';
 
-const COMPOSE = resolve(__dirname, '..', 'docker-compose.yml');
+const COMPOSE = resolve(
+  process.env['ALMEIDA_API_DIR'] ?? resolve(__dirname, '..', '..', '..', 'almeidaPresenca'),
+  'e2e',
+  'docker-compose.yml'
+);
 
 export function compose(argumentos: string): void {
   execSync(`docker compose -f "${COMPOSE}" ${argumentos}`, { stdio: 'inherit' });

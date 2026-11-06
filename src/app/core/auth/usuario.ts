@@ -1,4 +1,4 @@
-export type Perfil = 'ALUNO' | 'PROFESSOR';
+export type Perfil = 'ALUNO' | 'PROFESSOR' | 'DONO';
 
 export interface Usuario {
   id: number;
@@ -9,5 +9,6 @@ export interface Usuario {
 
 export const ROTULO_PERFIL: Record<Perfil, string> = {
   ALUNO: 'Aluno',
-  PROFESSOR: 'Professor'
+  PROFESSOR: 'Professor',
+  DONO: 'Dono'
 };

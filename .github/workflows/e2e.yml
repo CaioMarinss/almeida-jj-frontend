@@ -54,10 +54,7 @@ jobs:
           E2E_MANTER_AMBIENTE: "1"
 
       - if: failure()
-        run: docker compose -f e2e/docker-compose.yml logs api
-        env:
-          ALMEIDA_API_DIR: ${{ github.workspace }}/api
-          E2E_MANTER_AMBIENTE: "1"
+        run: docker compose -f api/e2e/docker-compose.yml logs api
 
       - if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v7

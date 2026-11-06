@@ -1,6 +1,6 @@
 {
   "name": "almeida-jj",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "scripts": {
     "ng": "ng",
     "start": "node scripts/set-environment.mjs && ng serve",

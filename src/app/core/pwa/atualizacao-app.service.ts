@@ -1,7 +1,6 @@
 import { DOCUMENT, inject, Injectable, InjectionToken } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 import { filter } from 'rxjs';
-import { Notificador } from '../notificacao/notificador';
 
 export const RECARREGAR_PAGINA = new InjectionToken<() => void>('RECARREGAR_PAGINA', {
   providedIn: 'root',
@@ -14,7 +13,6 @@ export const RECARREGAR_PAGINA = new InjectionToken<() => void>('RECARREGAR_PAGI
 @Injectable({ providedIn: 'root' })
 export class AtualizacaoAppService {
   private readonly sw = inject(SwUpdate);
-  private readonly notificador = inject(Notificador);
   private readonly recarregar = inject(RECARREGAR_PAGINA);
   private readonly documento = inject(DOCUMENT);
 
@@ -24,7 +22,7 @@ export class AtualizacaoAppService {
     }
     this.sw.versionUpdates
       .pipe(filter(evento => evento.type === 'VERSION_READY'))
-      .subscribe(() => void this.oferecerAtualizacao());
+      .subscribe(() => void this.atualizar());
     this.sw.unrecoverable.subscribe(() => this.recarregar());
     this.documento.addEventListener('visibilitychange', () => {
       if (this.documento.visibilityState === 'visible') {
@@ -33,15 +31,8 @@ export class AtualizacaoAppService {
     });
   }
 
-  private async oferecerAtualizacao(): Promise<void> {
-    const confirmado = await this.notificador.confirmar(
-      'Nova versão',
-      'Há uma versão nova do app. Atualizar agora?',
-      'Atualizar'
-    );
-    if (confirmado) {
-      await this.sw.activateUpdate();
-      this.recarregar();
-    }
+  private async atualizar(): Promise<void> {
+    await this.sw.activateUpdate();
+    this.recarregar();
   }
 }

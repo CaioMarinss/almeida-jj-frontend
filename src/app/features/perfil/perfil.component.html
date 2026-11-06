@@ -15,6 +15,10 @@
       <span class="ajj-chip">{{ perfil() }}</span>
     </section>
 
+    @if (ehDono()) {
+      <ajj-botao variante="secundario" class="gerenciar" (clique)="abrirProfessores()">Gerenciar professores</ajj-botao>
+    }
+
     <section class="ajj-card bloco" aria-labelledby="titulo-senha">
       <h2 id="titulo-senha">Trocar senha</h2>
       <form [formGroup]="senhaForm" (keyup.enter)="trocarSenha()">

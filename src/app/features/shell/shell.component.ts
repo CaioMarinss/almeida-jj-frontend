@@ -11,7 +11,15 @@ import {
   IonTabButton,
   IonTabs
 } from '@ionic/angular';
-import { LucideCalendarDays, LucideCircleCheck, LucideHouse, LucideLogOut, LucideUser, LucideWallet } from '@lucide/angular';
+import {
+  LucideCalendarDays,
+  LucideCircleCheck,
+  LucideHouse,
+  LucideLogOut,
+  LucideUser,
+  LucideUsers,
+  LucideWallet
+} from '@lucide/angular';
 import { SaidaService } from '../../core/auth/saida.service';
 import { SessionService } from '../../core/auth/session.service';
 import { ROTULO_PERFIL } from '../../core/auth/usuario';
@@ -35,6 +43,7 @@ import { ROTULO_PERFIL } from '../../core/auth/usuario';
     LucideCircleCheck,
     LucideWallet,
     LucideUser,
+    LucideUsers,
     LucideLogOut
   ],
   templateUrl: './shell.component.html',
@@ -51,6 +60,7 @@ export class ShellComponent {
     return usuario ? ROTULO_PERFIL[usuario.perfil] : '';
   });
   readonly inicial = computed(() => this.nome().charAt(0).toUpperCase());
+  readonly ehDono = computed(() => this.sessao.usuario()?.perfil === 'DONO');
 
   sair(): Promise<void> {
     return this.saida.sair();

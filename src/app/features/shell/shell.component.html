@@ -28,6 +28,11 @@
           <ion-item button detail="false" routerLink="/app/perfil" routerLinkActive="ativo">
             <svg lucideUser aria-hidden="true" slot="start"></svg><ion-label>Perfil</ion-label>
           </ion-item>
+          @if (ehDono()) {
+            <ion-item button detail="false" routerLink="/app/professores" routerLinkActive="ativo">
+              <svg lucideUsers aria-hidden="true" slot="start"></svg><ion-label>Professores</ion-label>
+            </ion-item>
+          }
         </ion-list>
 
         <ion-item button detail="false" lines="none" class="sair" (click)="sair()">
