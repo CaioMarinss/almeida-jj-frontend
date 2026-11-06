@@ -8,6 +8,9 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não lançado]
 
+### Adicionado
+- Tela **Graduação** (`/app/graduacao`), só para o dono: lista de alunos com busca por nome, filtro por faixa e "Carregar mais". Acesso pelo menu lateral e por "Gerenciar graduações" no Perfil.
+
 ## [0.2.3] - 2026-11-05
 
 ### Adicionado
