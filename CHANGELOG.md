@@ -15,6 +15,7 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ### Alterado
 - O ambiente dos testes e2e (`docker-compose.yml`) passa a vir do repositório da API.
+- Versão nova do app é aplicada sozinha: a página recarrega assim que ela termina de baixar, sem a pergunta "Atualizar agora?".
 
 ## [0.2.1] - 2026-11-04
 
