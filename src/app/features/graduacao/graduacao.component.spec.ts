@@ -57,7 +57,8 @@ describe('GraduacaoComponent', () => {
     jasmine.clock().install();
     jasmine.clock().mockDate();
     notificador = criarNotificador();
-    service = jasmine.createSpyObj<GraduacaoService>('GraduacaoService', ['buscarAlunos', 'faixas']);
+    service = jasmine.createSpyObj<GraduacaoService>('GraduacaoService', ['buscarAlunos', 'faixas', 'proxima']);
+    service.proxima.and.returnValue(of(null));
     service.faixas.and.returnValue(of(FAIXAS));
     service.buscarAlunos.and.returnValue(of(pagina([aluno(1, 'Ana'), aluno(2, 'Bia')], 0, 2)));
     TestBed.configureTestingModule({

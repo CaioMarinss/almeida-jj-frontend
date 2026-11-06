@@ -11,6 +11,7 @@ import { GraduacaoService } from '../../shared/graduacao/graduacao.service';
 import { BarraFaixaComponent } from '../../shared/ui/barra-faixa/barra-faixa.component';
 import { BotaoComponent } from '../../shared/ui/botao/botao.component';
 import { EstadoVazioComponent } from '../../shared/ui/estado-vazio/estado-vazio.component';
+import { ProximaGraduacaoComponent } from './proxima-graduacao/proxima-graduacao.component';
 
 const TAMANHO_PAGINA = 20;
 const ESPERA_DIGITACAO_MS = 300;
@@ -33,7 +34,8 @@ interface Pedido {
     LucideAward,
     BarraFaixaComponent,
     BotaoComponent,
-    EstadoVazioComponent
+    EstadoVazioComponent,
+    ProximaGraduacaoComponent
   ],
   templateUrl: './graduacao.component.html',
   styleUrl: './graduacao.component.scss',

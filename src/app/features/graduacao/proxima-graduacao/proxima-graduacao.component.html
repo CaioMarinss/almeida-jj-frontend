@@ -1,0 +1,40 @@
+<section class="ajj-card proxima" aria-labelledby="proxima-titulo">
+  <h2 id="proxima-titulo" class="ajj-rotulo">Próxima graduação</h2>
+
+  @if (carregando()) {
+    <p class="ajj-suave">Carregando…</p>
+  } @else if (editando()) {
+    <form class="edicao" (submit)="$event.preventDefault(); salvar()">
+      <div class="campo">
+        <label for="data-proxima" class="ajj-rotulo">Data da graduação</label>
+        <input
+          id="data-proxima"
+          #entrada
+          type="date"
+          [min]="minimo()"
+          [value]="rascunho()"
+          (input)="rascunho.set(entrada.value)"
+        />
+      </div>
+      <div class="acoes">
+        <ajj-botao tipo="submit" [carregando]="salvando()" [desabilitado]="!rascunho()">Salvar</ajj-botao>
+        <ajj-botao variante="texto" (clique)="fechar()">Voltar</ajj-botao>
+      </div>
+    </form>
+  } @else {
+    <div class="resumo">
+      @if (data(); as proxima) {
+        <p class="data ajj-numero">{{ formatar(proxima) }}</p>
+        <div class="acoes">
+          <ajj-botao variante="secundario" (clique)="abrir()">Trocar</ajj-botao>
+          <ajj-botao variante="texto" (clique)="cancelar()">Cancelar</ajj-botao>
+        </div>
+      } @else {
+        <p class="ajj-suave">Nenhuma data agendada</p>
+        <div class="acoes">
+          <ajj-botao variante="secundario" (clique)="abrir()">Agendar</ajj-botao>
+        </div>
+      }
+    </div>
+  }
+</section>
