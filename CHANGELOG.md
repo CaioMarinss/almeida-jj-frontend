@@ -8,6 +8,8 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não lançado]
 
+## [0.2.3] - 2026-11-05
+
 ### Adicionado
 - Workflow `keep-alive-api.yml`: chama a API a cada 10 minutos para o plano gratuito do Render não desligá-la (o primeiro login depois de um tempo parado demorava até 1 minuto).
 
