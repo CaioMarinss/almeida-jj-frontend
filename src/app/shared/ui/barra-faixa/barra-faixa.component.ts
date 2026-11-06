@@ -3,6 +3,8 @@ import { descreverGraduacao } from '../../graduacao/descrever';
 import { Faixa } from '../../graduacao/graduacao.model';
 
 const BLOCOS_CORAL = 12;
+const PONTA_PRETA = '#0a0a0a';
+const PONTA_FAIXA_PRETA = '#D32F2F';
 
 @Component({
   selector: 'ajj-barra-faixa',
@@ -29,5 +31,6 @@ export class BarraFaixaComponent {
     const { corPrincipal, corSecundaria } = this.faixa();
     return Array.from({ length: BLOCOS_CORAL }, (_, i) => (i % 2 === 0 ? corPrincipal : (corSecundaria ?? corPrincipal)));
   });
+  readonly corPonta = computed(() => (this.faixa().codigo === 'FP' ? PONTA_FAIXA_PRETA : PONTA_PRETA));
   readonly rotulo = computed(() => descreverGraduacao(this.faixa(), this.grau()));
 }

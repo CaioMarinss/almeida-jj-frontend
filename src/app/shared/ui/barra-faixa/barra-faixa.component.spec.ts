@@ -39,7 +39,7 @@ describe('BarraFaixaComponent', () => {
   });
 
   it('preta desenha até 6 listras', async () => {
-    await renderizar(faixa({ codigo: 'PR', descricao: 'Faixa Preta', grauMax: 6 }), 6);
+    await renderizar(faixa({ codigo: 'FP', descricao: 'Faixa Preta', corPrincipal: '#111111', grauMax: 6 }), 6);
     expect(listras()).toBe(6);
   });
 
@@ -49,6 +49,16 @@ describe('BarraFaixaComponent', () => {
 
     await renderizar(faixa({}), -1);
     expect(listras()).toBe(0);
+  });
+
+  it('faixa preta tem a ponta vermelha', async () => {
+    await renderizar(faixa({ codigo: 'FP', descricao: 'Faixa Preta', corPrincipal: '#111111', grauMax: 6 }), 2);
+    expect(el().querySelector<HTMLElement>('.ponta')!.style.background).toBe('rgb(211, 47, 47)');
+  });
+
+  it('faixa colorida tem a ponta preta', async () => {
+    await renderizar(faixa({}), 2);
+    expect(el().querySelector<HTMLElement>('.ponta')!.style.background).toBe('rgb(10, 10, 10)');
   });
 
   it('coral não desenha listras e usa as duas cores', async () => {
