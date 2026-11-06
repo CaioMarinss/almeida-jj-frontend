@@ -83,3 +83,11 @@
     }
   </div>
 </ion-content>
+
+<ion-modal [isOpen]="selecionado() !== null" (didDismiss)="fechar()">
+  <ng-template>
+    @if (selecionado(); as aluno) {
+      <app-registro-graduacao [aluno]="aluno" (registrado)="aoRegistrar(aluno, $event)" />
+    }
+  </ng-template>
+</ion-modal>

@@ -1,15 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { Notificador } from '../../../core/notificacao/notificador';
-import { formatarDiaMes } from '../../../shared/graduacao/descrever';
+import { formatarDiaMes, hojeLocal } from '../../../shared/graduacao/descrever';
 import { GraduacaoService } from '../../../shared/graduacao/graduacao.service';
 import { BotaoComponent } from '../../../shared/ui/botao/botao.component';
-
-function hojeLocal(): string {
-  const agora = new Date();
-  const mes = String(agora.getMonth() + 1).padStart(2, '0');
-  const dia = String(agora.getDate()).padStart(2, '0');
-  return `${agora.getFullYear()}-${mes}-${dia}`;
-}
 
 @Component({
   selector: 'app-proxima-graduacao',

@@ -1,17 +1,18 @@
 import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { IonContent, IonHeader, IonSpinner, IonTitle, IonToolbar } from '@ionic/angular';
+import { IonContent, IonHeader, IonModal, IonSpinner, IonTitle, IonToolbar } from '@ionic/angular';
 import { LucideAward } from '@lucide/angular';
 import { catchError, debounceTime, EMPTY, map, of, Subject, switchMap, tap } from 'rxjs';
 import { ROTULO_PERFIL } from '../../core/auth/usuario';
 import { Notificador } from '../../core/notificacao/notificador';
-import { descreverGraduacao } from '../../shared/graduacao/descrever';
-import { AlunoGraduacao, Faixa, FiltroAlunos, GraduacaoAtual } from '../../shared/graduacao/graduacao.model';
+import { descreverGraduacao, hojeLocal } from '../../shared/graduacao/descrever';
+import { AlunoGraduacao, Faixa, FiltroAlunos, GraduacaoAtual, RegistroGraduacao } from '../../shared/graduacao/graduacao.model';
 import { GraduacaoService } from '../../shared/graduacao/graduacao.service';
 import { BarraFaixaComponent } from '../../shared/ui/barra-faixa/barra-faixa.component';
 import { BotaoComponent } from '../../shared/ui/botao/botao.component';
 import { EstadoVazioComponent } from '../../shared/ui/estado-vazio/estado-vazio.component';
 import { ProximaGraduacaoComponent } from './proxima-graduacao/proxima-graduacao.component';
+import { RegistroGraduacaoComponent } from './registro-graduacao/registro-graduacao.component';
 
 const TAMANHO_PAGINA = 20;
 const ESPERA_DIGITACAO_MS = 300;
@@ -31,11 +32,13 @@ interface Pedido {
     IonTitle,
     IonContent,
     IonSpinner,
+    IonModal,
     LucideAward,
     BarraFaixaComponent,
     BotaoComponent,
     EstadoVazioComponent,
-    ProximaGraduacaoComponent
+    ProximaGraduacaoComponent,
+    RegistroGraduacaoComponent
   ],
   templateUrl: './graduacao.component.html',
   styleUrl: './graduacao.component.scss',
@@ -119,6 +122,16 @@ export class GraduacaoComponent {
 
   abrir(aluno: AlunoGraduacao): void {
     this.selecionado.set(aluno);
+  }
+
+  fechar(): void {
+    this.selecionado.set(null);
+  }
+
+  aoRegistrar(aluno: AlunoGraduacao, registro: RegistroGraduacao): void {
+    if (registro.data === hojeLocal()) {
+      this.atualizarLinha(aluno.id, { faixa: registro.faixa, grau: registro.grau });
+    }
   }
 
   atualizarLinha(id: number, atual: GraduacaoAtual): void {

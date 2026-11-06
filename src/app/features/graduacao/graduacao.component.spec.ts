@@ -202,6 +202,29 @@ describe('GraduacaoComponent', () => {
     expect(cmp().selecionado()?.id).toBe(2);
   });
 
+  it('registro com data de hoje atualiza a linha; data passada não', () => {
+    jasmine.clock().mockDate(new Date(2026, 10, 6, 23, 30));
+    criar();
+    const bia = cmp().alunos()[1];
+
+    cmp().aoRegistrar(bia, { id: 1, faixa: FAIXAS[13], grau: 1, data: '2026-10-01' });
+    fixture.detectChanges();
+    expect(linhas()[1].textContent).toContain('Sem graduação');
+
+    cmp().aoRegistrar(bia, { id: 2, faixa: FAIXAS[13], grau: 1, data: '2026-11-06' });
+    fixture.detectChanges();
+    expect(linhas()[1].textContent).toContain('Adulto 2 · 1 grau');
+  });
+
+  it('fechar limpa o aluno selecionado', () => {
+    criar();
+    cmp().abrir(cmp().alunos()[0]);
+
+    cmp().fechar();
+
+    expect(cmp().selecionado()).toBeNull();
+  });
+
   it('atualizarLinha troca a graduação só daquela linha', () => {
     criar();
 

@@ -19,3 +19,10 @@ export function formatarMesAno(data: string): string {
   const [ano, mes] = data.split('-');
   return `${mes}/${ano}`;
 }
+
+export function hojeLocal(): string {
+  const agora = new Date();
+  const mes = String(agora.getMonth() + 1).padStart(2, '0');
+  const dia = String(agora.getDate()).padStart(2, '0');
+  return `${agora.getFullYear()}-${mes}-${dia}`;
+}
