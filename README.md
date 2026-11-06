@@ -59,7 +59,8 @@ Tudo sobre a suíte (como rodar, como funciona, lista de cenários, CI e a ordem
 | `/app/aulas` | Aulas (estado vazio por enquanto) | logado |
 | `/app/presenca` | Presença (estado vazio por enquanto) | logado |
 | `/app/financeiro` | Financeiro (estado vazio por enquanto) | logado |
-| `/app/perfil` | Perfil, cargo e troca de senha; botão "Gerenciar professores" para o dono | logado |
+| `/app/perfil` | Perfil, cargo e troca de senha; botões "Gerenciar professores" e "Gerenciar graduações" para o dono | logado |
+| `/app/graduacao` | Alunos com busca, filtro por faixa, registro de faixa/grau e próxima graduação da academia | **só dono** (`donoGuard`) |
 | `/app/professores` | Tornar um aluno professor ou tirar o cargo de professor | **só dono** (`donoGuard`) |
 
 As rotas antigas (`/dashboard`, `/calendario`, `/financeiro`, `/configuracoes`) redirecionam para as abas novas.

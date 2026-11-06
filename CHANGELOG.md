@@ -10,6 +10,10 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ### Adicionado
 - Tela **Graduação** (`/app/graduacao`), só para o dono: lista de alunos com busca por nome, filtro por faixa e "Carregar mais". Acesso pelo menu lateral e por "Gerenciar graduações" no Perfil.
+- Registro de faixa e grau pelo dono (data padrão hoje; data passada entra só no histórico) e agendamento, troca e cancelamento da próxima graduação da academia.
+- Card de graduação no Início: faixa e graus, próxima graduação, evolução e histórico completo.
+- Faixas IBJJF (infantis, adultas e mestres) na barra de faixa.
+- Testes e2e de graduação (`e2e/tests/graduacao.spec.ts`).
 
 ## [0.2.3] - 2026-11-05
 

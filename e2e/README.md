@@ -56,7 +56,7 @@ e2e/
 
 ## Cenários
 
-São 29 testes, que viram 44 execuções: os 29 rodam no desktop e 15 rodam de novo no celular.
+São 41 testes, que viram 61 execuções: os 41 rodam no desktop e 20 rodam de novo no celular.
 
 ### Cadastro (`tests/cadastro.spec.ts`), desktop e celular
 
@@ -104,6 +104,25 @@ A conta de dono é criada pelo próprio teste (`criarDono`: cadastro pela API + 
 | API: professor e aluno não alteram cargo | só desktop | `PUT /alunos/{id}/perfil` responde 403 para os dois. |
 | API: o cargo de outro dono não muda pelo app | só desktop | 422 com `codigo` `ERR010`. |
 | API: ninguém vira dono pelo app | só desktop | `{"perfil":"DONO"}` responde 400. |
+
+### Graduação (`tests/graduacao.spec.ts`)
+
+Os alunos ganham um nome único (`UPDATE ... NOME` no banco) para a busca da tela achar só eles. A data da próxima graduação é única na academia, então os cenários que a mexem rodam só no desktop, em `test.describe.serial`, e cancelam a data no `finally`.
+
+| Cenário | Onde roda | O que verifica |
+|---|---|---|
+| O dono registra faixa e grau e o aluno acompanha a evolução | desktop e celular | Registro de Faixa Azul 1º grau pela tela; o aluno vê título e barra "Faixa Azul · 1 grau" no card do Início. Novo grau (2º) deixa a evolução com 2 itens. |
+| Registro com data passada | desktop e celular | Aviso "Data anterior a hoje...", histórico ganha item e a faixa atual (Azul, 2 graus) não muda. |
+| Busca por nome e filtro por faixa | desktop e celular | Busca sem diferenciar maiúsculas, filtro Azul acha, Roxa não acha, "Sem graduação" acha quem não tem. |
+| Aluno e professor não veem Graduação | desktop e celular | Sem item no menu nem "Gerenciar graduações"; `/app/graduacao` leva para `/app/inicio`. |
+| O dono chega em Graduação pelo perfil | desktop e celular | "Gerenciar graduações" abre a tela. |
+| O menu lateral do dono tem Graduação | só desktop | O item do menu abre a tela. |
+| Conta desativada antes de salvar | só desktop | Desativa a conta com a modal aberta; salvar mostra o alerta "Aluno não encontrado" e a tela continua usável. |
+| Agendar e cancelar a próxima graduação | só desktop (serial) | Aluno vê "Próxima graduação: DD/MM"; ao cancelar, "Sem data definida para a próxima graduação". |
+| Trocar a data agendada | só desktop (serial) | A nova data substitui a anterior. |
+| API: professor e aluno não registram nem agendam | só desktop | 403 em registrar, agendar, cancelar e listar alunos. |
+| API: grau 5 na Faixa Azul | só desktop | 422 com `codigo` `ERR012`. |
+| API: data futura no registro | só desktop | 400 com `codigo` `ERR013`. |
 
 ## No GitHub (Actions)
 
