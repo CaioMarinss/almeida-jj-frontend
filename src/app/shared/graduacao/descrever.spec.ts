@@ -1,5 +1,5 @@
 import { Faixa } from './graduacao.model';
-import { descreverGraduacao, formatarDiaMes, formatarMesAno } from './descrever';
+import { descreverGraduacao, descreverGrau, formatarDiaMes, formatarMesAno, hojeEmSaoPaulo } from './descrever';
 
 const faixa = (descricao: string, categoria: Faixa['categoria']): Faixa => ({
   id: 1,
@@ -22,6 +22,29 @@ describe('descrever', () => {
 
   it('descreve o grau de mestre', () => {
     expect(descreverGraduacao(faixa('Faixa Vermelha', 'MESTRE'), 9)).toBe('Faixa Vermelha · 9º grau');
+  });
+
+  it('descreve só o grau', () => {
+    expect(descreverGrau(faixa('Faixa Azul', 'ADULTO'), 0)).toBe('sem graus');
+    expect(descreverGrau(faixa('Faixa Vermelha', 'MESTRE'), 9)).toBe('9º grau');
+  });
+
+  describe('hojeEmSaoPaulo', () => {
+    afterEach(() => jasmine.clock().uninstall());
+
+    it('usa a data de São Paulo, não a de UTC', () => {
+      jasmine.clock().install();
+      jasmine.clock().mockDate(new Date('2026-11-11T01:00:00Z'));
+      expect(hojeEmSaoPaulo()).toBe('2026-11-10');
+    });
+
+    it('vira o dia às 03:00 UTC', () => {
+      jasmine.clock().install();
+      jasmine.clock().mockDate(new Date('2026-11-11T02:59:00Z'));
+      expect(hojeEmSaoPaulo()).toBe('2026-11-10');
+      jasmine.clock().mockDate(new Date('2026-11-11T03:00:00Z'));
+      expect(hojeEmSaoPaulo()).toBe('2026-11-11');
+    });
   });
 
   it('formata datas sem usar fuso', () => {

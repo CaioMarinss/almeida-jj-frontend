@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { IonModal, IonSpinner } from '@ionic/angular';
 import { LucideAward } from '@lucide/angular';
 import { firstValueFrom } from 'rxjs';
-import { descreverGraduacao, formatarDiaMes, formatarMesAno } from '../../../shared/graduacao/descrever';
+import { descreverGrau, descreverGraduacao, formatarDiaMes, formatarMesAno } from '../../../shared/graduacao/descrever';
 import { MinhaGraduacao, RegistroGraduacao } from '../../../shared/graduacao/graduacao.model';
 import { GraduacaoService } from '../../../shared/graduacao/graduacao.service';
 import { BarraFaixaComponent } from '../../../shared/ui/barra-faixa/barra-faixa.component';
@@ -56,8 +56,7 @@ export class CardGraduacaoComponent {
 
   textoRegistro(r: RegistroGraduacao): string {
     const curta = r.faixa.descricao.replace(/^Faixa\s+/, '');
-    const grau = r.faixa.categoria === 'MESTRE' ? `${r.grau}º grau` : `${r.grau} ${r.grau === 1 ? 'grau' : 'graus'}`;
-    return `${curta} · ${grau} — ${formatarMesAno(r.data)}`;
+    return `${curta} · ${descreverGrau(r.faixa, r.grau)} — ${formatarMesAno(r.data)}`;
   }
 
   abrirHistorico(): void {

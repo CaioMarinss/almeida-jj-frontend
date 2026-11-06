@@ -93,7 +93,7 @@ async function registrarPelaTela(page: Page, faixa: string, grau: string, data?:
 }
 
 async function fecharModal(page: Page): Promise<void> {
-  await page.locator('ion-modal ion-backdrop').click({ position: { x: 5, y: 5 } });
+  await page.locator('ion-modal').getByRole('button', { name: 'Fechar', exact: true }).click();
   await expect(page.locator('app-registro-graduacao')).toHaveCount(0);
 }
 
@@ -210,6 +210,18 @@ test.describe('Graduação', () => {
     await botao(page, 'Gerenciar graduações').click();
 
     await expect(page).toHaveURL(/\/app\/graduacao$/);
+    await expect(page.locator('#busca-aluno')).toBeVisible();
+  });
+
+  test('o dono abre o registro de um aluno e fecha pelo botão Fechar', async ({ page, request }) => {
+    const dono = await criarDono(request);
+    const aluno = await criarAluno(request);
+
+    await entrar(page, dono.email, dono.senha);
+    await expect(page).toHaveURL(/\/app\/inicio$/);
+    await abrirAluno(page, aluno);
+    await fecharModal(page);
+
     await expect(page.locator('#busca-aluno')).toBeVisible();
   });
 

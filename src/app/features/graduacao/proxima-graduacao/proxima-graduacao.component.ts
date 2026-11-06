@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { Notificador } from '../../../core/notificacao/notificador';
-import { formatarDiaMes, hojeLocal } from '../../../shared/graduacao/descrever';
+import { formatarDiaMes, hojeEmSaoPaulo } from '../../../shared/graduacao/descrever';
 import { GraduacaoService } from '../../../shared/graduacao/graduacao.service';
 import { BotaoComponent } from '../../../shared/ui/botao/botao.component';
 
@@ -17,13 +17,20 @@ export class ProximaGraduacaoComponent implements OnInit {
 
   readonly data = signal<string | null>(null);
   readonly carregando = signal(true);
+  readonly erro = signal(false);
   readonly editando = signal(false);
   readonly rascunho = signal('');
-  readonly minimo = signal(hojeLocal());
+  readonly minimo = signal(hojeEmSaoPaulo());
   readonly salvando = signal(false);
   readonly formatar = formatarDiaMes;
 
   ngOnInit(): void {
+    this.carregar();
+  }
+
+  carregar(): void {
+    this.carregando.set(true);
+    this.erro.set(false);
     this.service.proxima().subscribe({
       next: (data) => {
         this.data.set(data);
@@ -31,13 +38,14 @@ export class ProximaGraduacaoComponent implements OnInit {
       },
       error: (erro: unknown) => {
         this.carregando.set(false);
+        this.erro.set(true);
         void this.notificador.erroDaApi(erro, 'Não foi possível carregar a próxima graduação.');
       }
     });
   }
 
   abrir(): void {
-    this.minimo.set(hojeLocal());
+    this.minimo.set(hojeEmSaoPaulo());
     this.rascunho.set(this.data() ?? '');
     this.editando.set(true);
   }

@@ -51,6 +51,20 @@ describe('BarraFaixaComponent', () => {
     expect(listras()).toBe(0);
   });
 
+  it('com 10 graus cada listra tem largura e a ponta cabe na faixa estreita', async () => {
+    await renderizar(faixa({ codigo: 'VE', descricao: 'Faixa Verde', categoria: 'INFANTIL', grauMax: 10 }), 10);
+    el().style.width = '240px';
+    el().style.display = 'block';
+
+    const listrasDesenhadas = Array.from(el().querySelectorAll<HTMLElement>('.grau'));
+    expect(listrasDesenhadas.length).toBe(10);
+    listrasDesenhadas.forEach((l) => expect(l.getBoundingClientRect().width).toBeGreaterThan(0));
+    const faixaBox = el().querySelector('.faixa')!.getBoundingClientRect();
+    const pontaBox = el().querySelector('.ponta')!.getBoundingClientRect();
+    expect(pontaBox.left).toBeGreaterThanOrEqual(faixaBox.left);
+    expect(pontaBox.right).toBeLessThanOrEqual(faixaBox.right);
+  });
+
   it('faixa preta tem a ponta vermelha', async () => {
     await renderizar(faixa({ codigo: 'FP', descricao: 'Faixa Preta', corPrincipal: '#111111', grauMax: 6 }), 2);
     expect(el().querySelector<HTMLElement>('.ponta')!.style.background).toBe('rgb(211, 47, 47)');

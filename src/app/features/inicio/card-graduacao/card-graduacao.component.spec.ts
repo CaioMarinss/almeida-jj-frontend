@@ -92,6 +92,8 @@ describe('CardGraduacaoComponent', () => {
     expect(el.querySelectorAll('.evolucao li').length).toBe(3);
     expect(el.textContent).toContain('Azul · 2 graus — 06/2026');
     expect(el.textContent).toContain('Azul · 1 grau — 03/2026');
+    expect(el.textContent).toContain('Azul · sem graus — 12/2025');
+    expect(el.textContent).not.toContain('0 graus');
 
     botao(el, 'Ver histórico completo')?.click();
     fixture.detectChanges();

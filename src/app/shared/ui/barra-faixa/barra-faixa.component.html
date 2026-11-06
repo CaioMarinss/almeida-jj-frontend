@@ -10,7 +10,7 @@
     <span class="listra-secundaria" [style.background]="faixa().corSecundaria"></span>
   }
   @if (!mestre()) {
-    <div class="ponta" [style.background]="corPonta()">
+    <div class="ponta" [class.compacta]="grausValidos() > 4" [style.background]="corPonta()">
       @for (g of listaGraus(); track g) {
         <span class="grau"></span>
       }

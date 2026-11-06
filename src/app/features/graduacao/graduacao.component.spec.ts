@@ -57,7 +57,8 @@ describe('GraduacaoComponent', () => {
     jasmine.clock().install();
     jasmine.clock().mockDate();
     notificador = criarNotificador();
-    service = jasmine.createSpyObj<GraduacaoService>('GraduacaoService', ['buscarAlunos', 'faixas', 'proxima']);
+    service = jasmine.createSpyObj<GraduacaoService>('GraduacaoService', ['buscarAlunos', 'faixas', 'proxima', 'historicoDe']);
+    service.historicoDe.and.returnValue(of([]));
     service.proxima.and.returnValue(of(null));
     service.faixas.and.returnValue(of(FAIXAS));
     service.buscarAlunos.and.returnValue(of(pagina([aluno(1, 'Ana'), aluno(2, 'Bia')], 0, 2)));
@@ -203,7 +204,7 @@ describe('GraduacaoComponent', () => {
   });
 
   it('registro com data de hoje atualiza a linha; data passada não', () => {
-    jasmine.clock().mockDate(new Date(2026, 10, 6, 23, 30));
+    jasmine.clock().mockDate(new Date('2026-11-07T01:30:00Z'));
     criar();
     const bia = cmp().alunos()[1];
 
@@ -214,6 +215,33 @@ describe('GraduacaoComponent', () => {
     cmp().aoRegistrar(bia, { id: 2, faixa: FAIXAS[13], grau: 1, data: '2026-11-06' });
     fixture.detectChanges();
     expect(linhas()[1].textContent).toContain('Adulto 2 · 1 grau');
+  });
+
+  it('registro de hoje atualiza também o aluno selecionado do modal', () => {
+    criar();
+    const bia = cmp().alunos()[1];
+    cmp().abrir(bia);
+
+    cmp().aoRegistrar(bia, { id: 2, faixa: FAIXAS[13], grau: 1, data: '2026-11-06' });
+
+    expect(cmp().selecionado()?.atual).toEqual({ faixa: FAIXAS[13], grau: 1 });
+  });
+
+  it('o modal tem o botão Fechar que limpa a seleção', async () => {
+    jasmine.clock().uninstall();
+    criar();
+    cmp().abrir(cmp().alunos()[0]);
+    fixture.detectChanges();
+    const achar = (): Element | undefined =>
+      Array.from(document.querySelectorAll('ion-modal ajj-botao')).find((b) => b.textContent?.trim() === 'Fechar');
+    for (let i = 0; i < 50 && !achar(); i++) {
+      await new Promise((r) => setTimeout(r, 20));
+    }
+
+    expect(achar()).toBeDefined();
+    achar()!.querySelector('ion-button')!.dispatchEvent(new Event('click'));
+
+    expect(cmp().selecionado()).toBeNull();
   });
 
   it('fechar limpa o aluno selecionado', () => {

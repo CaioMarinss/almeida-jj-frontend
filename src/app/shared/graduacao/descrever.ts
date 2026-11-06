@@ -1,13 +1,17 @@
 import { Faixa } from './graduacao.model';
 
-export function descreverGraduacao(faixa: Faixa, grau: number): string {
+export function descreverGrau(faixa: Faixa, grau: number): string {
   if (faixa.categoria === 'MESTRE') {
-    return `${faixa.descricao} · ${grau}º grau`;
+    return `${grau}º grau`;
   }
   if (grau === 0) {
-    return `${faixa.descricao} · sem graus`;
+    return 'sem graus';
   }
-  return `${faixa.descricao} · ${grau} ${grau === 1 ? 'grau' : 'graus'}`;
+  return `${grau} ${grau === 1 ? 'grau' : 'graus'}`;
+}
+
+export function descreverGraduacao(faixa: Faixa, grau: number): string {
+  return `${faixa.descricao} · ${descreverGrau(faixa, grau)}`;
 }
 
 export function formatarDiaMes(data: string): string {
@@ -20,9 +24,13 @@ export function formatarMesAno(data: string): string {
   return `${mes}/${ano}`;
 }
 
-export function hojeLocal(): string {
-  const agora = new Date();
-  const mes = String(agora.getMonth() + 1).padStart(2, '0');
-  const dia = String(agora.getDate()).padStart(2, '0');
-  return `${agora.getFullYear()}-${mes}-${dia}`;
+const FORMATADOR_SAO_PAULO = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'America/Sao_Paulo',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit'
+});
+
+export function hojeEmSaoPaulo(): string {
+  return FORMATADOR_SAO_PAULO.format(new Date());
 }

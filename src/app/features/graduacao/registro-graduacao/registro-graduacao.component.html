@@ -8,6 +8,13 @@
     }
   </p>
 
+  @if (erroFaixas()) {
+    <div class="erro" role="alert">
+      <p>Não foi possível carregar as faixas.</p>
+      <ajj-botao variante="secundario" (clique)="carregarFaixas()">Tentar de novo</ajj-botao>
+    </div>
+  }
+
   <form (submit)="$event.preventDefault(); salvar()">
     <div class="campo">
       <label for="registro-faixa" class="ajj-rotulo">Faixa</label>
@@ -57,12 +64,17 @@
       }
     </div>
 
-    <ajj-botao tipo="submit" [carregando]="salvando()" [desabilitado]="!dataValida()">Salvar</ajj-botao>
+    <ajj-botao tipo="submit" [carregando]="salvando()" [desabilitado]="!dataValida() || !faixa()">Salvar</ajj-botao>
   </form>
 
   <h3 class="ajj-rotulo">Histórico</h3>
   @if (carregandoHistorico()) {
     <p class="ajj-suave">Carregando…</p>
+  } @else if (erroHistorico()) {
+    <div class="erro" role="alert">
+      <p>Não foi possível carregar o histórico.</p>
+      <ajj-botao variante="secundario" (clique)="carregarHistorico()">Tentar de novo</ajj-botao>
+    </div>
   } @else if (historico().length === 0) {
     <p class="ajj-suave">Nenhuma graduação registrada.</p>
   } @else {

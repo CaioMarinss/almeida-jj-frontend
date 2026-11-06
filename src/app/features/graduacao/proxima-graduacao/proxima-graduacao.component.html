@@ -3,6 +3,13 @@
 
   @if (carregando()) {
     <p class="ajj-suave">Carregando…</p>
+  } @else if (erro()) {
+    <div class="resumo">
+      <p class="ajj-suave" role="alert">Não foi possível carregar a data.</p>
+      <div class="acoes">
+        <ajj-botao variante="secundario" (clique)="carregar()">Tentar de novo</ajj-botao>
+      </div>
+    </div>
   } @else if (editando()) {
     <form class="edicao" (submit)="$event.preventDefault(); salvar()">
       <div class="campo">

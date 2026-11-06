@@ -51,6 +51,25 @@ describe('ProximaGraduacaoComponent', () => {
     expect(el().querySelector('#proxima-titulo')?.textContent).toContain('Próxima graduação');
   });
 
+  it('falha ao carregar mostra erro, esconde as ações e Tentar de novo recarrega', () => {
+    service.proxima.and.returnValue(throwError(() => new Error('falha')));
+    criar();
+
+    expect(textos()).toContain('Não foi possível carregar a data.');
+    expect(textos()).not.toContain('Nenhuma data agendada');
+    expect(botao('Agendar')).toBeUndefined();
+    expect(botao('Trocar')).toBeUndefined();
+    expect(botao('Cancelar')).toBeUndefined();
+
+    service.proxima.and.returnValue(of('2026-12-14'));
+    clicar('Tentar de novo');
+
+    expect(service.proxima).toHaveBeenCalledTimes(2);
+    expect(textos()).toContain('14/12');
+    expect(textos()).not.toContain('Não foi possível carregar a data.');
+    expect(botao('Trocar')).toBeDefined();
+  });
+
   it('com data mostra o dia, Trocar e Cancelar', () => {
     service.proxima.and.returnValue(of('2026-12-14'));
     criar();
@@ -61,9 +80,9 @@ describe('ProximaGraduacaoComponent', () => {
     expect(botao('Agendar')).toBeUndefined();
   });
 
-  it('o seletor de data tem rótulo e mínimo igual a hoje no horário local', () => {
+  it('o seletor de data tem rótulo e mínimo igual a hoje em São Paulo', () => {
     jasmine.clock().install();
-    jasmine.clock().mockDate(new Date(2026, 10, 5, 23, 30));
+    jasmine.clock().mockDate(new Date('2026-11-06T01:30:00Z'));
     try {
       criar();
       clicar('Agendar');

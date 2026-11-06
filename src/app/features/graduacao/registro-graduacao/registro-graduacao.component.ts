@@ -1,8 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit, output, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { catchError, of } from 'rxjs';
 import { Notificador } from '../../../core/notificacao/notificador';
-import { descreverGraduacao, formatarMesAno, hojeLocal } from '../../../shared/graduacao/descrever';
+import { descreverGraduacao, formatarMesAno, hojeEmSaoPaulo } from '../../../shared/graduacao/descrever';
 import { AlunoGraduacao, Faixa, RegistroGraduacao } from '../../../shared/graduacao/graduacao.model';
 import { GraduacaoService } from '../../../shared/graduacao/graduacao.service';
 import { BotaoComponent } from '../../../shared/ui/botao/botao.component';
@@ -21,20 +19,20 @@ export class RegistroGraduacaoComponent implements OnInit {
   readonly aluno = input.required<AlunoGraduacao>();
   readonly registrado = output<RegistroGraduacao>();
 
-  readonly hoje = hojeLocal();
+  readonly hoje = hojeEmSaoPaulo();
   readonly descrever = descreverGraduacao;
   readonly mesAno = formatarMesAno;
 
   readonly historico = signal<RegistroGraduacao[]>([]);
   readonly carregandoHistorico = signal(true);
+  readonly erroHistorico = signal(false);
+  readonly erroFaixas = signal(false);
   readonly idFaixa = signal<number | null>(null);
   readonly grauEscolhido = signal(0);
   readonly data = signal(this.hoje);
   readonly salvando = signal(false);
 
-  private readonly faixas = toSignal(this.service.faixas().pipe(catchError(() => of<Faixa[]>([]))), {
-    initialValue: [] as Faixa[]
-  });
+  private readonly faixas = signal<Faixa[]>([]);
   readonly infantis = computed(() => this.faixas().filter((f) => f.categoria === 'INFANTIL'));
   readonly adultas = computed(() => this.faixas().filter((f) => f.categoria === 'ADULTO'));
   readonly mestres = computed(() => this.faixas().filter((f) => f.categoria === 'MESTRE'));
@@ -60,7 +58,16 @@ export class RegistroGraduacaoComponent implements OnInit {
   readonly dataPassada = computed(() => this.dataValida() && this.data() < this.hoje);
 
   ngOnInit(): void {
+    this.carregarFaixas();
     this.carregarHistorico();
+  }
+
+  carregarFaixas(): void {
+    this.erroFaixas.set(false);
+    this.service.faixas().subscribe({
+      next: (lista) => this.faixas.set(lista),
+      error: () => this.erroFaixas.set(true)
+    });
   }
 
   trocarFaixa(valor: string): void {
@@ -97,7 +104,9 @@ export class RegistroGraduacaoComponent implements OnInit {
     });
   }
 
-  private carregarHistorico(): void {
+  carregarHistorico(): void {
+    this.carregandoHistorico.set(true);
+    this.erroHistorico.set(false);
     this.service.historicoDe(this.aluno().id).subscribe({
       next: (lista) => {
         this.historico.set(lista);
@@ -105,6 +114,7 @@ export class RegistroGraduacaoComponent implements OnInit {
       },
       error: () => {
         this.carregandoHistorico.set(false);
+        this.erroHistorico.set(true);
       }
     });
   }

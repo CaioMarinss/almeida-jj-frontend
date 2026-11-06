@@ -64,3 +64,12 @@ form {
     gap: var(--ajj-espaco-3);
   }
 }
+
+.erro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ajj-espaco-3);
+  font-size: 15px;
+}

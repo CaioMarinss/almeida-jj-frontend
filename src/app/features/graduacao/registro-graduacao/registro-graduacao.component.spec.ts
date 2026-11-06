@@ -59,7 +59,7 @@ describe('RegistroGraduacaoComponent', () => {
 
   beforeEach(() => {
     jasmine.clock().install();
-    jasmine.clock().mockDate(new Date(2026, 10, 6, 12));
+    jasmine.clock().mockDate(new Date('2026-11-06T15:00:00Z'));
     notificador = criarNotificador();
     service = jasmine.createSpyObj<GraduacaoService>('GraduacaoService', ['faixas', 'historicoDe', 'registrar']);
     service.faixas.and.returnValue(of(FAIXAS));
@@ -106,6 +106,14 @@ describe('RegistroGraduacaoComponent', () => {
 
     expect(faixaSelect().value).toBe('1');
     expect(grauSelect().value).toBe('3');
+  });
+
+  it('às 01:00 UTC ainda é o dia anterior em São Paulo', () => {
+    jasmine.clock().mockDate(new Date('2026-11-07T01:00:00Z'));
+    criar();
+
+    expect(dataInput().value).toBe('2026-11-06');
+    expect(dataInput().max).toBe('2026-11-06');
   });
 
   it('data padrão é hoje e não aceita futuras', () => {
@@ -178,6 +186,41 @@ describe('RegistroGraduacaoComponent', () => {
     expect(faixaSelect().value).toBe('2');
     const botao = el().querySelector('ajj-botao ion-button') as HTMLButtonElement;
     expect(botao.hasAttribute('disabled') || botao.disabled).toBeFalse();
+  });
+
+  it('falha no histórico mostra erro e Tentar de novo recarrega', () => {
+    service.historicoDe.and.returnValue(throwError(() => new Error('falha')));
+    criar();
+
+    expect(el().textContent).toContain('Não foi possível carregar o histórico.');
+    expect(el().textContent).not.toContain('Nenhuma graduação registrada.');
+
+    service.historicoDe.and.returnValue(of([registro('2026-05-10')]));
+    const tentar = Array.from(el().querySelectorAll('ajj-botao')).find((b) => b.textContent?.trim() === 'Tentar de novo')!;
+    tentar.querySelector('ion-button')!.dispatchEvent(new Event('click'));
+    fixture.detectChanges();
+
+    expect(el().querySelectorAll('.historico li').length).toBe(1);
+    expect(el().textContent).not.toContain('Não foi possível carregar o histórico.');
+  });
+
+  it('falha nas faixas desabilita Salvar, mostra erro e Tentar de novo recarrega', () => {
+    service.faixas.and.returnValue(throwError(() => new Error('falha')));
+    criar();
+
+    expect(el().textContent).toContain('Não foi possível carregar as faixas.');
+    const salvarBotao = el().querySelector('form ajj-botao ion-button') as HTMLButtonElement;
+    expect(salvarBotao.hasAttribute('disabled') || salvarBotao.disabled).toBeTrue();
+    salvar();
+    expect(service.registrar).not.toHaveBeenCalled();
+
+    service.faixas.and.returnValue(of(FAIXAS));
+    const tentar = Array.from(el().querySelectorAll('ajj-botao')).find((b) => b.textContent?.trim() === 'Tentar de novo')!;
+    tentar.querySelector('ion-button')!.dispatchEvent(new Event('click'));
+    fixture.detectChanges();
+
+    expect(el().textContent).not.toContain('Não foi possível carregar as faixas.');
+    expect(faixaSelect().options.length).toBe(FAIXAS.length);
   });
 
   it('mostra o histórico do aluno abaixo do formulário', () => {

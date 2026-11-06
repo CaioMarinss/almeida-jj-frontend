@@ -5,7 +5,7 @@ import { LucideAward } from '@lucide/angular';
 import { catchError, debounceTime, EMPTY, map, of, Subject, switchMap, tap } from 'rxjs';
 import { ROTULO_PERFIL } from '../../core/auth/usuario';
 import { Notificador } from '../../core/notificacao/notificador';
-import { descreverGraduacao, hojeLocal } from '../../shared/graduacao/descrever';
+import { descreverGraduacao, hojeEmSaoPaulo } from '../../shared/graduacao/descrever';
 import { AlunoGraduacao, Faixa, FiltroAlunos, GraduacaoAtual, RegistroGraduacao } from '../../shared/graduacao/graduacao.model';
 import { GraduacaoService } from '../../shared/graduacao/graduacao.service';
 import { BarraFaixaComponent } from '../../shared/ui/barra-faixa/barra-faixa.component';
@@ -129,8 +129,10 @@ export class GraduacaoComponent {
   }
 
   aoRegistrar(aluno: AlunoGraduacao, registro: RegistroGraduacao): void {
-    if (registro.data === hojeLocal()) {
-      this.atualizarLinha(aluno.id, { faixa: registro.faixa, grau: registro.grau });
+    if (registro.data === hojeEmSaoPaulo()) {
+      const atual: GraduacaoAtual = { faixa: registro.faixa, grau: registro.grau };
+      this.atualizarLinha(aluno.id, atual);
+      this.selecionado.update(sel => (sel?.id === aluno.id ? { ...sel, atual } : sel));
     }
   }
 
