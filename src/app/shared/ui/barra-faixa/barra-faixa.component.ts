@@ -1,4 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { descreverGraduacao } from '../../graduacao/descrever';
+import { Faixa } from '../../graduacao/graduacao.model';
+
+const BLOCOS_CORAL = 12;
 
 @Component({
   selector: 'ajj-barra-faixa',
@@ -7,14 +11,23 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BarraFaixaComponent {
-  readonly cor = input.required<string>();
-  readonly graus = input(0);
-  readonly descricao = input.required<string>();
+  readonly faixa = input.required<Faixa>();
+  readonly grau = input(0);
 
-  readonly grausValidos = computed(() => Math.min(4, Math.max(0, Math.trunc(this.graus()))));
-  readonly listaGraus = computed(() => Array.from({ length: this.grausValidos() }, (_, i) => i));
-  readonly rotulo = computed(() => {
-    const n = this.grausValidos();
-    return `${this.descricao()}, ${n} ${n === 1 ? 'grau' : 'graus'}`;
+  readonly mestre = computed(() => this.faixa().categoria === 'MESTRE');
+  readonly coral = computed(() => this.mestre() && this.faixa().corSecundaria !== null);
+  readonly combinadaInfantil = computed(() => this.faixa().categoria === 'INFANTIL' && this.faixa().corSecundaria !== null);
+
+  readonly grausValidos = computed(() => {
+    if (this.mestre()) {
+      return 0;
+    }
+    return Math.min(this.faixa().grauMax, Math.max(0, Math.trunc(this.grau())));
   });
+  readonly listaGraus = computed(() => Array.from({ length: this.grausValidos() }, (_, i) => i));
+  readonly blocos = computed(() => {
+    const { corPrincipal, corSecundaria } = this.faixa();
+    return Array.from({ length: BLOCOS_CORAL }, (_, i) => (i % 2 === 0 ? corPrincipal : (corSecundaria ?? corPrincipal)));
+  });
+  readonly rotulo = computed(() => descreverGraduacao(this.faixa(), this.grau()));
 }

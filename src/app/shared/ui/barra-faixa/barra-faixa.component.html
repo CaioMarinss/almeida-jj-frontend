@@ -1,7 +1,19 @@
-<div class="faixa" role="img" [attr.aria-label]="rotulo()" [style.background]="cor()">
-  <div class="ponta">
-    @for (grau of listaGraus(); track grau) {
-      <span class="grau"></span>
-    }
-  </div>
+<div class="faixa" role="img" [attr.aria-label]="rotulo()" [style.background]="coral() ? null : faixa().corPrincipal">
+  @if (coral()) {
+    <div class="blocos">
+      @for (cor of blocos(); track $index) {
+        <span class="bloco" [style.background]="cor"></span>
+      }
+    </div>
+  }
+  @if (combinadaInfantil()) {
+    <span class="listra-secundaria" [style.background]="faixa().corSecundaria"></span>
+  }
+  @if (!mestre()) {
+    <div class="ponta">
+      @for (g of listaGraus(); track g) {
+        <span class="grau"></span>
+      }
+    </div>
+  }
 </div>

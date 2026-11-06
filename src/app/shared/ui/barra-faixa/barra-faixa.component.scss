@@ -25,3 +25,26 @@
   width: 3px;
   background: #fff;
 }
+
+.faixa {
+  overflow: hidden;
+}
+
+.blocos {
+  position: absolute;
+  inset: 0;
+  display: flex;
+}
+
+.bloco {
+  flex: 1;
+}
+
+.listra-secundaria {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 4px;
+  transform: translateY(-50%);
+}
