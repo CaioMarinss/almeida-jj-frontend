@@ -1,0 +1,46 @@
+:host {
+  display: block;
+  margin-bottom: var(--ajj-espaco-3);
+}
+
+.carregando {
+  display: grid;
+  place-items: center;
+  min-height: 120px;
+}
+
+.graduacao h2 {
+  margin: var(--ajj-espaco-1) 0 var(--ajj-espaco-3);
+  font-size: 26px;
+}
+
+.proxima {
+  margin: var(--ajj-espaco-3) 0 0;
+  font-size: 15px;
+}
+
+.evolucao-titulo {
+  margin: var(--ajj-espaco-4) 0 var(--ajj-espaco-2);
+}
+
+.evolucao {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--ajj-espaco-2);
+  font-size: 15px;
+}
+
+.modal {
+  display: grid;
+  gap: var(--ajj-espaco-3);
+  padding: var(--ajj-espaco-4);
+  max-height: 100%;
+  overflow-y: auto;
+}
+
+.modal h2 {
+  margin: 0;
+  font-size: 24px;
+}

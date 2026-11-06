@@ -1,12 +1,18 @@
 import { TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
 import { SessionService } from '../../core/auth/session.service';
+import { GraduacaoService } from '../../shared/graduacao/graduacao.service';
 import { logar, provedoresApp } from '../testes-app';
 import { InicioComponent } from './inicio.component';
 
 describe('InicioComponent', () => {
   async function renderizar(nome: string) {
     sessionStorage.clear();
-    TestBed.configureTestingModule({ imports: [InicioComponent], providers: provedoresApp() });
+    TestBed.configureTestingModule({ imports: [InicioComponent], providers: [
+        ...provedoresApp(),
+        { provide: GraduacaoService, useValue: { minha: () => of({ atual: null, historico: [], proxima: null }) } }
+      ]
+    });
     logar(TestBed.inject(SessionService), nome);
     const fixture = TestBed.createComponent(InicioComponent);
     fixture.detectChanges();
