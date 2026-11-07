@@ -246,21 +246,20 @@ describe('GraduacaoComponent', () => {
     expect(cmp().selecionado()?.atual).toEqual({ faixa: FAIXAS[13], grau: 1 });
   });
 
-  it('o modal tem o botão Fechar que limpa a seleção', async () => {
-    jasmine.clock().uninstall();
+  it('o modal abre com o aluno selecionado e fecha ao ser dispensado', () => {
     criar();
+    const modal = el().querySelector<HTMLElement & { isOpen: boolean }>('ion-modal')!;
+    expect(modal.isOpen).toBeFalse();
+
     cmp().abrir(cmp().alunos()[0]);
     fixture.detectChanges();
-    const achar = (): Element | undefined =>
-      Array.from(document.querySelectorAll('ion-modal ajj-botao')).find((b) => b.textContent?.trim() === 'Fechar');
-    for (let i = 0; i < 50 && !achar(); i++) {
-      await new Promise((r) => setTimeout(r, 20));
-    }
+    expect(modal.isOpen).toBeTrue();
 
-    expect(achar()).toBeDefined();
-    achar()!.querySelector('ion-button')!.dispatchEvent(new Event('click'));
+    modal.dispatchEvent(new CustomEvent('didDismiss'));
+    fixture.detectChanges();
 
     expect(cmp().selecionado()).toBeNull();
+    expect(modal.isOpen).toBeFalse();
   });
 
   it('fechar limpa o aluno selecionado', () => {
