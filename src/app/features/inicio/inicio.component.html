@@ -8,6 +8,10 @@
       <span class="avatar" aria-hidden="true">{{ inicial() }}</span>
     </header>
 
+    @if (ehDono()) {
+      <app-area-dono />
+    }
+
     <section class="ajj-card checkin" aria-labelledby="checkin-titulo">
       <span class="ajj-rotulo">Check-in</span>
       <h2 id="checkin-titulo">Em breve</h2>
