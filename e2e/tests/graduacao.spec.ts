@@ -128,7 +128,7 @@ test.describe('Graduação', () => {
     await expect(card.locator('.evolucao li')).toHaveCount(2);
   });
 
-  test('registro com data passada entra só no histórico e não troca a faixa atual', async ({ page, request }) => {
+  test('registro com data anterior à faixa atual entra só no histórico', async ({ page, request }) => {
     const dono = await criarDono(request);
     const aluno = await criarAluno(request);
     const azul = await faixaPorCodigo(request, dono, 'FA');
@@ -140,7 +140,7 @@ test.describe('Graduação', () => {
     await expect(page.locator('app-registro-graduacao ul.historico li')).toHaveCount(1);
     await page.locator('#registro-faixa').selectOption({ label: 'Faixa Branca' });
     await page.locator('#registro-data').fill(diaRelativo(-3));
-    await expect(page.getByText('Data anterior a hoje: entra só no histórico, a faixa atual não muda.')).toBeVisible();
+    await expect(page.getByText('Data anterior à faixa atual: entra só no histórico.')).toBeVisible();
     await page.locator('app-registro-graduacao').getByRole('button', { name: 'Salvar', exact: true }).click();
     await esperarToast(page, 'Graduação registrada.');
 
@@ -149,6 +149,27 @@ test.describe('Graduação', () => {
     expect(graduacao.historico).toHaveLength(2);
     expect(graduacao.atual?.faixa.codigo).toBe('FA');
     expect(graduacao.atual?.grau).toBe(2);
+  });
+
+  test('registro com data passada mais recente que a atual troca a faixa', async ({ page, request }) => {
+    const dono = await criarDono(request);
+    const aluno = await criarAluno(request);
+    const branca = await faixaPorCodigo(request, dono, 'FB');
+    expect((await registrarPorApi(request, dono, aluno, { idGraduacao: branca.id, grau: 1, data: diaRelativo(-20) })).status()).toBe(201);
+
+    await entrar(page, dono.email, dono.senha);
+    await expect(page).toHaveURL(/\/app\/inicio$/);
+    await abrirAluno(page, aluno);
+    await page.locator('#registro-faixa').selectOption({ label: 'Faixa Azul' });
+    await page.locator('#registro-data').fill(diaRelativo(-3));
+    await expect(page.getByText('Data anterior à faixa atual: entra só no histórico.')).toHaveCount(0);
+    await page.locator('app-registro-graduacao').getByRole('button', { name: 'Salvar', exact: true }).click();
+    await esperarToast(page, 'Graduação registrada.');
+
+    const graduacao = await graduacaoDe(request, aluno);
+    expect(graduacao.historico).toHaveLength(2);
+    expect(graduacao.atual?.faixa.codigo).toBe('FA');
+    await expect(page.locator('app-registro-graduacao .atual')).toContainText('Faixa Azul');
   });
 
   test('busca por nome e filtro por faixa encontram o aluno', async ({ page, request }) => {
@@ -273,8 +294,8 @@ test.describe('Graduação', () => {
           await expect(page).toHaveURL(/\/app\/inicio$/);
           await page.goto('/app/graduacao');
           const bloco = page.locator('app-proxima-graduacao');
-          await expect(bloco).toContainText('Nenhuma data agendada');
-          await botao(page, 'Agendar').click();
+          await expect(bloco).toContainText('Sem data definida');
+          await botao(page, 'Alterar').click();
           await page.locator('#data-proxima').fill(futura);
           await bloco.getByRole('button', { name: 'Salvar', exact: true }).click();
           await esperarToast(page, `Próxima graduação agendada para ${diaMes(futura)}.`);
@@ -285,10 +306,11 @@ test.describe('Graduação', () => {
 
           await trocarDeConta(page, dono);
           await page.goto('/app/graduacao');
-          await botao(page, 'Cancelar').click();
+          await botao(page, 'Alterar').click();
+          await botao(page, 'Cancelar data').click();
           await responderAlerta(page, 'Cancelar data');
           await esperarToast(page, 'Data da próxima graduação cancelada.');
-          await expect(bloco).toContainText('Nenhuma data agendada');
+          await expect(bloco).toContainText('Sem data definida');
 
           await trocarDeConta(page, aluno);
           await expect(page.locator('app-card-graduacao')).toContainText('Sem data definida para a próxima graduação');
@@ -314,7 +336,7 @@ test.describe('Graduação', () => {
           await page.goto('/app/graduacao');
           const bloco = page.locator('app-proxima-graduacao');
           await expect(bloco).toContainText(diaMes(primeira));
-          await botao(page, 'Trocar').click();
+          await botao(page, 'Alterar').click();
           await page.locator('#data-proxima').fill(segunda);
           await bloco.getByRole('button', { name: 'Salvar', exact: true }).click();
           await esperarToast(page, `Próxima graduação agendada para ${diaMes(segunda)}.`);

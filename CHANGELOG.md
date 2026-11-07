@@ -10,17 +10,21 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ### Adicionado
 - Início: card "Área do dono" logo abaixo da saudação, só para o dono, com atalhos para Professores e Graduações.
+- Registro de graduação: a janela do aluno agora rola (o histórico ficava cortado no desktop).
 - Graduação: o dono remove um registro do histórico do aluno (botão de lixeira com confirmação que diz se a faixa atual muda); o aviso de data agora compara com a faixa atual: "Data anterior à faixa atual: entra só no histórico."
 - Graduação com a lista inteira em memória: busca sem acento, filtro de faixa, páginas de 7 e contador; a linha alterada continua visível até mudar a busca, o filtro ou a página. A próxima graduação virou uma linha compacta com o botão "Alterar".
 - Professores com busca por nome, filtro por cargo (Todos, Professores, Alunos), páginas de 7 e painel de baixo para tornar ou remover professor.
 - Busca sem acento e paginação compartilhada (`ajj-paginacao`, 7 por página) para as listas do dono.
-- Tela **Graduação** (`/app/graduacao`), só para o dono: lista de alunos com busca por nome, filtro por faixa e "Carregar mais". Acesso pelo menu lateral e por "Gerenciar graduações" no Perfil.
-- Registro de faixa e grau pelo dono (data padrão hoje; data passada entra só no histórico) e agendamento, troca e cancelamento da próxima graduação da academia.
+- Tela **Graduação** (`/app/graduacao`), só para o dono: lista de alunos com busca por nome e filtro por faixa. Acesso pelo menu lateral e por "Gerenciar graduações" no Perfil.
+- Registro de faixa e grau pelo dono (data padrão hoje; data passada mais recente que a faixa atual passa a ser a atual, mais antiga entra só no histórico) e agendamento, troca e cancelamento da próxima graduação da academia.
 - Card de graduação no Início: faixa e graus, próxima graduação, evolução e histórico completo.
 - Faixas IBJJF (infantis, adultas e mestres) na barra de faixa, com até 10 graus nas infantis e 6 na preta.
 - Botão "Fechar" no registro de graduação (necessário no celular) e mensagens de erro com "Tentar de novo" quando a próxima data, as faixas ou o histórico não carregam.
 - A data "de hoje" da graduação usa o horário de São Paulo, independente do fuso do aparelho.
-- Testes e2e de graduação (`e2e/tests/graduacao.spec.ts`).
+- Testes e2e de graduação (`e2e/tests/graduacao.spec.ts`) e da área do dono (`e2e/tests/area-dono.spec.ts`).
+
+### Alterado
+- A API passa a calcular a faixa atual pelo registro ativo de data mais recente; `GET /graduacoes/alunos` devolve a lista inteira (sem parâmetros) e o registro devolve também `atual`.
 
 ## [0.2.3] - 2026-11-05
 

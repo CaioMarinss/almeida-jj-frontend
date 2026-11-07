@@ -1,6 +1,6 @@
 import { APIRequestContext, expect, Page, test } from '@playwright/test';
 import { URL_API } from '../../playwright.config';
-import { Conta, criarContaAtiva, criarDono, idDe, tokenDe } from '../suporte/contas';
+import { Conta, criarContaAtiva, criarDono, idDe, nomear, sufixoUnico, tokenDe } from '../suporte/contas';
 import { botao, entrar, esperarToast, responderAlerta } from '../suporte/telas';
 
 async function sairDaSessao(page: Page): Promise<void> {
@@ -14,6 +14,14 @@ async function chipDoPerfil(page: Page, esperado: string): Promise<void> {
   await expect(page.locator('app-perfil .ajj-chip')).toHaveText(esperado);
 }
 
+async function acharPessoa(page: Page, pessoa: Conta) {
+  await page.goto('/app/professores');
+  await page.locator('#busca-pessoa').fill(pessoa.nome);
+  const linha = page.locator(`li.pessoa[data-email="${pessoa.email}"]`);
+  await expect(linha).toBeVisible();
+  return linha;
+}
+
 async function alterarPorApi(request: APIRequestContext, autor: Conta, alvo: Conta, perfil: string) {
   return request.put(`${URL_API}/alunos/${await idDe(request, alvo)}/perfil`, {
     headers: { Authorization: `Bearer ${await tokenDe(request, autor)}` },
@@ -23,7 +31,7 @@ async function alterarPorApi(request: APIRequestContext, autor: Conta, alvo: Con
 
 test.describe('Cargos', () => {
   test('o dono vê o cargo e chega em Professores pelo perfil', async ({ page, request }) => {
-    const dono = await criarDono(request);
+    const dono = nomear(await criarDono(request), `Dono${sufixoUnico()}`);
     await entrar(page, dono.email, dono.senha);
     await expect(page).toHaveURL(/\/app\/inicio$/);
 
@@ -31,18 +39,19 @@ test.describe('Cargos', () => {
     await botao(page, 'Gerenciar professores').click();
 
     await expect(page).toHaveURL(/\/app\/professores$/);
+    await page.locator('#busca-pessoa').fill(dono.nome);
     await expect(page.locator(`li.pessoa[data-email="${dono.email}"]`)).toBeVisible();
   });
 
   test('o dono promove e rebaixa um aluno', async ({ page, request }) => {
     const dono = await criarDono(request);
-    const aluno = await criarContaAtiva(request);
-    const linha = page.locator(`li.pessoa[data-email="${aluno.email}"]`);
+    const aluno = nomear(await criarContaAtiva(request), `Cargo${sufixoUnico()}`);
 
     await entrar(page, dono.email, dono.senha);
     await expect(page).toHaveURL(/\/app\/inicio$/);
-    await page.goto('/app/professores');
-    await linha.getByRole('button', { name: 'Tornar professor' }).click();
+    let linha = await acharPessoa(page, aluno);
+    await linha.locator('button.linha').click();
+    await botao(page, 'Tornar professor').click();
     await responderAlerta(page, 'Tornar professor');
     await esperarToast(page, 'agora é professor');
     await expect(linha.locator('.ajj-chip')).toHaveText('Professor');
@@ -55,8 +64,9 @@ test.describe('Cargos', () => {
     await sairDaSessao(page);
     await entrar(page, dono.email, dono.senha);
     await expect(page).toHaveURL(/\/app\/inicio$/);
-    await page.goto('/app/professores');
-    await linha.getByRole('button', { name: 'Remover professor' }).click();
+    linha = await acharPessoa(page, aluno);
+    await linha.locator('button.linha').click();
+    await botao(page, 'Remover professor').click();
     await responderAlerta(page, 'Remover');
     await esperarToast(page, 'voltou a ser aluno');
     await expect(linha.locator('.ajj-chip')).toHaveText('Aluno');

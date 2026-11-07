@@ -48,7 +48,7 @@ e2e/
 └── suporte/
     ├── ambiente.ts      docker compose e espera de serviços
     ├── banco.ts         executarSql: roda SQL no Postgres do ambiente (ex.: criar dono)
-    ├── contas.ts        cria conta verificada (criarContaAtiva), dono (criarDono), token e id pela API
+    ├── contas.ts        cria conta verificada (criarContaAtiva), dono (criarDono), nome único (nomear), token e id pela API
     ├── dados.ts         senhas de teste, e-mail e CPF válidos aleatórios
     ├── mailpit.ts       busca e-mail e extrai o link
     └── telas.ts         helpers de tela (campo, botão, toast, alerta, login)
@@ -56,7 +56,7 @@ e2e/
 
 ## Cenários
 
-São 41 testes, que viram 61 execuções: os 41 rodam no desktop e 20 rodam de novo no celular.
+São 53 testes, que viram 83 execuções: os 53 rodam no desktop e 30 rodam de novo no celular.
 
 ### Cadastro (`tests/cadastro.spec.ts`), desktop e celular
 
@@ -97,8 +97,8 @@ A conta de dono é criada pelo próprio teste (`criarDono`: cadastro pela API + 
 
 | Cenário | Onde roda | O que verifica |
 |---|---|---|
-| O dono vê o cargo e chega em Professores pelo perfil | desktop e celular | Chip "Dono" no Perfil; "Gerenciar professores" abre `/app/professores` com a lista. |
-| O dono promove e rebaixa um aluno | desktop e celular | "Tornar professor" com confirmação e toast; o aluno entra e vê "Professor". "Remover professor" volta para "Aluno", e o aluno confirma ao entrar. |
+| O dono vê o cargo e chega em Professores pelo perfil | desktop e celular | Chip "Dono" no Perfil; "Gerenciar professores" abre `/app/professores`, e a busca pelo nome acha o dono. |
+| O dono promove e rebaixa um aluno | desktop e celular | Busca pelo nome, toque na linha abre o painel; "Tornar professor" com confirmação e toast; o aluno entra e vê "Professor". "Remover professor" volta para "Aluno", e o aluno confirma ao entrar. |
 | Aluno e professor não acessam Professores | desktop e celular | Nenhum dos dois vê "Gerenciar professores", e abrir `/app/professores` leva para `/app/inicio`. |
 | O menu lateral do dono tem Professores | só desktop | O item do menu abre a tela. |
 | API: professor e aluno não alteram cargo | só desktop | `PUT /alunos/{id}/perfil` responde 403 para os dois. |
@@ -112,17 +112,35 @@ Os alunos ganham um nome único (`UPDATE ... NOME` no banco) para a busca da tel
 | Cenário | Onde roda | O que verifica |
 |---|---|---|
 | O dono registra faixa e grau e o aluno acompanha a evolução | desktop e celular | Registro de Faixa Azul 1º grau pela tela; o aluno vê título e barra "Faixa Azul · 1 grau" no card do Início. Novo grau (2º) deixa a evolução com 2 itens. |
-| Registro com data passada | desktop e celular | Aviso "Data anterior a hoje...", histórico ganha item e a faixa atual (Azul, 2 graus) não muda. |
+| Registro com data anterior à faixa atual | desktop e celular | Aviso "Data anterior à faixa atual: entra só no histórico.", histórico ganha item e a faixa atual (Azul, 2 graus) não muda. |
+| Registro com data passada mais recente que a atual | desktop e celular | Sem aviso; a faixa registrada vira a atual. |
 | Busca por nome e filtro por faixa | desktop e celular | Busca sem diferenciar maiúsculas, filtro Azul acha, Roxa não acha, "Sem graduação" acha quem não tem. |
 | Aluno e professor não veem Graduação | desktop e celular | Sem item no menu nem "Gerenciar graduações"; `/app/graduacao` leva para `/app/inicio`. |
 | O dono chega em Graduação pelo perfil | desktop e celular | "Gerenciar graduações" abre a tela. |
 | O menu lateral do dono tem Graduação | só desktop | O item do menu abre a tela. |
 | Conta desativada antes de salvar | só desktop | Desativa a conta com a modal aberta; salvar mostra o alerta "Aluno não encontrado" e a tela continua usável. |
-| Agendar e cancelar a próxima graduação | só desktop (serial) | Aluno vê "Próxima graduação: DD/MM"; ao cancelar, "Sem data definida para a próxima graduação". |
-| Trocar a data agendada | só desktop (serial) | A nova data substitui a anterior. |
+| Agendar e cancelar a próxima graduação (botão "Alterar") | só desktop (serial) | Aluno vê "Próxima graduação: DD/MM"; ao cancelar, "Sem data definida para a próxima graduação". |
+| Trocar a data agendada (botão "Alterar") | só desktop (serial) | A nova data substitui a anterior. |
 | API: professor e aluno não registram nem agendam | só desktop | 403 em registrar, agendar, cancelar e listar alunos. |
 | API: grau 5 na Faixa Azul | só desktop | 422 com `codigo` `ERR012`. |
 | API: data futura no registro | só desktop | 400 com `codigo` `ERR013`. |
+
+### Área do dono (`tests/area-dono.spec.ts`)
+
+Contas com nome único (`nomear`), porque a lista é paginada em memória e contas de outros testes podem empurrar a sua para outra página: sempre busca pelo nome antes.
+
+| Cenário | Onde roda | O que verifica |
+|---|---|---|
+| O dono vê o card na Início | desktop e celular | Card "Área do dono" com atalhos que abrem Professores e Graduação. |
+| Aluno e professor não veem o card | desktop e celular | O card não existe na Início deles. |
+| Professores: busca sem acento | desktop e celular | "JOAO <ÚNICO>" acha "João <único>"; a linha mostra e-mail e cargo e o homônimo fica de fora. |
+| Professores: filtro por cargo | desktop e celular | Chips Professores, Alunos e Todos (`aria-pressed`). |
+| Professores: paginação | desktop e celular | 8 contas: "8 pessoas", 7 na página 1, "Página 1 de 2", Próxima e Anterior. |
+| Professores: promover pelo painel | desktop e celular | Cancelar no painel não muda nada; "Tornar professor" confirma e atualiza o chip. |
+| Graduação: busca sem acento e paginação | desktop e celular | "ANGELA ..." acha "Ângela ..."; 8 alunos: "8 alunos", 7 por página. |
+| Graduação: remover registro antigo e o atual | desktop e celular | Mensagens de confirmação, toast "Registro removido.", faixa do painel e card do aluno voltam para a anterior; o último remove deixa "Sem graduação". |
+| API: remoção de registro | só desktop | 403 para professor e aluno; 404 `ERR015` para registro de outro aluno ou já removido; dono remove (200, `atual` nulo). |
+| API: lista de alunos da graduação | só desktop | `GET /graduacoes/alunos` devolve o array inteiro, sem paginação. |
 
 ## No GitHub (Actions)
 
