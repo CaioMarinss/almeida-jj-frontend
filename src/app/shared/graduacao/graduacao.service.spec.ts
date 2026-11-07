@@ -50,6 +50,15 @@ describe('GraduacaoService', () => {
     req.flush({});
   });
 
+  it('remove um registro e devolve a graduação atual', () => {
+    let atual: unknown;
+    service.remover(7, 3).subscribe((v) => (atual = v));
+    const req = http.expectOne(`${api}/alunos/7/graduacoes/3`);
+    expect(req.request.method).toBe('DELETE');
+    req.flush({ atual: null });
+    expect(atual).toBeNull();
+  });
+
   it('devolve a data da próxima graduação', () => {
     let valor: string | null | undefined;
     service.proxima().subscribe((v) => (valor = v));

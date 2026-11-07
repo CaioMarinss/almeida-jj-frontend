@@ -223,25 +223,22 @@ describe('GraduacaoComponent', () => {
     expect(cmp().selecionado()?.id).toBe(2);
   });
 
-  it('registro com data de hoje atualiza a linha; data passada não', () => {
+  it('aoMudarAtual atualiza a linha com a atual devolvida pela API', () => {
     criar();
     const bia = cmp().alunos()[0];
 
-    cmp().aoRegistrar(bia, { id: 1, faixa: FAIXAS[13], grau: 1, data: '2026-10-01' });
+    cmp().aoMudarAtual(bia.id, { faixa: FAIXAS[13], grau: 1 });
     fixture.detectChanges();
-    expect(linhas()[1].textContent).toContain('Sem graduação');
 
-    cmp().aoRegistrar(bia, { id: 2, faixa: FAIXAS[13], grau: 1, data: '2026-11-07' });
-    fixture.detectChanges();
     expect(linhas()[1].textContent).toContain('Adulto 2 · 1 grau');
   });
 
-  it('registro de hoje atualiza também o aluno selecionado do modal', () => {
+  it('aoMudarAtual atualiza também o aluno selecionado do modal', () => {
     criar();
     const bia = cmp().alunos()[0];
     cmp().abrir(bia);
 
-    cmp().aoRegistrar(bia, { id: 2, faixa: FAIXAS[13], grau: 1, data: '2026-11-07' });
+    cmp().aoMudarAtual(bia.id, { faixa: FAIXAS[13], grau: 1 });
 
     expect(cmp().selecionado()?.atual).toEqual({ faixa: FAIXAS[13], grau: 1 });
   });

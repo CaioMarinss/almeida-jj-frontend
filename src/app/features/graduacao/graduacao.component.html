@@ -86,7 +86,7 @@
       <ajj-botao variante="texto" (clique)="fechar()">Fechar</ajj-botao>
     </div>
     @if (selecionado(); as aluno) {
-      <app-registro-graduacao [aluno]="aluno" (registrado)="aoRegistrar(aluno, $event)" />
+      <app-registro-graduacao [aluno]="aluno" (atualMudou)="aoMudarAtual(aluno.id, $event)" />
     }
   </ng-template>
 </ion-modal>

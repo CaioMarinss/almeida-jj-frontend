@@ -4,8 +4,8 @@ import { IonContent, IonHeader, IonModal, IonSpinner, IonTitle, IonToolbar } fro
 import { LucideAward } from '@lucide/angular';
 import { catchError, of } from 'rxjs';
 import { Notificador } from '../../core/notificacao/notificador';
-import { descreverGraduacao, hojeEmSaoPaulo } from '../../shared/graduacao/descrever';
-import { AlunoGraduacao, Faixa, GraduacaoAtual, RegistroGraduacao } from '../../shared/graduacao/graduacao.model';
+import { descreverGraduacao } from '../../shared/graduacao/descrever';
+import { AlunoGraduacao, Faixa, GraduacaoAtual } from '../../shared/graduacao/graduacao.model';
 import { GraduacaoService } from '../../shared/graduacao/graduacao.service';
 import { BarraFaixaComponent } from '../../shared/ui/barra-faixa/barra-faixa.component';
 import { BotaoComponent } from '../../shared/ui/botao/botao.component';
@@ -107,12 +107,9 @@ export class GraduacaoComponent {
     this.selecionado.set(null);
   }
 
-  aoRegistrar(aluno: AlunoGraduacao, registro: RegistroGraduacao): void {
-    if (registro.data === hojeEmSaoPaulo()) {
-      const atual: GraduacaoAtual = { faixa: registro.faixa, grau: registro.grau };
-      this.atualizarLinha(aluno.id, atual);
-      this.selecionado.update(sel => (sel?.id === aluno.id ? { ...sel, atual } : sel));
-    }
+  aoMudarAtual(id: number, atual: GraduacaoAtual | null): void {
+    this.atualizarLinha(id, atual);
+    this.selecionado.update(sel => (sel?.id === id ? { ...sel, atual } : sel));
   }
 
   atualizarLinha(id: number, atual: GraduacaoAtual | null): void {

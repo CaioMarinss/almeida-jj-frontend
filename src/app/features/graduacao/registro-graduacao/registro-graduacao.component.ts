@@ -1,13 +1,14 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit, output, signal } from '@angular/core';
+import { LucideTrash2 } from '@lucide/angular';
 import { Notificador } from '../../../core/notificacao/notificador';
 import { descreverGraduacao, formatarMesAno, hojeEmSaoPaulo } from '../../../shared/graduacao/descrever';
-import { AlunoGraduacao, Faixa, RegistroGraduacao } from '../../../shared/graduacao/graduacao.model';
+import { AlunoGraduacao, Faixa, GraduacaoAtual, RegistroGraduacao } from '../../../shared/graduacao/graduacao.model';
 import { GraduacaoService } from '../../../shared/graduacao/graduacao.service';
 import { BotaoComponent } from '../../../shared/ui/botao/botao.component';
 
 @Component({
   selector: 'app-registro-graduacao',
-  imports: [BotaoComponent],
+  imports: [BotaoComponent, LucideTrash2],
   templateUrl: './registro-graduacao.component.html',
   styleUrl: './registro-graduacao.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -17,7 +18,7 @@ export class RegistroGraduacaoComponent implements OnInit {
   private readonly notificador = inject(Notificador);
 
   readonly aluno = input.required<AlunoGraduacao>();
-  readonly registrado = output<RegistroGraduacao>();
+  readonly atualMudou = output<GraduacaoAtual | null>();
 
   readonly hoje = hojeEmSaoPaulo();
   readonly descrever = descreverGraduacao;
@@ -31,6 +32,7 @@ export class RegistroGraduacaoComponent implements OnInit {
   readonly grauEscolhido = signal(0);
   readonly data = signal(this.hoje);
   readonly salvando = signal(false);
+  readonly removendo = signal(false);
 
   private readonly faixas = signal<Faixa[]>([]);
   readonly infantis = computed(() => this.faixas().filter((f) => f.categoria === 'INFANTIL'));
@@ -55,7 +57,10 @@ export class RegistroGraduacaoComponent implements OnInit {
     return Math.min(Math.max(inicial, f.grauMin), f.grauMax);
   });
   readonly dataValida = computed(() => /^\d{4}-\d{2}-\d{2}$/.test(this.data()) && this.data() <= this.hoje);
-  readonly dataPassada = computed(() => this.dataValida() && this.data() < this.hoje);
+  readonly dataPassada = computed(() => {
+    const atual = this.historico()[0];
+    return this.dataValida() && atual !== undefined && this.data() < atual.data;
+  });
 
   ngOnInit(): void {
     this.carregarFaixas();
@@ -94,7 +99,7 @@ export class RegistroGraduacaoComponent implements OnInit {
       next: (registro) => {
         this.salvando.set(false);
         void this.notificador.sucesso('Graduação registrada.');
-        this.registrado.emit(registro);
+        this.atualMudou.emit(registro.atual);
         this.carregarHistorico();
       },
       error: (erro: unknown) => {
@@ -102,6 +107,43 @@ export class RegistroGraduacaoComponent implements OnInit {
         void this.notificador.erroDaApi(erro, 'Não foi possível registrar a graduação.');
       }
     });
+  }
+
+  async remover(registro: RegistroGraduacao): Promise<void> {
+    if (this.removendo()) {
+      return;
+    }
+    const confirmado = await this.notificador.confirmar('Remover registro?', this.mensagemDeRemocao(registro), 'Remover');
+    if (!confirmado) {
+      return;
+    }
+    this.removendo.set(true);
+    this.service.remover(this.aluno().id, registro.id).subscribe({
+      next: (atual) => {
+        this.removendo.set(false);
+        this.historico.update((lista) => lista.filter((r) => r.id !== registro.id));
+        this.atualMudou.emit(atual);
+        void this.notificador.sucesso('Registro removido.');
+      },
+      error: (erro: unknown) => {
+        this.removendo.set(false);
+        void this.notificador.erroDaApi(erro, 'Não foi possível remover o registro.');
+      }
+    });
+  }
+
+  rotuloRemover(registro: RegistroGraduacao): string {
+    return `Remover registro ${descreverGraduacao(registro.faixa, registro.grau)} de ${formatarMesAno(registro.data)}`;
+  }
+
+  private mensagemDeRemocao(registro: RegistroGraduacao): string {
+    const lista = this.historico();
+    if (lista[0]?.id !== registro.id) {
+      return 'A faixa atual não muda.';
+    }
+    const anterior = lista[1];
+    const destino = anterior ? `volta para ${descreverGraduacao(anterior.faixa, anterior.grau)}` : 'fica Sem graduação';
+    return `Esta é a faixa atual de ${this.aluno().nome}: ela ${destino}.`;
   }
 
   carregarHistorico(): void {

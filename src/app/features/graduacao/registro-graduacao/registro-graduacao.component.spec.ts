@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
 import { of, Subject, throwError } from 'rxjs';
-import { AlunoGraduacao, Categoria, Faixa, RegistroGraduacao } from '../../../shared/graduacao/graduacao.model';
-import { GraduacaoService } from '../../../shared/graduacao/graduacao.service';
+import { AlunoGraduacao, Categoria, Faixa, GraduacaoAtual, RegistroGraduacao } from '../../../shared/graduacao/graduacao.model';
+import { GraduacaoService, RegistroCriado } from '../../../shared/graduacao/graduacao.service';
 import { criarNotificador } from '../../auth/testes-auth';
 import { provedoresApp } from '../../testes-app';
 import { RegistroGraduacaoComponent } from './registro-graduacao.component';
@@ -61,7 +61,7 @@ describe('RegistroGraduacaoComponent', () => {
     jasmine.clock().install();
     jasmine.clock().mockDate(new Date('2026-11-06T15:00:00Z'));
     notificador = criarNotificador();
-    service = jasmine.createSpyObj<GraduacaoService>('GraduacaoService', ['faixas', 'historicoDe', 'registrar']);
+    service = jasmine.createSpyObj<GraduacaoService>('GraduacaoService', ['faixas', 'historicoDe', 'registrar', 'remover']);
     service.faixas.and.returnValue(of(FAIXAS));
     service.historicoDe.and.returnValue(of([]));
     TestBed.configureTestingModule({
@@ -124,12 +124,26 @@ describe('RegistroGraduacaoComponent', () => {
     expect(el().textContent).not.toContain('Data anterior a hoje');
   });
 
-  it('data passada avisa que entra só no histórico', () => {
+  it('aviso "Data anterior à faixa atual: entra só no histórico." só com data anterior à do registro atual', () => {
+    service.historicoDe.and.returnValue(of([registro('2026-05-10')]));
+    criar();
+    const aviso = 'Data anterior à faixa atual: entra só no histórico.';
+
+    digitarData('2026-05-11');
+    expect(el().textContent).not.toContain(aviso);
+    digitarData('2026-05-10');
+    expect(el().textContent).not.toContain(aviso);
+    digitarData('2026-05-09');
+    expect(el().textContent).toContain(aviso);
+    expect(el().textContent).not.toContain('Data anterior a hoje');
+  });
+
+  it('sem histórico não há aviso de data', () => {
     criar();
 
-    digitarData('2026-10-01');
+    digitarData('2020-01-01');
 
-    expect(el().textContent).toContain('Data anterior a hoje: entra só no histórico, a faixa atual não muda.');
+    expect(el().textContent).not.toContain('Data anterior');
   });
 
   it('data futura ou vazia bloqueia salvar', () => {
@@ -144,7 +158,7 @@ describe('RegistroGraduacaoComponent', () => {
   });
 
   it('duplo clique em salvar registra uma vez só e mostra carregando', () => {
-    const resposta = new Subject<RegistroGraduacao>();
+    const resposta = new Subject<RegistroCriado>();
     service.registrar.and.returnValue(resposta);
     criar();
 
@@ -157,18 +171,19 @@ describe('RegistroGraduacaoComponent', () => {
     expect(el().querySelector('ajj-botao')!.querySelector('ion-spinner')).not.toBeNull();
   });
 
-  it('sucesso emite registrado, avisa e recarrega o histórico', () => {
-    const salvo = registro('2026-11-06');
+  it('registrar usa o atual da resposta', () => {
+    const atual: GraduacaoAtual = { faixa: AZUL, grau: 1 };
+    const salvo: RegistroCriado = { ...registro('2026-10-01'), atual };
     service.registrar.and.returnValue(of(salvo));
     criar();
-    const emitidos: RegistroGraduacao[] = [];
-    fixture.componentInstance.registrado.subscribe((r) => emitidos.push(r));
+    const emitidos: (GraduacaoAtual | null)[] = [];
+    fixture.componentInstance.atualMudou.subscribe((a) => emitidos.push(a));
     service.historicoDe.calls.reset();
     service.historicoDe.and.returnValue(of([salvo]));
 
     salvar();
 
-    expect(emitidos).toEqual([salvo]);
+    expect(emitidos).toEqual([atual]);
     expect(notificador.sucesso).toHaveBeenCalled();
     expect(service.historicoDe).toHaveBeenCalledOnceWith(7);
     expect(el().querySelectorAll('.historico li').length).toBe(1);
@@ -238,5 +253,106 @@ describe('RegistroGraduacaoComponent', () => {
     criar();
 
     expect(el().textContent).toContain('Nenhuma graduação registrada');
+  });
+
+  describe('remover registro', () => {
+    const CINZA = FAIXAS[0];
+    const novo = { ...registro('2026-10-01'), id: 30, faixa: AZUL, grau: 1 };
+    const antigo = { ...registro('2026-05-10'), id: 20, faixa: CINZA, grau: 0 };
+    const mesAnos = ['10/2026', '05/2026'];
+
+    const lixeira = (i: number): HTMLButtonElement => el().querySelectorAll<HTMLButtonElement>('.historico li button')[i];
+    const aluno = { ...ALUNO, atual: { faixa: AZUL, grau: 1 } };
+
+    function removerItem(i: number): void {
+      lixeira(i).click();
+      fixture.detectChanges();
+    }
+
+    beforeEach(() => {
+      service.historicoDe.and.returnValue(of([novo, antigo]));
+      service.remover.and.returnValue(of(null));
+    });
+
+    it('cada item tem botão de remover com nome acessível', () => {
+      criar(aluno);
+
+      expect(lixeira(0).getAttribute('aria-label')).toBe(`Remover registro Azul · 1 grau de ${mesAnos[0]}`);
+      expect(lixeira(1).getAttribute('aria-label')).toBe(`Remover registro Cinza · sem graus de ${mesAnos[1]}`);
+    });
+
+    it('confirmação diz "A faixa atual não muda." ao remover registro antigo', () => {
+      criar(aluno);
+
+      removerItem(1);
+
+      expect(notificador.confirmar).toHaveBeenCalledWith('Remover registro?', 'A faixa atual não muda.', 'Remover');
+    });
+
+    it('confirmação diz "...ela volta para Cinza · sem graus." ao remover o atual', () => {
+      criar(aluno);
+
+      removerItem(0);
+
+      expect(notificador.confirmar).toHaveBeenCalledWith(
+        'Remover registro?',
+        'Esta é a faixa atual de Ana: ela volta para Cinza · sem graus.',
+        'Remover'
+      );
+    });
+
+    it('confirmação diz "...ela fica Sem graduação." ao remover o único', () => {
+      service.historicoDe.and.returnValue(of([novo]));
+      criar(aluno);
+
+      removerItem(0);
+
+      expect(notificador.confirmar).toHaveBeenCalledWith(
+        'Remover registro?',
+        'Esta é a faixa atual de Ana: ela fica Sem graduação.',
+        'Remover'
+      );
+    });
+
+    it('cancelar a confirmação não chama a API', async () => {
+      notificador.confirmar.and.resolveTo(false);
+      criar(aluno);
+
+      removerItem(0);
+      await fixture.whenStable();
+
+      expect(service.remover).not.toHaveBeenCalled();
+    });
+
+    it('depois de remover, o item some, emite a nova atual e aparece o toast "Registro removido."', async () => {
+      const volta: GraduacaoAtual = { faixa: CINZA, grau: 0 };
+      service.remover.and.returnValue(of(volta));
+      criar(aluno);
+      const emitidos: (GraduacaoAtual | null)[] = [];
+      fixture.componentInstance.atualMudou.subscribe((a) => emitidos.push(a));
+
+      removerItem(0);
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(service.remover).toHaveBeenCalledOnceWith(7, 30);
+      expect(emitidos).toEqual([volta]);
+      expect(el().querySelectorAll('.historico li').length).toBe(1);
+      expect(notificador.sucesso).toHaveBeenCalledWith('Registro removido.');
+    });
+
+    it('erro da API vira toast e o painel continua usável', async () => {
+      const erro = new HttpErrorResponse({ status: 404, error: { codigo: 'ERR009' } });
+      service.remover.and.returnValue(throwError(() => erro));
+      criar(aluno);
+
+      removerItem(0);
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(notificador.erroDaApi).toHaveBeenCalledWith(erro, jasmine.any(String));
+      expect(el().querySelectorAll('.historico li').length).toBe(2);
+      expect(lixeira(0).disabled).toBeFalse();
+    });
   });
 });

@@ -9,6 +9,7 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 ## [Não lançado]
 
 ### Adicionado
+- Graduação: o dono remove um registro do histórico do aluno (botão de lixeira com confirmação que diz se a faixa atual muda); o aviso de data agora compara com a faixa atual: "Data anterior à faixa atual: entra só no histórico."
 - Graduação com a lista inteira em memória: busca sem acento, filtro de faixa, páginas de 7 e contador; a linha alterada continua visível até mudar a busca, o filtro ou a página. A próxima graduação virou uma linha compacta com o botão "Alterar".
 - Professores com busca por nome, filtro por cargo (Todos, Professores, Alunos), páginas de 7 e painel de baixo para tornar ou remover professor.
 - Busca sem acento e paginação compartilhada (`ajj-paginacao`, 7 por página) para as listas do dono.

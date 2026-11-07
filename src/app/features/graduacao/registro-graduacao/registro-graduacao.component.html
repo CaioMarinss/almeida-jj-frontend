@@ -59,7 +59,7 @@
       />
       @if (dataPassada()) {
         <p id="registro-aviso" class="aviso" role="status">
-          Data anterior a hoje: entra só no histórico, a faixa atual não muda.
+          Data anterior à faixa atual: entra só no histórico.
         </p>
       }
     </div>
@@ -82,7 +82,10 @@
       @for (r of historico(); track r.id) {
         <li>
           <span>{{ descrever(r.faixa, r.grau) }}</span>
-          <span class="ajj-suave">{{ mesAno(r.data) }}</span>
+          <span class="ajj-suave data">{{ mesAno(r.data) }}</span>
+          <button type="button" class="remover" [attr.aria-label]="rotuloRemover(r)" [disabled]="removendo()" (click)="remover(r)">
+            <svg lucideTrash2 aria-hidden="true"></svg>
+          </button>
         </li>
       }
     </ul>
