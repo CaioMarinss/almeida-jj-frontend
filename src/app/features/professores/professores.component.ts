@@ -137,13 +137,15 @@ export class ProfessoresComponent {
       }
       const novo = promover ? 'PROFESSOR' : 'ALUNO';
       await firstValueFrom(this.service.alterarPerfil(pessoa.id, novo), { defaultValue: undefined });
-      const { pagina, totalPaginas } = this.paginada();
-      this.fixacao.set({
-        ids: this.visiveis().map(p => p.id),
-        pagina,
-        totalPaginas,
-        total: this.filtradas().length
-      });
+      if (this.fixacao() === null) {
+        const { pagina, totalPaginas } = this.paginada();
+        this.fixacao.set({
+          ids: this.visiveis().map(p => p.id),
+          pagina,
+          totalPaginas,
+          total: this.filtradas().length
+        });
+      }
       this.pessoas.update(lista => lista.map(p => (p.id === pessoa.id ? { ...p, perfil: novo } : p)));
       await this.notificador.sucesso(
         promover ? `${pessoa.nome} agora é professor.` : `${pessoa.nome} voltou a ser aluno.`

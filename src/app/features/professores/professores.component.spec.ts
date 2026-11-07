@@ -193,6 +193,44 @@ describe('ProfessoresComponent', () => {
     expect(nomes().length).toBe(7);
   });
 
+  it('duas alterações seguidas na mesma linha mantêm a fixação', async () => {
+    service.listar.and.returnValue(of(pessoas9().slice(0, 8)));
+    await criar();
+    await tocarChip('Alunos');
+    fixture.componentInstance.irParaPagina(2);
+    fixture.detectChanges();
+    const iara = pessoas9()[0];
+
+    await fixture.componentInstance.alternar(iara);
+    await fixture.componentInstance.alternar({ ...iara, perfil: 'PROFESSOR' });
+    fixture.detectChanges();
+
+    expect(nomes()).toEqual(['Iara']);
+    expect(texto()).toContain('Página 2 de 2');
+    expect(texto()).toContain('8 pessoas');
+  });
+
+  it('Anterior com a linha fixada libera a fixação e navega a partir da página exibida', async () => {
+    service.listar.and.returnValue(of(pessoas9().slice(0, 8)));
+    await criar();
+    await tocarChip('Alunos');
+    fixture.componentInstance.irParaPagina(2);
+    fixture.detectChanges();
+    await fixture.componentInstance.alternar(pessoas9()[0]);
+    fixture.detectChanges();
+
+    const anterior = Array.from<HTMLElement>(fixture.nativeElement.querySelectorAll('nav ajj-botao')).find(
+      b => b.textContent?.trim() === 'Anterior'
+    );
+    anterior?.querySelector('ion-button')?.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(fixture.componentInstance.pagina()).toBe(1);
+    expect(nomes().length).toBe(7);
+    expect(texto()).toContain('7 pessoas');
+  });
+
   it('confirma, promove e atualiza a linha', async () => {
     await criar();
 
