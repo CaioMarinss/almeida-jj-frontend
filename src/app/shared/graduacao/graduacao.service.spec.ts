@@ -29,28 +29,14 @@ describe('GraduacaoService', () => {
     http.expectOne(`${api}/alunos/me/graduacao`).flush({ atual: null, historico: [], proxima: null });
   });
 
-  it('envia só os parâmetros de busca definidos', () => {
-    service.buscarAlunos({ pagina: 0, tamanho: 20 }).subscribe();
-    const req = http.expectOne((r) => r.url === `${api}/graduacoes/alunos`);
-    expect(req.request.params.keys().sort()).toEqual(['pagina', 'tamanho']);
-    req.flush({ itens: [], pagina: 0, tamanho: 20, total: 0 });
-  });
-
-  it('envia nome e faixa quando informados', () => {
-    service.buscarAlunos({ nome: 'joao', faixa: 'sem', pagina: 1, tamanho: 20 }).subscribe();
-    const req = http.expectOne((r) => r.url === `${api}/graduacoes/alunos`);
-    expect(req.request.params.get('nome')).toBe('joao');
-    expect(req.request.params.get('faixa')).toBe('sem');
-    expect(req.request.params.get('pagina')).toBe('1');
-    req.flush({ itens: [], pagina: 1, tamanho: 20, total: 0 });
-  });
-
-  it('envia o id da faixa no filtro', () => {
-    service.buscarAlunos({ faixa: 3, pagina: 0, tamanho: 20 }).subscribe();
-    const req = http.expectOne((r) => r.url === `${api}/graduacoes/alunos`);
-    expect(req.request.params.get('faixa')).toBe('3');
-    expect(req.request.params.has('nome')).toBeFalse();
-    req.flush({ itens: [], pagina: 0, tamanho: 20, total: 0 });
+  it('busca todos os alunos sem parâmetros', () => {
+    let lista: unknown;
+    service.alunos().subscribe((v) => (lista = v));
+    const req = http.expectOne(`${api}/graduacoes/alunos`);
+    expect(req.request.method).toBe('GET');
+    expect(req.request.params.keys()).toEqual([]);
+    req.flush([{ id: 1, nome: 'Ana', email: 'a@x.com', perfil: 'ALUNO', atual: null }]);
+    expect(lista).toEqual([{ id: 1, nome: 'Ana', email: 'a@x.com', perfil: 'ALUNO', atual: null }]);
   });
 
   it('consulta e registra graduações de um aluno', () => {

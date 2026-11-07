@@ -38,17 +38,3 @@ export interface AlunoGraduacao {
   perfil: Perfil;
   atual: GraduacaoAtual | null;
 }
-
-export interface PaginaAlunos {
-  itens: AlunoGraduacao[];
-  pagina: number;
-  tamanho: number;
-  total: number;
-}
-
-export interface FiltroAlunos {
-  nome?: string;
-  faixa?: number | 'sem';
-  pagina: number;
-  tamanho: number;
-}

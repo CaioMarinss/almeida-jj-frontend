@@ -80,16 +80,8 @@ ajj-estado-vazio {
   }
 }
 
-.topo {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--ajj-espaco-3);
-  min-width: 0;
-}
-
-.mais {
-  margin-top: var(--ajj-espaco-4);
+.contador {
+  margin: 0 0 var(--ajj-espaco-3);
 }
 
 .topo-modal {

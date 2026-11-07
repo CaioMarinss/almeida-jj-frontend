@@ -1,28 +1,22 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { IonContent, IonHeader, IonModal, IonSpinner, IonTitle, IonToolbar } from '@ionic/angular';
 import { LucideAward } from '@lucide/angular';
-import { catchError, debounceTime, EMPTY, map, of, Subject, switchMap, tap } from 'rxjs';
-import { ROTULO_PERFIL } from '../../core/auth/usuario';
+import { catchError, of } from 'rxjs';
 import { Notificador } from '../../core/notificacao/notificador';
 import { descreverGraduacao, hojeEmSaoPaulo } from '../../shared/graduacao/descrever';
-import { AlunoGraduacao, Faixa, FiltroAlunos, GraduacaoAtual, RegistroGraduacao } from '../../shared/graduacao/graduacao.model';
+import { AlunoGraduacao, Faixa, GraduacaoAtual, RegistroGraduacao } from '../../shared/graduacao/graduacao.model';
 import { GraduacaoService } from '../../shared/graduacao/graduacao.service';
 import { BarraFaixaComponent } from '../../shared/ui/barra-faixa/barra-faixa.component';
 import { BotaoComponent } from '../../shared/ui/botao/botao.component';
 import { EstadoVazioComponent } from '../../shared/ui/estado-vazio/estado-vazio.component';
+import { PaginacaoComponent } from '../../shared/ui/paginacao/paginacao.component';
+import { criarListaFixada } from '../../shared/utils/lista-fixada';
+import { compararNomes, contemNome } from '../../shared/utils/texto.util';
 import { ProximaGraduacaoComponent } from './proxima-graduacao/proxima-graduacao.component';
 import { RegistroGraduacaoComponent } from './registro-graduacao/registro-graduacao.component';
 
-const TAMANHO_PAGINA = 20;
-const ESPERA_DIGITACAO_MS = 300;
-
 type SelecaoFaixa = 'todas' | 'sem' | number;
-
-interface Pedido {
-  filtro: FiltroAlunos;
-  acrescentar: boolean;
-}
 
 @Component({
   selector: 'app-graduacao',
@@ -37,6 +31,7 @@ interface Pedido {
     BarraFaixaComponent,
     BotaoComponent,
     EstadoVazioComponent,
+    PaginacaoComponent,
     ProximaGraduacaoComponent,
     RegistroGraduacaoComponent
   ],
@@ -47,21 +42,15 @@ interface Pedido {
 export class GraduacaoComponent {
   private readonly service = inject(GraduacaoService);
   private readonly notificador = inject(Notificador);
-  private readonly pedidos = new Subject<Pedido>();
-  private readonly digitacao = new Subject<void>();
 
-  readonly rotulo = ROTULO_PERFIL;
   readonly descrever = descreverGraduacao;
   readonly alunos = signal<AlunoGraduacao[]>([]);
-  readonly total = signal(0);
-  readonly pagina = signal(0);
+  readonly pagina = signal(1);
   readonly carregando = signal(true);
-  readonly carregandoMais = signal(false);
   readonly erroCarga = signal(false);
   readonly nome = signal('');
   readonly faixa = signal<SelecaoFaixa>('todas');
   readonly selecionado = signal<AlunoGraduacao | null>(null);
-  readonly temMais = computed(() => this.alunos().length < this.total());
 
   private readonly faixas = toSignal(
     this.service.faixas().pipe(catchError(() => of<Faixa[]>([]))),
@@ -71,53 +60,43 @@ export class GraduacaoComponent {
   readonly adultas = computed(() => this.faixas().filter(f => f.categoria === 'ADULTO'));
   readonly mestres = computed(() => this.faixas().filter(f => f.categoria === 'MESTRE'));
 
+  readonly filtrados = computed(() => {
+    const faixa = this.faixa();
+    const nome = this.nome();
+    return [...this.alunos()]
+      .sort(compararNomes)
+      .filter(a => this.naFaixa(a, faixa) && contemNome(a.nome, nome));
+  });
+  private readonly fixada = criarListaFixada(this.alunos, this.filtrados, this.pagina);
+  readonly visiveis = this.fixada.visiveis;
+  readonly paginaExibida = this.fixada.paginaExibida;
+  readonly totalPaginasExibido = this.fixada.totalPaginasExibido;
+  readonly contador = computed(() => {
+    const total = this.fixada.total();
+    return total === 1 ? '1 aluno' : `${total} alunos`;
+  });
+
   constructor() {
-    this.pedidos
-      .pipe(
-        switchMap(pedido =>
-          this.service.buscarAlunos(pedido.filtro).pipe(
-            map(resposta => ({ pedido, resposta })),
-            catchError((erro: unknown) => {
-              this.aoFalhar(pedido, erro);
-              return EMPTY;
-            })
-          )
-        ),
-        takeUntilDestroyed(inject(DestroyRef))
-      )
-      .subscribe(({ pedido, resposta }) => {
-        this.alunos.update(atuais => (pedido.acrescentar ? [...atuais, ...resposta.itens] : resposta.itens));
-        this.total.set(resposta.total);
-        this.pagina.set(resposta.pagina);
-        this.carregando.set(false);
-        this.carregandoMais.set(false);
-      });
-
-    this.digitacao
-      .pipe(debounceTime(ESPERA_DIGITACAO_MS), tap(() => this.buscar(0)), takeUntilDestroyed(inject(DestroyRef)))
-      .subscribe();
-
-    this.buscar(0);
+    this.carregar();
   }
 
   aoDigitar(valor: string): void {
     this.nome.set(valor);
-    this.digitacao.next();
+    this.recomecar();
   }
 
   aoFiltrar(valor: string): void {
     this.faixa.set(valor === 'todas' || valor === 'sem' ? valor : Number(valor));
-    this.buscar(0);
+    this.recomecar();
   }
 
-  carregarMais(): void {
-    if (!this.carregandoMais() && this.temMais()) {
-      this.buscar(this.pagina() + 1);
-    }
+  irParaPagina(pagina: number): void {
+    this.pagina.set(pagina);
+    this.fixada.soltar();
   }
 
   recarregar(): void {
-    this.buscar(0);
+    this.carregar();
   }
 
   abrir(aluno: AlunoGraduacao): void {
@@ -136,35 +115,36 @@ export class GraduacaoComponent {
     }
   }
 
-  atualizarLinha(id: number, atual: GraduacaoAtual): void {
+  atualizarLinha(id: number, atual: GraduacaoAtual | null): void {
+    this.fixada.fixar();
     this.alunos.update(lista => lista.map(a => (a.id === id ? { ...a, atual } : a)));
   }
 
-  private buscar(pagina: number): void {
-    const acrescentar = pagina > 0;
+  private naFaixa(aluno: AlunoGraduacao, faixa: SelecaoFaixa): boolean {
+    if (faixa === 'todas') {
+      return true;
+    }
+    return faixa === 'sem' ? aluno.atual === null : aluno.atual?.faixa.id === faixa;
+  }
+
+  private recomecar(): void {
+    this.pagina.set(1);
+    this.fixada.soltar();
+  }
+
+  private carregar(): void {
+    this.carregando.set(true);
     this.erroCarga.set(false);
-    this.carregando.set(!acrescentar);
-    this.carregandoMais.set(acrescentar);
-    this.pedidos.next({ filtro: this.filtroAtual(pagina), acrescentar });
-  }
-
-  private filtroAtual(pagina: number): FiltroAlunos {
-    const filtro: FiltroAlunos = { pagina, tamanho: TAMANHO_PAGINA };
-    const nome = this.nome().trim();
-    if (nome) {
-      filtro.nome = nome;
-    }
-    const faixa = this.faixa();
-    if (faixa !== 'todas') {
-      filtro.faixa = faixa;
-    }
-    return filtro;
-  }
-
-  private aoFalhar(pedido: Pedido, erro: unknown): void {
-    this.carregando.set(false);
-    this.carregandoMais.set(false);
-    this.erroCarga.set(!pedido.acrescentar);
-    void this.notificador.erroDaApi(erro, 'Não foi possível carregar os alunos.');
+    this.service.alunos().subscribe({
+      next: lista => {
+        this.alunos.set(lista);
+        this.carregando.set(false);
+      },
+      error: (erro: unknown) => {
+        this.carregando.set(false);
+        this.erroCarga.set(true);
+        void this.notificador.erroDaApi(erro, 'Não foi possível carregar os alunos.');
+      }
+    });
   }
 }

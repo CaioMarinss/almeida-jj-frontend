@@ -1,8 +1,8 @@
-import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Faixa, FiltroAlunos, MinhaGraduacao, PaginaAlunos, RegistroGraduacao } from './graduacao.model';
+import { AlunoGraduacao, Faixa, MinhaGraduacao, RegistroGraduacao } from './graduacao.model';
 
 export interface NovoRegistro {
   idGraduacao: number;
@@ -27,16 +27,8 @@ export class GraduacaoService {
     return this.http.get<MinhaGraduacao>(`${this.base}/alunos/me/graduacao`);
   }
 
-  buscarAlunos(f: FiltroAlunos): Observable<PaginaAlunos> {
-    let params = new HttpParams();
-    if (f.nome) {
-      params = params.set('nome', f.nome);
-    }
-    if (f.faixa !== undefined) {
-      params = params.set('faixa', String(f.faixa));
-    }
-    params = params.set('pagina', String(f.pagina)).set('tamanho', String(f.tamanho));
-    return this.http.get<PaginaAlunos>(`${this.base}/graduacoes/alunos`, { params });
+  alunos(): Observable<AlunoGraduacao[]> {
+    return this.http.get<AlunoGraduacao[]>(`${this.base}/graduacoes/alunos`);
   }
 
   historicoDe(id: number): Observable<RegistroGraduacao[]> {

@@ -41,14 +41,13 @@ describe('ProximaGraduacaoComponent', () => {
     });
   });
 
-  it('sem data agendada mostra o aviso e Agendar', () => {
+  it('sem data agendada mostra o aviso e Alterar, em uma linha compacta', () => {
     criar();
 
-    expect(textos()).toContain('Nenhuma data agendada');
-    expect(botao('Agendar')).toBeDefined();
-    expect(botao('Trocar')).toBeUndefined();
-    expect(el().querySelector('section')?.getAttribute('aria-labelledby')).toBe('proxima-titulo');
-    expect(el().querySelector('#proxima-titulo')?.textContent).toContain('Próxima graduação');
+    expect(textos()).toContain('Sem data definida para a próxima graduação');
+    expect(botao('Alterar')).toBeDefined();
+    expect(el().querySelector('section')?.getAttribute('aria-label')).toBe('Próxima graduação');
+    expect(el().querySelector('h2')).toBeNull();
   });
 
   it('falha ao carregar mostra erro, esconde as ações e Tentar de novo recarrega', () => {
@@ -56,10 +55,8 @@ describe('ProximaGraduacaoComponent', () => {
     criar();
 
     expect(textos()).toContain('Não foi possível carregar a data.');
-    expect(textos()).not.toContain('Nenhuma data agendada');
-    expect(botao('Agendar')).toBeUndefined();
-    expect(botao('Trocar')).toBeUndefined();
-    expect(botao('Cancelar')).toBeUndefined();
+    expect(textos()).not.toContain('Sem data definida');
+    expect(botao('Alterar')).toBeUndefined();
 
     service.proxima.and.returnValue(of('2026-12-14'));
     clicar('Tentar de novo');
@@ -67,17 +64,39 @@ describe('ProximaGraduacaoComponent', () => {
     expect(service.proxima).toHaveBeenCalledTimes(2);
     expect(textos()).toContain('14/12');
     expect(textos()).not.toContain('Não foi possível carregar a data.');
-    expect(botao('Trocar')).toBeDefined();
+    expect(botao('Alterar')).toBeDefined();
   });
 
-  it('com data mostra o dia, Trocar e Cancelar', () => {
+  it('próxima graduação mostra a data e o botão Alterar', () => {
     service.proxima.and.returnValue(of('2026-12-14'));
     criar();
 
+    expect(textos()).toContain('Próxima graduação');
     expect(textos()).toContain('14/12');
-    expect(botao('Trocar')).toBeDefined();
-    expect(botao('Cancelar')).toBeDefined();
-    expect(botao('Agendar')).toBeUndefined();
+    expect(textos()).not.toContain('Sem data definida');
+    expect(botao('Alterar')).toBeDefined();
+    expect(botao('Trocar')).toBeUndefined();
+    expect(botao('Cancelar data')).toBeUndefined();
+  });
+
+  it('Alterar com data abre o formulário com Salvar, Cancelar data e Voltar', () => {
+    service.proxima.and.returnValue(of('2026-12-14'));
+    criar();
+    clicar('Alterar');
+
+    expect(campo().value).toBe('2026-12-14');
+    expect(botao('Salvar')).toBeDefined();
+    expect(botao('Cancelar data')).toBeDefined();
+    clicar('Voltar');
+    expect(botao('Alterar')).toBeDefined();
+  });
+
+  it('Alterar sem data abre o formulário sem Cancelar data', () => {
+    criar();
+    clicar('Alterar');
+
+    expect(campo().value).toBe('');
+    expect(botao('Cancelar data')).toBeUndefined();
   });
 
   it('o seletor de data tem rótulo e mínimo igual a hoje em São Paulo', () => {
@@ -85,7 +104,7 @@ describe('ProximaGraduacaoComponent', () => {
     jasmine.clock().mockDate(new Date('2026-11-06T01:30:00Z'));
     try {
       criar();
-      clicar('Agendar');
+      clicar('Alterar');
 
       expect(campo().min).toBe('2026-11-05');
       expect(el().querySelector('label[for="data-proxima"]')?.textContent).toContain('Data da graduação');
@@ -97,7 +116,7 @@ describe('ProximaGraduacaoComponent', () => {
   it('agendar chama a API, atualiza o bloco e mostra o toast', () => {
     service.agendar.and.returnValue(of('2026-12-14'));
     criar();
-    clicar('Agendar');
+    clicar('Alterar');
     escolher('2026-12-14');
 
     el().querySelector('form')!.dispatchEvent(new Event('submit'));
@@ -105,21 +124,13 @@ describe('ProximaGraduacaoComponent', () => {
 
     expect(service.agendar).toHaveBeenCalledWith('2026-12-14');
     expect(textos()).toContain('14/12');
-    expect(botao('Trocar')).toBeDefined();
+    expect(botao('Alterar')).toBeDefined();
     expect(notificador.sucesso).toHaveBeenCalled();
-  });
-
-  it('trocar parte da data atual', () => {
-    service.proxima.and.returnValue(of('2026-12-14'));
-    criar();
-    clicar('Trocar');
-
-    expect(campo().value).toBe('2026-12-14');
   });
 
   it('Salvar fica desabilitado sem data', () => {
     criar();
-    clicar('Agendar');
+    clicar('Alterar');
 
     el().querySelector('form')!.dispatchEvent(new Event('submit'));
 
@@ -130,7 +141,7 @@ describe('ProximaGraduacaoComponent', () => {
     const erro = new Error('ERR014');
     service.agendar.and.returnValue(throwError(() => erro));
     criar();
-    clicar('Agendar');
+    clicar('Alterar');
     escolher('2020-01-01');
 
     el().querySelector('form')!.dispatchEvent(new Event('submit'));
@@ -145,17 +156,19 @@ describe('ProximaGraduacaoComponent', () => {
     service.cancelar.and.returnValue(of(undefined));
     notificador.confirmar.and.resolveTo(false);
     criar();
+    clicar('Alterar');
 
     await fixture.componentInstance.cancelar();
     expect(service.cancelar).not.toHaveBeenCalled();
-    expect(textos()).toContain('14/12');
+    expect(campo()).not.toBeNull();
 
     notificador.confirmar.and.resolveTo(true);
     await fixture.componentInstance.cancelar();
     fixture.detectChanges();
 
     expect(service.cancelar).toHaveBeenCalledTimes(1);
-    expect(textos()).toContain('Nenhuma data agendada');
+    expect(textos()).toContain('Sem data definida para a próxima graduação');
+    expect(campo()).toBeNull();
     expect(notificador.sucesso).toHaveBeenCalled();
   });
 
@@ -164,11 +177,12 @@ describe('ProximaGraduacaoComponent', () => {
     service.proxima.and.returnValue(of('2026-12-14'));
     service.cancelar.and.returnValue(throwError(() => erro));
     criar();
+    clicar('Alterar');
 
     await fixture.componentInstance.cancelar();
     fixture.detectChanges();
 
     expect(notificador.erroDaApi).toHaveBeenCalledWith(erro, jasmine.any(String));
-    expect(textos()).toContain('14/12');
+    expect(campo().value).toBe('2026-12-14');
   });
 });

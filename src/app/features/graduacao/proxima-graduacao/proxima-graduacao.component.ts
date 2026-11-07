@@ -86,6 +86,7 @@ export class ProximaGraduacaoComponent implements OnInit {
     this.service.cancelar().subscribe({
       next: () => {
         this.data.set(null);
+        this.editando.set(false);
         void this.notificador.sucesso('Data da próxima graduação cancelada.');
       },
       error: (erro: unknown) => {

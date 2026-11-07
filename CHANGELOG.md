@@ -9,6 +9,7 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 ## [Não lançado]
 
 ### Adicionado
+- Graduação com a lista inteira em memória: busca sem acento, filtro de faixa, páginas de 7 e contador; a linha alterada continua visível até mudar a busca, o filtro ou a página. A próxima graduação virou uma linha compacta com o botão "Alterar".
 - Professores com busca por nome, filtro por cargo (Todos, Professores, Alunos), páginas de 7 e painel de baixo para tornar ou remover professor.
 - Busca sem acento e paginação compartilhada (`ajj-paginacao`, 7 por página) para as listas do dono.
 - Tela **Graduação** (`/app/graduacao`), só para o dono: lista de alunos com busca por nome, filtro por faixa e "Carregar mais". Acesso pelo menu lateral e por "Gerenciar graduações" no Perfil.

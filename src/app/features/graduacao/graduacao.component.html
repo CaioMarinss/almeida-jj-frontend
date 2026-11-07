@@ -52,34 +52,30 @@
         <svg lucideAward icone aria-hidden="true"></svg>
         <ajj-botao variante="secundario" (clique)="recarregar()">Tentar de novo</ajj-botao>
       </ajj-estado-vazio>
-    } @else if (alunos().length === 0) {
-      <ajj-estado-vazio titulo="Nenhum aluno encontrado" texto="Ajuste a busca ou o filtro de faixa.">
-        <svg lucideAward icone aria-hidden="true"></svg>
-      </ajj-estado-vazio>
     } @else {
-      <ul class="lista" aria-live="polite">
-        @for (aluno of alunos(); track aluno.id) {
-          <li class="ajj-card aluno" [attr.data-email]="aluno.email">
-            <button type="button" class="linha" (click)="abrir(aluno)">
-              <span class="topo">
+      <p class="contador ajj-suave" aria-live="polite">{{ contador() }}</p>
+      @if (visiveis().length === 0) {
+        <ajj-estado-vazio titulo="Nenhum aluno encontrado" texto="Ajuste a busca ou o filtro de faixa.">
+          <svg lucideAward icone aria-hidden="true"></svg>
+        </ajj-estado-vazio>
+      } @else {
+        <ul class="lista">
+          @for (aluno of visiveis(); track aluno.id) {
+            <li class="ajj-card aluno" [attr.data-email]="aluno.email">
+              <button type="button" class="linha" (click)="abrir(aluno)">
                 <strong class="ajj-truncar">{{ aluno.nome }}</strong>
-                <span class="ajj-chip">{{ rotulo[aluno.perfil] }}</span>
-              </span>
-              @if (aluno.atual; as atual) {
-                <ajj-barra-faixa [faixa]="atual.faixa" [grau]="atual.grau" />
-                <span class="ajj-suave">{{ descrever(atual.faixa, atual.grau) }}</span>
-              } @else {
-                <span class="ajj-suave">Sem graduação</span>
-              }
-            </button>
-          </li>
-        }
-      </ul>
-      @if (temMais()) {
-        <div class="mais">
-          <ajj-botao variante="secundario" [carregando]="carregandoMais()" (clique)="carregarMais()">Carregar mais</ajj-botao>
-        </div>
+                @if (aluno.atual; as atual) {
+                  <ajj-barra-faixa [faixa]="atual.faixa" [grau]="atual.grau" />
+                  <span class="ajj-suave">{{ descrever(atual.faixa, atual.grau) }}</span>
+                } @else {
+                  <span class="ajj-suave">Sem graduação</span>
+                }
+              </button>
+            </li>
+          }
+        </ul>
       }
+      <ajj-paginacao [pagina]="paginaExibida()" [totalPaginas]="totalPaginasExibido()" (paginaChange)="irParaPagina($event)" />
     }
   </div>
 </ion-content>

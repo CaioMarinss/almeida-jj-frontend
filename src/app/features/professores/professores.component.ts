@@ -7,7 +7,8 @@ import { Notificador } from '../../core/notificacao/notificador';
 import { BotaoComponent } from '../../shared/ui/botao/botao.component';
 import { EstadoVazioComponent } from '../../shared/ui/estado-vazio/estado-vazio.component';
 import { PaginacaoComponent } from '../../shared/ui/paginacao/paginacao.component';
-import { compararNomes, contemNome, paginar, TAMANHO_PAGINA_DONO } from '../../shared/utils/texto.util';
+import { criarListaFixada } from '../../shared/utils/lista-fixada';
+import { compararNomes, contemNome } from '../../shared/utils/texto.util';
 import { PessoaAcademia, ProfessoresService } from './professores.service';
 
 type FiltroCargo = 'todos' | 'PROFESSOR' | 'ALUNO';
@@ -51,7 +52,6 @@ export class ProfessoresComponent {
   readonly cargo = signal<FiltroCargo>('todos');
   readonly pagina = signal(1);
   readonly selecionada = signal<PessoaAcademia | null>(null);
-  private readonly fixacao = signal<{ ids: number[]; pagina: number; totalPaginas: number; total: number } | null>(null);
 
   readonly filtradas = computed(() => {
     const cargo = this.cargo();
@@ -60,19 +60,12 @@ export class ProfessoresComponent {
       .sort(compararNomes)
       .filter(p => (cargo === 'todos' || p.perfil === cargo) && contemNome(p.nome, busca));
   });
-  readonly paginada = computed(() => paginar(this.filtradas(), this.pagina(), TAMANHO_PAGINA_DONO));
-  readonly visiveis = computed(() => {
-    const fixacao = this.fixacao();
-    if (fixacao === null) {
-      return this.paginada().itens;
-    }
-    const porId = new Map(this.pessoas().map(p => [p.id, p]));
-    return fixacao.ids.flatMap(id => porId.get(id) ?? []);
-  });
-  readonly paginaExibida = computed(() => this.fixacao()?.pagina ?? this.paginada().pagina);
-  readonly totalPaginasExibido = computed(() => this.fixacao()?.totalPaginas ?? this.paginada().totalPaginas);
+  private readonly fixada = criarListaFixada(this.pessoas, this.filtradas, this.pagina);
+  readonly visiveis = this.fixada.visiveis;
+  readonly paginaExibida = this.fixada.paginaExibida;
+  readonly totalPaginasExibido = this.fixada.totalPaginasExibido;
   readonly contador = computed(() => {
-    const total = this.fixacao()?.total ?? this.filtradas().length;
+    const total = this.fixada.total();
     return total === 1 ? '1 pessoa' : `${total} pessoas`;
   });
 
@@ -88,7 +81,7 @@ export class ProfessoresComponent {
 
   irParaPagina(pagina: number): void {
     this.pagina.set(pagina);
-    this.fixacao.set(null);
+    this.fixada.soltar();
   }
 
   abrir(pessoa: PessoaAcademia): void {
@@ -111,7 +104,7 @@ export class ProfessoresComponent {
 
   private recomecar(): void {
     this.pagina.set(1);
-    this.fixacao.set(null);
+    this.fixada.soltar();
   }
 
   constructor() {
@@ -137,15 +130,7 @@ export class ProfessoresComponent {
       }
       const novo = promover ? 'PROFESSOR' : 'ALUNO';
       await firstValueFrom(this.service.alterarPerfil(pessoa.id, novo), { defaultValue: undefined });
-      if (this.fixacao() === null) {
-        const { pagina, totalPaginas } = this.paginada();
-        this.fixacao.set({
-          ids: this.visiveis().map(p => p.id),
-          pagina,
-          totalPaginas,
-          total: this.filtradas().length
-        });
-      }
+      this.fixada.fixar();
       this.pessoas.update(lista => lista.map(p => (p.id === pessoa.id ? { ...p, perfil: novo } : p)));
       await this.notificador.sucesso(
         promover ? `${pessoa.nome} agora é professor.` : `${pessoa.nome} voltou a ser aluno.`
