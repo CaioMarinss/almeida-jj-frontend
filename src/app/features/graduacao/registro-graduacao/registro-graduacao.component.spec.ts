@@ -171,19 +171,15 @@ describe('RegistroGraduacaoComponent', () => {
     expect(el().querySelector('ajj-botao')!.querySelector('ion-spinner')).not.toBeNull();
   });
 
-  it('registrar usa o atual da resposta', () => {
-    const atual: GraduacaoAtual = { faixa: AZUL, grau: 1 };
-    const salvo: RegistroCriado = { ...registro('2026-10-01'), atual };
+  it('sucesso ao registrar avisa e recarrega o histórico', () => {
+    const salvo: RegistroCriado = { ...registro('2026-10-01'), atual: { faixa: AZUL, grau: 1 } };
     service.registrar.and.returnValue(of(salvo));
     criar();
-    const emitidos: (GraduacaoAtual | null)[] = [];
-    fixture.componentInstance.atualMudou.subscribe((a) => emitidos.push(a));
     service.historicoDe.calls.reset();
     service.historicoDe.and.returnValue(of([salvo]));
 
     salvar();
 
-    expect(emitidos).toEqual([atual]);
     expect(notificador.sucesso).toHaveBeenCalled();
     expect(service.historicoDe).toHaveBeenCalledOnceWith(7);
     expect(el().querySelectorAll('.historico li').length).toBe(1);
@@ -264,8 +260,9 @@ describe('RegistroGraduacaoComponent', () => {
     const lixeira = (i: number): HTMLButtonElement => el().querySelectorAll<HTMLButtonElement>('.historico li button')[i];
     const aluno = { ...ALUNO, atual: { faixa: AZUL, grau: 1 } };
 
-    function removerItem(i: number): void {
+    async function removerItem(i: number): Promise<void> {
       lixeira(i).click();
+      await fixture.whenStable();
       fixture.detectChanges();
     }
 
@@ -281,18 +278,18 @@ describe('RegistroGraduacaoComponent', () => {
       expect(lixeira(1).getAttribute('aria-label')).toBe(`Remover registro Cinza · sem graus de ${mesAnos[1]}`);
     });
 
-    it('confirmação diz "A faixa atual não muda." ao remover registro antigo', () => {
+    it('confirmação diz "A faixa atual não muda." ao remover registro antigo', async () => {
       criar(aluno);
 
-      removerItem(1);
+      await removerItem(1);
 
       expect(notificador.confirmar).toHaveBeenCalledWith('Remover registro?', 'A faixa atual não muda.', 'Remover');
     });
 
-    it('confirmação diz "...ela volta para Cinza · sem graus." ao remover o atual', () => {
+    it('confirmação diz "...ela volta para Cinza · sem graus." ao remover o atual', async () => {
       criar(aluno);
 
-      removerItem(0);
+      await removerItem(0);
 
       expect(notificador.confirmar).toHaveBeenCalledWith(
         'Remover registro?',
@@ -301,11 +298,11 @@ describe('RegistroGraduacaoComponent', () => {
       );
     });
 
-    it('confirmação diz "...ela fica Sem graduação." ao remover o único', () => {
+    it('confirmação diz "...ela fica Sem graduação." ao remover o único', async () => {
       service.historicoDe.and.returnValue(of([novo]));
       criar(aluno);
 
-      removerItem(0);
+      await removerItem(0);
 
       expect(notificador.confirmar).toHaveBeenCalledWith(
         'Remover registro?',
@@ -318,27 +315,33 @@ describe('RegistroGraduacaoComponent', () => {
       notificador.confirmar.and.resolveTo(false);
       criar(aluno);
 
-      removerItem(0);
-      await fixture.whenStable();
+      await removerItem(0);
 
       expect(service.remover).not.toHaveBeenCalled();
     });
 
-    it('depois de remover, o item some, emite a nova atual e aparece o toast "Registro removido."', async () => {
-      const volta: GraduacaoAtual = { faixa: CINZA, grau: 0 };
-      service.remover.and.returnValue(of(volta));
+    it('depois de remover, o item some e aparece o toast "Registro removido."', async () => {
+      service.remover.and.returnValue(of({ faixa: CINZA, grau: 0 }));
       criar(aluno);
-      const emitidos: (GraduacaoAtual | null)[] = [];
-      fixture.componentInstance.atualMudou.subscribe((a) => emitidos.push(a));
 
-      removerItem(0);
-      await fixture.whenStable();
-      fixture.detectChanges();
+      await removerItem(0);
 
       expect(service.remover).toHaveBeenCalledOnceWith(7, 30);
-      expect(emitidos).toEqual([volta]);
       expect(el().querySelectorAll('.historico li').length).toBe(1);
       expect(notificador.sucesso).toHaveBeenCalledWith('Registro removido.');
+    });
+
+    it('fechar o painel com a remoção pendente não emite nada e a requisição segue', async () => {
+      const resposta = new Subject<GraduacaoAtual | null>();
+      service.remover.and.returnValue(resposta);
+      criar(aluno);
+
+      await removerItem(0);
+      fixture.destroy();
+      resposta.next(null);
+      resposta.complete();
+
+      expect(service.remover).toHaveBeenCalledOnceWith(7, 30);
     });
 
     it('erro da API vira toast e o painel continua usável', async () => {
@@ -346,9 +349,7 @@ describe('RegistroGraduacaoComponent', () => {
       service.remover.and.returnValue(throwError(() => erro));
       criar(aluno);
 
-      removerItem(0);
-      await fixture.whenStable();
-      fixture.detectChanges();
+      await removerItem(0);
 
       expect(notificador.erroDaApi).toHaveBeenCalledWith(erro, jasmine.any(String));
       expect(el().querySelectorAll('.historico li').length).toBe(2);

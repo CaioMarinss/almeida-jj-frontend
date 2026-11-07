@@ -1,6 +1,6 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { map, Observable, Subject, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AlunoGraduacao, Faixa, GraduacaoAtual, MinhaGraduacao, RegistroGraduacao } from './graduacao.model';
 
@@ -11,6 +11,11 @@ export interface NovoRegistro {
 }
 
 export interface RegistroCriado extends RegistroGraduacao {
+  atual: GraduacaoAtual | null;
+}
+
+export interface AtualAlterada {
+  idAluno: number;
   atual: GraduacaoAtual | null;
 }
 
@@ -26,6 +31,9 @@ interface DataProxima {
 export class GraduacaoService {
   private readonly http = inject(HttpClient);
   private readonly base = `${environment.apiUrl}`;
+  private readonly alteracoes = new Subject<AtualAlterada>();
+
+  readonly atualAlterada$: Observable<AtualAlterada> = this.alteracoes.asObservable();
 
   faixas(): Observable<Faixa[]> {
     return this.http.get<Faixa[]>(`${this.base}/graduacoes/faixas`);
@@ -44,13 +52,18 @@ export class GraduacaoService {
   }
 
   registrar(id: number, corpo: NovoRegistro): Observable<RegistroCriado> {
-    return this.http.post<RegistroCriado>(`${this.base}/alunos/${id}/graduacoes`, corpo);
+    return this.http
+      .post<RegistroCriado>(`${this.base}/alunos/${id}/graduacoes`, corpo)
+      .pipe(tap((r) => this.alteracoes.next({ idAluno: id, atual: r.atual })));
   }
 
   remover(idAluno: number, idRegistro: number): Observable<GraduacaoAtual | null> {
     return this.http
       .delete<RegistroRemovido>(`${this.base}/alunos/${idAluno}/graduacoes/${idRegistro}`)
-      .pipe(map((r) => r.atual));
+      .pipe(
+        map((r) => r.atual),
+        tap((atual) => this.alteracoes.next({ idAluno, atual }))
+      );
   }
 
   proxima(): Observable<string | null> {

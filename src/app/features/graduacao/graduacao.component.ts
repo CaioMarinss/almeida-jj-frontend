@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { IonContent, IonHeader, IonModal, IonSpinner, IonTitle, IonToolbar } from '@ionic/angular';
 import { LucideAward } from '@lucide/angular';
 import { catchError, of } from 'rxjs';
@@ -56,6 +56,10 @@ export class GraduacaoComponent {
     this.service.faixas().pipe(catchError(() => of<Faixa[]>([]))),
     { initialValue: [] as Faixa[] }
   );
+  private readonly sincronizar = this.service.atualAlterada$
+    .pipe(takeUntilDestroyed())
+    .subscribe(({ idAluno, atual }) => this.aoMudarAtual(idAluno, atual));
+
   readonly infantis = computed(() => this.faixas().filter(f => f.categoria === 'INFANTIL'));
   readonly adultas = computed(() => this.faixas().filter(f => f.categoria === 'ADULTO'));
   readonly mestres = computed(() => this.faixas().filter(f => f.categoria === 'MESTRE'));

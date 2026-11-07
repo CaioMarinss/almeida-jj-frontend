@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { AlunoGraduacao, Categoria, Faixa } from '../../shared/graduacao/graduacao.model';
-import { GraduacaoService } from '../../shared/graduacao/graduacao.service';
+import { AtualAlterada, GraduacaoService } from '../../shared/graduacao/graduacao.service';
 import { criarNotificador } from '../auth/testes-auth';
 import { provedoresApp } from '../testes-app';
 import { GraduacaoComponent } from './graduacao.component';
@@ -30,6 +30,7 @@ describe('GraduacaoComponent', () => {
   let service: jasmine.SpyObj<GraduacaoService>;
   let notificador: ReturnType<typeof criarNotificador>;
   let fixture: ComponentFixture<GraduacaoComponent>;
+  let alteracoes: Subject<AtualAlterada>;
 
   const cmp = (): GraduacaoComponent => fixture.componentInstance;
   const el = (): HTMLElement => fixture.nativeElement;
@@ -67,7 +68,10 @@ describe('GraduacaoComponent', () => {
     jasmine.clock().install();
     jasmine.clock().mockDate(new Date('2026-11-07T15:00:00Z'));
     notificador = criarNotificador();
-    service = jasmine.createSpyObj<GraduacaoService>('GraduacaoService', ['alunos', 'faixas', 'proxima', 'historicoDe']);
+    alteracoes = new Subject<AtualAlterada>();
+    service = jasmine.createSpyObj<GraduacaoService>('GraduacaoService', ['alunos', 'faixas', 'proxima', 'historicoDe'], {
+      atualAlterada$: alteracoes.asObservable()
+    });
     service.historicoDe.and.returnValue(of([]));
     service.proxima.and.returnValue(of(null));
     service.faixas.and.returnValue(of(FAIXAS));
@@ -223,22 +227,21 @@ describe('GraduacaoComponent', () => {
     expect(cmp().selecionado()?.id).toBe(2);
   });
 
-  it('aoMudarAtual atualiza a linha com a atual devolvida pela API', () => {
+  it('a atual anunciada pelo serviço atualiza a linha, mesmo com o painel fechado', () => {
     criar();
-    const bia = cmp().alunos()[0];
 
-    cmp().aoMudarAtual(bia.id, { faixa: FAIXAS[13], grau: 1 });
+    alteracoes.next({ idAluno: 2, atual: { faixa: FAIXAS[13], grau: 1 } });
     fixture.detectChanges();
 
+    expect(cmp().selecionado()).toBeNull();
     expect(linhas()[1].textContent).toContain('Adulto 2 · 1 grau');
   });
 
-  it('aoMudarAtual atualiza também o aluno selecionado do modal', () => {
+  it('a atual anunciada atualiza também o aluno selecionado do modal', () => {
     criar();
-    const bia = cmp().alunos()[0];
-    cmp().abrir(bia);
+    cmp().abrir(cmp().alunos()[0]);
 
-    cmp().aoMudarAtual(bia.id, { faixa: FAIXAS[13], grau: 1 });
+    alteracoes.next({ idAluno: 2, atual: { faixa: FAIXAS[13], grau: 1 } });
 
     expect(cmp().selecionado()?.atual).toEqual({ faixa: FAIXAS[13], grau: 1 });
   });

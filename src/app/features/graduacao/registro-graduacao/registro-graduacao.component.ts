@@ -1,8 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit, signal } from '@angular/core';
 import { LucideTrash2 } from '@lucide/angular';
 import { Notificador } from '../../../core/notificacao/notificador';
 import { descreverGraduacao, formatarMesAno, hojeEmSaoPaulo } from '../../../shared/graduacao/descrever';
-import { AlunoGraduacao, Faixa, GraduacaoAtual, RegistroGraduacao } from '../../../shared/graduacao/graduacao.model';
+import { AlunoGraduacao, Faixa, RegistroGraduacao } from '../../../shared/graduacao/graduacao.model';
 import { GraduacaoService } from '../../../shared/graduacao/graduacao.service';
 import { BotaoComponent } from '../../../shared/ui/botao/botao.component';
 
@@ -18,7 +18,6 @@ export class RegistroGraduacaoComponent implements OnInit {
   private readonly notificador = inject(Notificador);
 
   readonly aluno = input.required<AlunoGraduacao>();
-  readonly atualMudou = output<GraduacaoAtual | null>();
 
   readonly hoje = hojeEmSaoPaulo();
   readonly descrever = descreverGraduacao;
@@ -96,10 +95,9 @@ export class RegistroGraduacaoComponent implements OnInit {
     }
     this.salvando.set(true);
     this.service.registrar(this.aluno().id, { idGraduacao: faixa.id, grau: this.grau(), data: this.data() }).subscribe({
-      next: (registro) => {
+      next: () => {
         this.salvando.set(false);
         void this.notificador.sucesso('Graduação registrada.');
-        this.atualMudou.emit(registro.atual);
         this.carregarHistorico();
       },
       error: (erro: unknown) => {
@@ -119,10 +117,9 @@ export class RegistroGraduacaoComponent implements OnInit {
     }
     this.removendo.set(true);
     this.service.remover(this.aluno().id, registro.id).subscribe({
-      next: (atual) => {
+      next: () => {
         this.removendo.set(false);
         this.historico.update((lista) => lista.filter((r) => r.id !== registro.id));
-        this.atualMudou.emit(atual);
         void this.notificador.sucesso('Registro removido.');
       },
       error: (erro: unknown) => {

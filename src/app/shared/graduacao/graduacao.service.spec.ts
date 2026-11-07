@@ -59,6 +59,19 @@ describe('GraduacaoService', () => {
     expect(atual).toBeNull();
   });
 
+  it('anuncia a atual alterada ao registrar e ao remover', () => {
+    const anuncios: unknown[] = [];
+    service.atualAlterada$.subscribe((a) => anuncios.push(a));
+    const faixa = { id: 1 };
+
+    service.registrar(7, { idGraduacao: 1, grau: 0 }).subscribe();
+    http.expectOne(`${api}/alunos/7/graduacoes`).flush({ id: 1, atual: { faixa, grau: 0 } });
+    service.remover(7, 1).subscribe();
+    http.expectOne(`${api}/alunos/7/graduacoes/1`).flush({ atual: null });
+
+    expect(anuncios).toEqual([{ idAluno: 7, atual: { faixa, grau: 0 } }, { idAluno: 7, atual: null }]);
+  });
+
   it('devolve a data da próxima graduação', () => {
     let valor: string | null | undefined;
     service.proxima().subscribe((v) => (valor = v));
