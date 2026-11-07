@@ -1,0 +1,59 @@
+:host {
+  display: block;
+  margin-bottom: var(--ajj-espaco-3);
+}
+
+p {
+  margin: 0;
+}
+
+.resumo,
+.edicao {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ajj-espaco-3);
+}
+
+.proxima {
+  padding: var(--ajj-espaco-3) var(--ajj-espaco-4);
+}
+
+.linha-data {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--ajj-espaco-2);
+}
+
+.data {
+  font-size: 20px;
+}
+
+.acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ajj-espaco-2);
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ajj-espaco-1, 4px);
+
+  input {
+    min-height: 44px;
+    padding: 0 var(--ajj-espaco-3);
+    border: 1px solid var(--ajj-borda);
+    border-radius: var(--ajj-raio-m);
+    background: var(--ajj-superficie);
+    color: var(--ajj-texto);
+    font: inherit;
+
+    &:focus-visible {
+      outline: 2px solid var(--ajj-primaria);
+      outline-offset: 2px;
+    }
+  }
+}

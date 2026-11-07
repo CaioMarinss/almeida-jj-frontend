@@ -8,6 +8,10 @@
       <span class="avatar" aria-hidden="true">{{ inicial() }}</span>
     </header>
 
+    @if (ehDono()) {
+      <app-area-dono />
+    }
+
     <section class="ajj-card checkin" aria-labelledby="checkin-titulo">
       <span class="ajj-rotulo">Check-in</span>
       <h2 id="checkin-titulo">Em breve</h2>
@@ -15,13 +19,7 @@
       <ajj-botao [desabilitado]="true">Fazer check-in</ajj-botao>
     </section>
 
-    <ajj-estado-vazio
-      class="graduacao"
-      titulo="Sua graduação aparece aqui"
-      texto="Quando o professor registrar sua faixa e seus graus, você acompanha a evolução por aqui."
-    >
-      <svg lucideAward icone aria-hidden="true"></svg>
-    </ajj-estado-vazio>
+    <app-card-graduacao />
 
     <div class="resumo">
       <section class="ajj-card">

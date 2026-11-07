@@ -91,6 +91,10 @@ export class PerfilComponent {
     return this.nav.navigateForward('/app/professores');
   }
 
+  abrirGraduacoes(): Promise<boolean> {
+    return this.nav.navigateForward('/app/graduacao');
+  }
+
   sair(): Promise<void> {
     return this.saida.sair();
   }

@@ -54,6 +54,11 @@ export const routes: Routes = [
         canActivate: [donoGuard],
         loadComponent: () => import('./features/professores/professores.component').then(m => m.ProfessoresComponent)
       },
+      {
+        path: 'graduacao',
+        canActivate: [donoGuard],
+        loadComponent: () => import('./features/graduacao/graduacao.component').then(m => m.GraduacaoComponent)
+      },
       { path: '', pathMatch: 'full', redirectTo: 'inicio' }
     ]
   },

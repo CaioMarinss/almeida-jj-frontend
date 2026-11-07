@@ -1,0 +1,11 @@
+@if (totalPaginas() > 1) {
+  <nav class="paginacao" aria-label="Paginação">
+    <ajj-botao variante="secundario" [desabilitado]="pagina() <= 1" (clique)="paginaChange.emit(pagina() - 1)">
+      Anterior
+    </ajj-botao>
+    <span class="paginacao__texto" aria-live="polite">Página {{ pagina() }} de {{ totalPaginas() }}</span>
+    <ajj-botao variante="secundario" [desabilitado]="pagina() >= totalPaginas()" (clique)="paginaChange.emit(pagina() + 1)">
+      Próxima
+    </ajj-botao>
+  </nav>
+}

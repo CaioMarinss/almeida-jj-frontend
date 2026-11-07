@@ -1,0 +1,98 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>Graduação</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="ajj-coluna">
+    <app-proxima-graduacao />
+
+    <div class="filtros">
+      <div class="campo">
+        <label for="busca-aluno" class="ajj-rotulo">Buscar aluno</label>
+        <input
+          id="busca-aluno"
+          #busca
+          type="search"
+          autocomplete="off"
+          placeholder="Nome do aluno"
+          [value]="nome()"
+          (input)="aoDigitar(busca.value)"
+        />
+      </div>
+      <div class="campo">
+        <label for="filtro-faixa" class="ajj-rotulo">Faixa</label>
+        <select id="filtro-faixa" #filtro [value]="'' + faixa()" (change)="aoFiltrar(filtro.value)">
+          <option value="todas">Todas</option>
+          <option value="sem">Sem graduação</option>
+          <optgroup label="Infantil">
+            @for (f of infantis(); track f.id) {
+              <option [value]="f.id">{{ f.descricao }}</option>
+            }
+          </optgroup>
+          <optgroup label="Adulto">
+            @for (f of adultas(); track f.id) {
+              <option [value]="f.id">{{ f.descricao }}</option>
+            }
+          </optgroup>
+          <optgroup label="Mestres">
+            @for (f of mestres(); track f.id) {
+              <option [value]="f.id">{{ f.descricao }}</option>
+            }
+          </optgroup>
+        </select>
+      </div>
+    </div>
+
+    @if (carregando()) {
+      <div class="carregando"><ion-spinner name="crescent" aria-label="Carregando alunos" /></div>
+    } @else if (erroCarga()) {
+      <ajj-estado-vazio class="erro-carga" titulo="Não foi possível carregar os alunos" texto="Confira sua conexão e tente de novo.">
+        <svg lucideAward icone aria-hidden="true"></svg>
+        <ajj-botao variante="secundario" (clique)="recarregar()">Tentar de novo</ajj-botao>
+      </ajj-estado-vazio>
+    } @else {
+      <p class="contador ajj-suave" aria-live="polite">{{ contador() }}</p>
+      @if (visiveis().length === 0) {
+        <ajj-estado-vazio titulo="Nenhum aluno encontrado" texto="Ajuste a busca ou o filtro de faixa.">
+          <svg lucideAward icone aria-hidden="true"></svg>
+        </ajj-estado-vazio>
+      } @else {
+        <ul class="lista">
+          @for (aluno of visiveis(); track aluno.id) {
+            <li class="ajj-card aluno" [attr.data-email]="aluno.email">
+              <button type="button" class="linha" (click)="abrir(aluno)">
+                <strong class="ajj-truncar">{{ aluno.nome }}</strong>
+                @if (aluno.atual; as atual) {
+                  <ajj-barra-faixa [faixa]="atual.faixa" [grau]="atual.grau" />
+                  <span class="ajj-suave">{{ descrever(atual.faixa, atual.grau) }}</span>
+                } @else {
+                  <span class="ajj-suave">Sem graduação</span>
+                }
+              </button>
+            </li>
+          }
+        </ul>
+      }
+      <ajj-paginacao [pagina]="paginaExibida()" [totalPaginas]="totalPaginasExibido()" (paginaChange)="irParaPagina($event)" />
+    }
+  </div>
+</ion-content>
+
+<ion-modal [isOpen]="selecionado() !== null" (didDismiss)="fechar()">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <div class="topo-modal">
+          <ajj-botao variante="texto" (clique)="fechar()">Fechar</ajj-botao>
+        </div>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content>
+      @if (selecionado(); as aluno) {
+        <app-registro-graduacao [aluno]="aluno" />
+      }
+    </ion-content>
+  </ng-template>
+</ion-modal>

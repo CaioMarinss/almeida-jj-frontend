@@ -43,3 +43,12 @@ export async function idDe(request: APIRequestContext, conta: Conta): Promise<nu
   });
   return ((await resposta.json()) as { id: number }).id;
 }
+
+export function sufixoUnico(): string {
+  return `${Date.now()}${Math.floor(Math.random() * 100000)}`;
+}
+
+export function nomear(conta: Conta, nome: string): Conta {
+  executarSql(`UPDATE ALMEIDAJJ.ALUNOS SET NOME = '${nome}' WHERE EMAIL = '${conta.email}'`);
+  return { ...conta, nome };
+}

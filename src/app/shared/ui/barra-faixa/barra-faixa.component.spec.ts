@@ -1,37 +1,109 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Faixa } from '../../graduacao/graduacao.model';
 import { BarraFaixaComponent } from './barra-faixa.component';
+
+const faixa = (parcial: Partial<Faixa>): Faixa => ({
+  id: 1,
+  codigo: 'AZ',
+  descricao: 'Faixa Azul',
+  categoria: 'ADULTO',
+  corPrincipal: '#2F64D6',
+  corSecundaria: null,
+  grauMin: 0,
+  grauMax: 4,
+  ...parcial
+});
 
 describe('BarraFaixaComponent', () => {
   let fixture: ComponentFixture<BarraFaixaComponent>;
 
-  async function renderizar(graus: number): Promise<void> {
+  async function renderizar(f: Faixa, grau: number): Promise<void> {
     fixture = TestBed.createComponent(BarraFaixaComponent);
-    fixture.componentRef.setInput('cor', '#2F64D6');
-    fixture.componentRef.setInput('graus', graus);
-    fixture.componentRef.setInput('descricao', 'Faixa azul');
+    fixture.componentRef.setInput('faixa', f);
+    fixture.componentRef.setInput('grau', grau);
     fixture.detectChanges();
     await fixture.whenStable();
   }
 
-  const listras = () => fixture.nativeElement.querySelectorAll('.grau').length;
+  const el = (): HTMLElement => fixture.nativeElement;
+  const listras = () => el().querySelectorAll('.grau').length;
 
   it('desenha um traço por grau', async () => {
-    await renderizar(2);
-
+    await renderizar(faixa({}), 2);
     expect(listras()).toBe(2);
   });
 
-  it('limita os graus entre 0 e 4', async () => {
-    await renderizar(7);
+  it('infantil desenha até 10 listras', async () => {
+    await renderizar(faixa({ codigo: 'VE', descricao: 'Faixa Verde', categoria: 'INFANTIL', grauMax: 10 }), 10);
+    expect(listras()).toBe(10);
+  });
+
+  it('preta desenha até 6 listras', async () => {
+    await renderizar(faixa({ codigo: 'FP', descricao: 'Faixa Preta', corPrincipal: '#111111', grauMax: 6 }), 6);
+    expect(listras()).toBe(6);
+  });
+
+  it('limita ao máximo da faixa e a zero', async () => {
+    await renderizar(faixa({}), 7);
     expect(listras()).toBe(4);
 
-    await renderizar(-1);
+    await renderizar(faixa({}), -1);
     expect(listras()).toBe(0);
   });
 
-  it('descreve a faixa para leitores de tela', async () => {
-    await renderizar(3);
+  it('com 10 graus cada listra tem largura e a ponta cabe na faixa estreita', async () => {
+    await renderizar(faixa({ codigo: 'VE', descricao: 'Faixa Verde', categoria: 'INFANTIL', grauMax: 10 }), 10);
+    el().style.width = '240px';
+    el().style.display = 'block';
 
-    expect(fixture.nativeElement.querySelector('[role="img"]').getAttribute('aria-label')).toBe('Faixa azul, 3 graus');
+    const listrasDesenhadas = Array.from(el().querySelectorAll<HTMLElement>('.grau'));
+    expect(listrasDesenhadas.length).toBe(10);
+    listrasDesenhadas.forEach((l) => expect(l.getBoundingClientRect().width).toBeGreaterThan(0));
+    const faixaBox = el().querySelector('.faixa')!.getBoundingClientRect();
+    const pontaBox = el().querySelector('.ponta')!.getBoundingClientRect();
+    expect(pontaBox.left).toBeGreaterThanOrEqual(faixaBox.left);
+    expect(pontaBox.right).toBeLessThanOrEqual(faixaBox.right);
+  });
+
+  it('faixa preta tem a ponta vermelha', async () => {
+    await renderizar(faixa({ codigo: 'FP', descricao: 'Faixa Preta', corPrincipal: '#111111', grauMax: 6 }), 2);
+    expect(el().querySelector<HTMLElement>('.ponta')!.style.background).toBe('rgb(211, 47, 47)');
+  });
+
+  it('faixa colorida tem a ponta preta', async () => {
+    await renderizar(faixa({}), 2);
+    expect(el().querySelector<HTMLElement>('.ponta')!.style.background).toBe('rgb(10, 10, 10)');
+  });
+
+  it('coral não desenha listras e usa as duas cores', async () => {
+    await renderizar(
+      faixa({ categoria: 'MESTRE', corPrincipal: '#D32F2F', corSecundaria: '#111111', grauMin: 7, grauMax: 7 }),
+      7
+    );
+    expect(listras()).toBe(0);
+    const blocos = Array.from(el().querySelectorAll<HTMLElement>('.bloco'));
+    expect(blocos.length).toBeGreaterThan(1);
+    const cores = new Set(blocos.map((b) => b.style.background));
+    expect(cores.size).toBe(2);
+  });
+
+  it('vermelha de mestre não desenha listras', async () => {
+    await renderizar(faixa({ categoria: 'MESTRE', corPrincipal: '#D32F2F', grauMin: 9, grauMax: 10 }), 9);
+    expect(listras()).toBe(0);
+  });
+
+  it('infantil combinada tem a listra secundária', async () => {
+    await renderizar(faixa({ categoria: 'INFANTIL', corPrincipal: '#FFFFFF', corSecundaria: '#111111', grauMax: 10 }), 0);
+    expect(el().querySelector('.listra-secundaria')).not.toBeNull();
+  });
+
+  it('faixa lisa não tem listra secundária', async () => {
+    await renderizar(faixa({}), 0);
+    expect(el().querySelector('.listra-secundaria')).toBeNull();
+  });
+
+  it('descreve a faixa para leitores de tela', async () => {
+    await renderizar(faixa({}), 3);
+    expect(el().querySelector('[role="img"]')!.getAttribute('aria-label')).toBe('Faixa Azul · 3 graus');
   });
 });

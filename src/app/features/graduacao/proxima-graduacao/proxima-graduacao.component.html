@@ -1,0 +1,43 @@
+<section class="ajj-card proxima" aria-label="Próxima graduação">
+  @if (carregando()) {
+    <p class="ajj-suave">Carregando…</p>
+  } @else if (erro()) {
+    <div class="resumo">
+      <p class="ajj-suave" role="alert">Não foi possível carregar a data.</p>
+      <ajj-botao variante="secundario" (clique)="carregar()">Tentar de novo</ajj-botao>
+    </div>
+  } @else if (editando()) {
+    <form class="edicao" (submit)="$event.preventDefault(); salvar()">
+      <div class="campo">
+        <label for="data-proxima" class="ajj-rotulo">Data da graduação</label>
+        <input
+          id="data-proxima"
+          #entrada
+          type="date"
+          [min]="minimo()"
+          [value]="rascunho()"
+          (input)="rascunho.set(entrada.value)"
+        />
+      </div>
+      <div class="acoes">
+        <ajj-botao tipo="submit" [carregando]="salvando()" [desabilitado]="!rascunho()">Salvar</ajj-botao>
+        @if (data()) {
+          <ajj-botao variante="texto" (clique)="cancelar()">Cancelar data</ajj-botao>
+        }
+        <ajj-botao variante="texto" (clique)="fechar()">Voltar</ajj-botao>
+      </div>
+    </form>
+  } @else {
+    <div class="resumo">
+      @if (data(); as proxima) {
+        <p class="linha-data">
+          <span class="ajj-rotulo">Próxima graduação</span>
+          <strong class="data ajj-numero">{{ formatar(proxima) }}</strong>
+        </p>
+      } @else {
+        <p class="ajj-suave">Sem data definida para a próxima graduação</p>
+      }
+      <ajj-botao variante="secundario" (clique)="abrir()">Alterar</ajj-botao>
+    </div>
+  }
+</section>

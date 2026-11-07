@@ -38,6 +38,38 @@ describe('ProfessoresComponent', () => {
     });
   });
 
+  const nomes = (): string[] =>
+    Array.from<HTMLElement>(fixture.nativeElement.querySelectorAll('li.pessoa strong')).map(e => e.textContent?.trim() ?? '');
+
+  const pessoas9 = (): PessoaAcademia[] =>
+    ['Iara', 'Hugo', 'Gabi', 'Fabio', 'Elisa', 'Davi', 'Cris', 'Beto', 'Ana'].map((nome, i) => ({
+      id: 10 + i,
+      nome,
+      email: `${nome.toLowerCase()}@x.com`,
+      perfil: 'ALUNO'
+    }));
+
+  const texto = (): string => fixture.nativeElement.textContent ?? '';
+
+  const chip = (rotulo: string): HTMLButtonElement =>
+    Array.from<HTMLButtonElement>(fixture.nativeElement.querySelectorAll('button.filtro')).find(
+      b => b.textContent?.trim() === rotulo
+    ) as HTMLButtonElement;
+
+  async function digitar(valor: string): Promise<void> {
+    const campo: HTMLInputElement = fixture.nativeElement.querySelector('#busca-pessoa');
+    campo.value = valor;
+    campo.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    await fixture.whenStable();
+  }
+
+  async function tocarChip(rotulo: string): Promise<void> {
+    chip(rotulo).click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+  }
+
   it('mostra uma linha por pessoa com nome, e-mail e cargo', async () => {
     await criar();
 
@@ -47,14 +79,156 @@ describe('ProfessoresComponent', () => {
     expect(linha('bia@x.com')?.querySelector('.ajj-chip')?.textContent).toContain('Aluno');
     expect(linha('caio@x.com')?.querySelector('.ajj-chip')?.textContent).toContain('Professor');
     expect(linha('dora@x.com')?.querySelector('.ajj-chip')?.textContent).toContain('Dono');
+    expect(linha('bia@x.com')?.querySelector('ajj-botao')).toBeNull();
   });
 
-  it('oferece o botão certo para cada cargo e nenhum para o dono', async () => {
+  it('ordena e mostra 7 por página com "Página 1 de 2"', async () => {
+    service.listar.and.returnValue(of(pessoas9()));
     await criar();
 
-    expect(linha('bia@x.com')?.querySelector('ajj-botao')?.textContent).toContain('Tornar professor');
-    expect(linha('caio@x.com')?.querySelector('ajj-botao')?.textContent).toContain('Remover professor');
-    expect(linha('dora@x.com')?.querySelector('ajj-botao')).toBeNull();
+    expect(nomes()).toEqual(['Ana', 'Beto', 'Cris', 'Davi', 'Elisa', 'Fabio', 'Gabi']);
+    expect(texto()).toContain('Página 1 de 2');
+  });
+
+  it('busca "JOAO" mostra só João e volta para a página 1', async () => {
+    const joao: PessoaAcademia = { id: 99, nome: 'João Alves', email: 'joao@x.com', perfil: 'ALUNO' };
+    service.listar.and.returnValue(of([...pessoas9(), joao]));
+    await criar();
+    fixture.componentInstance.pagina.set(2);
+    fixture.detectChanges();
+
+    await digitar('JOAO');
+
+    expect(nomes()).toEqual(['João Alves']);
+    expect(fixture.componentInstance.pagina()).toBe(1);
+  });
+
+  it('chip Professores mostra só professores e esconde o dono', async () => {
+    await criar();
+
+    await tocarChip('Professores');
+
+    expect(chip('Professores').getAttribute('aria-pressed')).toBe('true');
+    expect(chip('Todos').getAttribute('aria-pressed')).toBe('false');
+    expect(nomes()).toEqual(['Caio Lima']);
+  });
+
+  it('chip Alunos esconde o dono', async () => {
+    await criar();
+
+    await tocarChip('Alunos');
+
+    expect(nomes()).toEqual(['Bia Souza']);
+  });
+
+  it('contador mostra "N pessoas" do filtro', async () => {
+    await criar();
+    expect(texto()).toContain('3 pessoas');
+
+    await tocarChip('Alunos');
+    expect(texto()).toContain('1 pessoa');
+    expect(texto()).not.toContain('1 pessoas');
+  });
+
+  it('tocar na linha abre o painel com "Tornar professor"', async () => {
+    await criar();
+
+    linha('bia@x.com')?.querySelector<HTMLButtonElement>('button.linha')?.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const painel = (): HTMLElement | null => document.querySelector('ion-modal');
+    for (let i = 0; i < 50 && !painel()?.textContent?.includes('Cancelar'); i++) {
+      await new Promise(r => setTimeout(r, 20));
+    }
+
+    expect(fixture.componentInstance.selecionada()?.id).toBe(2);
+    expect(painel()?.textContent).toContain('Bia Souza');
+    expect(painel()?.textContent).toContain('Tornar professor');
+    expect(painel()?.textContent).toContain('Cancelar');
+  });
+
+  it('tocar no dono não abre ação', async () => {
+    await criar();
+
+    linha('dora@x.com')?.querySelector<HTMLButtonElement>('button.linha')?.click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.selecionada()).toBeNull();
+  });
+
+  it('depois de promover com filtro Alunos a linha continua visível com chip Professor até mudar a busca', async () => {
+    await criar();
+    await tocarChip('Alunos');
+
+    await fixture.componentInstance.alternar(bia);
+    fixture.detectChanges();
+
+    expect(linha('bia@x.com')?.querySelector('.ajj-chip')?.textContent).toContain('Professor');
+
+    await digitar('b');
+
+    expect(linha('bia@x.com')).toBeNull();
+  });
+
+  it('promover a única linha da última página mantém paginador e contador até a próxima interação', async () => {
+    service.listar.and.returnValue(of(pessoas9().slice(0, 8)));
+    await criar();
+    await tocarChip('Alunos');
+    fixture.componentInstance.irParaPagina(2);
+    fixture.detectChanges();
+    expect(nomes()).toEqual(['Iara']);
+    const iara = pessoas9()[0];
+
+    await fixture.componentInstance.alternar(iara);
+    fixture.detectChanges();
+
+    expect(nomes()).toEqual(['Iara']);
+    expect(texto()).toContain('Página 2 de 2');
+    expect(texto()).toContain('8 pessoas');
+
+    await tocarChip('Alunos');
+
+    expect(texto()).toContain('7 pessoas');
+    expect(texto()).not.toContain('Página');
+    expect(nomes().length).toBe(7);
+  });
+
+  it('duas alterações seguidas na mesma linha mantêm a fixação', async () => {
+    service.listar.and.returnValue(of(pessoas9().slice(0, 8)));
+    await criar();
+    await tocarChip('Alunos');
+    fixture.componentInstance.irParaPagina(2);
+    fixture.detectChanges();
+    const iara = pessoas9()[0];
+
+    await fixture.componentInstance.alternar(iara);
+    await fixture.componentInstance.alternar({ ...iara, perfil: 'PROFESSOR' });
+    fixture.detectChanges();
+
+    expect(nomes()).toEqual(['Iara']);
+    expect(texto()).toContain('Página 2 de 2');
+    expect(texto()).toContain('8 pessoas');
+  });
+
+  it('Anterior com a linha fixada libera a fixação e navega a partir da página exibida', async () => {
+    service.listar.and.returnValue(of(pessoas9().slice(0, 8)));
+    await criar();
+    await tocarChip('Alunos');
+    fixture.componentInstance.irParaPagina(2);
+    fixture.detectChanges();
+    await fixture.componentInstance.alternar(pessoas9()[0]);
+    fixture.detectChanges();
+
+    const anterior = Array.from<HTMLElement>(fixture.nativeElement.querySelectorAll('nav ajj-botao')).find(
+      b => b.textContent?.trim() === 'Anterior'
+    );
+    anterior?.querySelector('ion-button')?.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(fixture.componentInstance.pagina()).toBe(1);
+    expect(nomes().length).toBe(7);
+    expect(texto()).toContain('7 pessoas');
   });
 
   it('confirma, promove e atualiza a linha', async () => {
@@ -106,7 +280,7 @@ describe('ProfessoresComponent', () => {
     expect(linha('bia@x.com')?.querySelector('.ajj-chip')?.textContent).toContain('Aluno');
   });
 
-  it('dois cliques seguidos fazem uma única chamada e o botão fica carregando', async () => {
+  it('dois cliques seguidos fazem uma única chamada', async () => {
     const resposta = new Subject<void>();
     service.alterarPerfil.and.returnValue(resposta);
     await criar();
@@ -114,11 +288,9 @@ describe('ProfessoresComponent', () => {
     const primeira = fixture.componentInstance.alternar(bia);
     const segunda = fixture.componentInstance.alternar(bia);
     await fixture.whenStable();
-    fixture.detectChanges();
 
     expect(service.alterarPerfil).toHaveBeenCalledTimes(1);
     expect(fixture.componentInstance.alterando()).toBe(2);
-    expect(linha('bia@x.com')?.querySelector('ion-button')?.getAttribute('aria-busy')).toBe('true');
 
     resposta.next();
     resposta.complete();

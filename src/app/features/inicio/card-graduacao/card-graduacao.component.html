@@ -1,0 +1,50 @@
+@if (carregando()) {
+  <section class="ajj-card carregando" aria-label="Graduação">
+    <ion-spinner name="crescent" aria-label="Carregando graduação" />
+  </section>
+} @else if (erro()) {
+  <ajj-estado-vazio class="erro" titulo="Não foi possível carregar sua graduação" texto="Confira sua conexão e tente de novo.">
+    <svg lucideAward icone aria-hidden="true"></svg>
+    <ajj-botao variante="secundario" (clique)="carregar()">Tentar de novo</ajj-botao>
+  </ajj-estado-vazio>
+} @else {
+  @if (dados()?.atual; as atual) {
+    <section class="ajj-card graduacao" aria-labelledby="graduacao-titulo">
+      <span class="ajj-rotulo">Graduação</span>
+      <h2 id="graduacao-titulo">{{ descricao() }}</h2>
+      <ajj-barra-faixa [faixa]="atual.faixa" [grau]="atual.grau" />
+      <p class="proxima ajj-suave">{{ proxima() }}</p>
+
+      @if (resumo().length > 0) {
+        <h3 class="ajj-rotulo evolucao-titulo">Evolução</h3>
+        <ul class="evolucao">
+          @for (r of resumo(); track r.id) {
+            <li>{{ textoRegistro(r) }}</li>
+          }
+        </ul>
+        @if (temMais()) {
+          <ajj-botao variante="texto" (clique)="abrirHistorico()">Ver histórico completo</ajj-botao>
+        }
+      }
+    </section>
+  } @else {
+    <ajj-estado-vazio class="graduacao" titulo="Sem graduação" texto="Quando sua graduação for registrada, você acompanha a evolução por aqui.">
+      <svg lucideAward icone aria-hidden="true"></svg>
+      <p class="proxima ajj-suave">{{ proxima() }}</p>
+    </ajj-estado-vazio>
+  }
+}
+
+<ion-modal [isOpen]="modalAberto()" (didDismiss)="fecharHistorico()" aria-labelledby="historico-titulo">
+  <ng-template>
+    <div class="modal">
+      <h2 id="historico-titulo">Histórico de graduações</h2>
+      <ul class="evolucao completa">
+        @for (r of historico(); track r.id) {
+          <li>{{ textoRegistro(r) }}</li>
+        }
+      </ul>
+      <ajj-botao variante="secundario" (clique)="fecharHistorico()">Fechar</ajj-botao>
+    </div>
+  </ng-template>
+</ion-modal>

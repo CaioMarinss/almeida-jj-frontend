@@ -1,13 +1,19 @@
 import { TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
 import { SessionService } from '../../core/auth/session.service';
+import { GraduacaoService } from '../../shared/graduacao/graduacao.service';
 import { logar, provedoresApp } from '../testes-app';
 import { InicioComponent } from './inicio.component';
 
 describe('InicioComponent', () => {
-  async function renderizar(nome: string) {
+  async function renderizar(nome: string, perfil?: 'DONO' | 'PROFESSOR' | 'ALUNO') {
     sessionStorage.clear();
-    TestBed.configureTestingModule({ imports: [InicioComponent], providers: provedoresApp() });
-    logar(TestBed.inject(SessionService), nome);
+    TestBed.configureTestingModule({ imports: [InicioComponent], providers: [
+        ...provedoresApp(),
+        { provide: GraduacaoService, useValue: { minha: () => of({ atual: null, historico: [], proxima: null }) } }
+      ]
+    });
+    logar(TestBed.inject(SessionService), nome, perfil);
     const fixture = TestBed.createComponent(InicioComponent);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -33,5 +39,17 @@ describe('InicioComponent', () => {
     const tela = await renderizar('Ana');
 
     expect(tela.querySelector('.checkin ion-button')?.hasAttribute('disabled')).toBeTrue();
+  });
+
+  it('dono vê o card Área do dono logo após a saudação', async () => {
+    const tela = await renderizar('Carla', 'DONO');
+
+    expect(tela.querySelector('header.saudacao + app-area-dono')).not.toBeNull();
+  });
+
+  it('aluno e professor não veem o card', async () => {
+    expect((await renderizar('Ana', 'ALUNO')).querySelector('app-area-dono')).toBeNull();
+    TestBed.resetTestingModule();
+    expect((await renderizar('Pedro', 'PROFESSOR')).querySelector('app-area-dono')).toBeNull();
   });
 });

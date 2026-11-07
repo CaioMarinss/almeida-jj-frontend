@@ -20,6 +20,7 @@ export default defineConfig({
     baseURL: URL_FRONT,
     locale: 'pt-BR',
     trace: 'retain-on-failure',
+    timezoneId: 'America/Sao_Paulo',
     screenshot: 'only-on-failure'
   },
   projects: [
