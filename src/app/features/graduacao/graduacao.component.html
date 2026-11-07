@@ -82,10 +82,14 @@
 
 <ion-modal [isOpen]="selecionado() !== null" (didDismiss)="fechar()">
   <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <div class="topo-modal">
+          <ajj-botao variante="texto" (clique)="fechar()">Fechar</ajj-botao>
+        </div>
+      </ion-toolbar>
+    </ion-header>
     <ion-content>
-      <div class="topo-modal">
-        <ajj-botao variante="texto" (clique)="fechar()">Fechar</ajj-botao>
-      </div>
       @if (selecionado(); as aluno) {
         <app-registro-graduacao [aluno]="aluno" />
       }

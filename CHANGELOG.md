@@ -24,6 +24,7 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 - Testes e2e de graduação (`e2e/tests/graduacao.spec.ts`) e da área do dono (`e2e/tests/area-dono.spec.ts`).
 
 ### Alterado
+- Registro de graduação: salvar e remover não rodam ao mesmo tempo (a lixeira e o Salvar ficam desabilitados enquanto o outro está em andamento); se a remoção falha com `ERR015` (registro já removido, por exemplo em outra aba), o histórico é recarregado; o botão Fechar fica fixo em um cabeçalho e só o histórico rola.
 - A API passa a calcular a faixa atual pelo registro ativo de data mais recente; `GET /graduacoes/alunos` devolve a lista inteira (sem parâmetros) e o registro devolve também `atual`.
 
 ## [0.2.3] - 2026-11-05

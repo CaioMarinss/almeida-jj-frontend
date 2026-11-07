@@ -64,7 +64,7 @@
       }
     </div>
 
-    <ajj-botao tipo="submit" [carregando]="salvando()" [desabilitado]="!dataValida() || !faixa()">Salvar</ajj-botao>
+    <ajj-botao tipo="submit" [carregando]="salvando()" [desabilitado]="!dataValida() || !faixa() || removendo()">Salvar</ajj-botao>
   </form>
 
   <h3 class="ajj-rotulo">Histórico</h3>
@@ -83,7 +83,7 @@
         <li>
           <span>{{ descrever(r.faixa, r.grau) }}</span>
           <span class="ajj-suave data">{{ mesAno(r.data) }}</span>
-          <button type="button" class="remover" [attr.aria-label]="rotuloRemover(r)" [disabled]="removendo()" (click)="remover(r)">
+          <button type="button" class="remover" [attr.aria-label]="rotuloRemover(r)" [disabled]="removendo() || salvando()" (click)="remover(r)">
             <svg lucideTrash2 aria-hidden="true"></svg>
           </button>
         </li>

@@ -87,5 +87,5 @@ ajj-estado-vazio {
 .topo-modal {
   display: flex;
   justify-content: flex-end;
-  padding: calc(var(--ajj-espaco-2) + env(safe-area-inset-top, 0px)) var(--ajj-espaco-3) 0;
+  padding: calc(var(--ajj-espaco-2) + env(safe-area-inset-top, 0px)) var(--ajj-espaco-3) var(--ajj-espaco-2);
 }

@@ -355,5 +355,52 @@ describe('RegistroGraduacaoComponent', () => {
       expect(el().querySelectorAll('.historico li').length).toBe(2);
       expect(lixeira(0).disabled).toBeFalse();
     });
+
+    it('ERR015 recarrega o histórico além do toast', async () => {
+      const erro = new HttpErrorResponse({ status: 404, error: { codigo: 'ERR015' } });
+      service.remover.and.returnValue(throwError(() => erro));
+      criar(aluno);
+      service.historicoDe.calls.reset();
+      service.historicoDe.and.returnValue(of([antigo]));
+
+      await removerItem(0);
+
+      expect(notificador.erroDaApi).toHaveBeenCalledWith(erro, jasmine.any(String));
+      expect(service.historicoDe).toHaveBeenCalledOnceWith(7);
+      expect(el().querySelectorAll('.historico li').length).toBe(1);
+    });
+
+    it('outro erro não recarrega o histórico', async () => {
+      service.remover.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500, error: { codigo: 'ERR009' } })));
+      criar(aluno);
+      service.historicoDe.calls.reset();
+
+      await removerItem(0);
+
+      expect(service.historicoDe).not.toHaveBeenCalled();
+    });
+
+    it('enquanto salva, a lixeira fica desabilitada e remover não chama a API', async () => {
+      service.registrar.and.returnValue(new Subject<RegistroCriado>());
+      criar(aluno);
+
+      salvar();
+
+      expect(lixeira(0).disabled).toBeTrue();
+      await fixture.componentInstance.remover(novo);
+      expect(service.remover).not.toHaveBeenCalled();
+    });
+
+    it('enquanto remove, o Salvar fica desabilitado e salvar não chama a API', async () => {
+      service.remover.and.returnValue(new Subject<GraduacaoAtual | null>());
+      criar(aluno);
+
+      await removerItem(0);
+
+      const botao = el().querySelector('ajj-botao ion-button')!;
+      expect(botao.hasAttribute('disabled') || (botao as HTMLButtonElement).disabled).toBeTrue();
+      salvar();
+      expect(service.registrar).not.toHaveBeenCalled();
+    });
   });
 });

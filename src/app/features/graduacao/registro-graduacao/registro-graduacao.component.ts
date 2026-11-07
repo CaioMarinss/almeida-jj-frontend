@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit, signal } from '@angular/core';
 import { LucideTrash2 } from '@lucide/angular';
+import { codigoDeErro } from '../../../core/http/erro-api';
 import { Notificador } from '../../../core/notificacao/notificador';
 import { descreverGraduacao, formatarMesAno, hojeEmSaoPaulo } from '../../../shared/graduacao/descrever';
 import { AlunoGraduacao, Faixa, RegistroGraduacao } from '../../../shared/graduacao/graduacao.model';
@@ -90,7 +91,7 @@ export class RegistroGraduacaoComponent implements OnInit {
 
   salvar(): void {
     const faixa = this.faixa();
-    if (!faixa || !this.dataValida() || this.salvando()) {
+    if (!faixa || !this.dataValida() || this.salvando() || this.removendo()) {
       return;
     }
     this.salvando.set(true);
@@ -108,7 +109,7 @@ export class RegistroGraduacaoComponent implements OnInit {
   }
 
   async remover(registro: RegistroGraduacao): Promise<void> {
-    if (this.removendo()) {
+    if (this.removendo() || this.salvando()) {
       return;
     }
     const confirmado = await this.notificador.confirmar('Remover registro?', this.mensagemDeRemocao(registro), 'Remover');
@@ -125,6 +126,9 @@ export class RegistroGraduacaoComponent implements OnInit {
       error: (erro: unknown) => {
         this.removendo.set(false);
         void this.notificador.erroDaApi(erro, 'Não foi possível remover o registro.');
+        if (codigoDeErro(erro) === 'ERR015') {
+          this.carregarHistorico();
+        }
       }
     });
   }
