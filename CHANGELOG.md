@@ -8,6 +8,8 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não lançado]
 
+## [0.2.4] - 2026-11-07
+
 ### Adicionado
 - Início: card "Área do dono" logo abaixo da saudação, só para o dono, com atalhos para Professores e Graduações.
 - Registro de graduação: a janela do aluno agora rola (o histórico ficava cortado no desktop).
