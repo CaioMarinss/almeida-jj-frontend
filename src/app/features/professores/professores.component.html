@@ -17,28 +17,61 @@
       </ajj-estado-vazio>
     } @else {
       @if (pessoas().length > 0) {
-        <ul class="lista">
-          @for (pessoa of pessoas(); track pessoa.id) {
-            <li class="ajj-card pessoa" [attr.data-email]="pessoa.email">
-              <div class="dados">
-                <strong class="ajj-truncar">{{ pessoa.nome }}</strong>
-                <span class="ajj-suave ajj-truncar">{{ pessoa.email }}</span>
-              </div>
-              <span class="ajj-chip">{{ rotulo[pessoa.perfil] }}</span>
-              @if (pessoa.perfil !== 'DONO') {
-                <ajj-botao
-                  class="acao"
-                  [variante]="pessoa.perfil === 'ALUNO' ? 'primario' : 'secundario'"
-                  [carregando]="alterando() === pessoa.id"
-                  [desabilitado]="alterando() !== null && alterando() !== pessoa.id"
-                  (clique)="alternar(pessoa)"
+        <div class="filtros">
+          <div class="campo">
+            <label for="busca-pessoa" class="ajj-rotulo">Buscar pessoa</label>
+            <input
+              id="busca-pessoa"
+              #campo
+              type="search"
+              autocomplete="off"
+              placeholder="Nome da pessoa"
+              [value]="busca()"
+              (input)="mudarBusca(campo.value)"
+            />
+          </div>
+          <div class="chips" role="group" aria-label="Filtrar por cargo">
+            @for (f of filtros; track f.valor) {
+              <button
+                type="button"
+                class="filtro"
+                [class.ativo]="cargo() === f.valor"
+                [attr.aria-pressed]="cargo() === f.valor"
+                (click)="mudarCargo(f.valor)"
+              >
+                {{ f.rotulo }}
+              </button>
+            }
+          </div>
+        </div>
+        <p class="contador ajj-suave" aria-live="polite">{{ contador() }}</p>
+
+        @if (visiveis().length > 0) {
+          <ul class="lista">
+            @for (pessoa of visiveis(); track pessoa.id) {
+              <li class="ajj-card pessoa" [attr.data-email]="pessoa.email">
+                <button
+                  type="button"
+                  class="linha"
+                  [class.somente-leitura]="pessoa.perfil === 'DONO'"
+                  [attr.aria-disabled]="pessoa.perfil === 'DONO' ? 'true' : null"
+                  (click)="abrir(pessoa)"
                 >
-                  {{ pessoa.perfil === 'ALUNO' ? 'Tornar professor' : 'Remover professor' }}
-                </ajj-botao>
-              }
-            </li>
-          }
-        </ul>
+                  <span class="dados">
+                    <strong class="ajj-truncar">{{ pessoa.nome }}</strong>
+                    <span class="ajj-suave ajj-truncar">{{ pessoa.email }}</span>
+                  </span>
+                  <span class="ajj-chip">{{ rotulo[pessoa.perfil] }}</span>
+                </button>
+              </li>
+            }
+          </ul>
+        } @else {
+          <ajj-estado-vazio titulo="Nenhuma pessoa encontrada" texto="Ajuste a busca ou o filtro de cargo.">
+            <svg lucideUsers icone aria-hidden="true"></svg>
+          </ajj-estado-vazio>
+        }
+        <ajj-paginacao [pagina]="paginada().pagina" [totalPaginas]="paginada().totalPaginas" (paginaChange)="irParaPagina($event)" />
       }
       @if (semAlunos()) {
         <ajj-estado-vazio titulo="Nenhum aluno ativo" texto="Quando alguém criar a conta e verificar o e-mail, aparece aqui.">
@@ -48,3 +81,27 @@
     }
   </div>
 </ion-content>
+
+<ion-modal
+  [isOpen]="selecionada() !== null"
+  [breakpoints]="[0, 0.4]"
+  [initialBreakpoint]="0.4"
+  aria-labelledby="painel-pessoa-nome"
+  (didDismiss)="fechar()"
+>
+  <ng-template>
+    @if (selecionada(); as pessoa) {
+      <div class="painel">
+        <div class="dados">
+          <strong id="painel-pessoa-nome" class="ajj-titulo">{{ pessoa.nome }}</strong>
+          <span class="ajj-suave">{{ pessoa.email }}</span>
+        </div>
+        <span class="ajj-chip">{{ rotulo[pessoa.perfil] }}</span>
+        <ajj-botao [variante]="pessoa.perfil === 'ALUNO' ? 'primario' : 'secundario'" (clique)="confirmarAcao()">
+          {{ pessoa.perfil === 'ALUNO' ? 'Tornar professor' : 'Remover professor' }}
+        </ajj-botao>
+        <ajj-botao variante="texto" (clique)="fechar()">Cancelar</ajj-botao>
+      </div>
+    }
+  </ng-template>
+</ion-modal>
