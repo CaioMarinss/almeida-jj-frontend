@@ -170,6 +170,29 @@ describe('ProfessoresComponent', () => {
     expect(linha('bia@x.com')).toBeNull();
   });
 
+  it('promover a única linha da última página mantém paginador e contador até a próxima interação', async () => {
+    service.listar.and.returnValue(of(pessoas9().slice(0, 8)));
+    await criar();
+    await tocarChip('Alunos');
+    fixture.componentInstance.irParaPagina(2);
+    fixture.detectChanges();
+    expect(nomes()).toEqual(['Iara']);
+    const iara = pessoas9()[0];
+
+    await fixture.componentInstance.alternar(iara);
+    fixture.detectChanges();
+
+    expect(nomes()).toEqual(['Iara']);
+    expect(texto()).toContain('Página 2 de 2');
+    expect(texto()).toContain('8 pessoas');
+
+    await tocarChip('Alunos');
+
+    expect(texto()).toContain('7 pessoas');
+    expect(texto()).not.toContain('Página');
+    expect(nomes().length).toBe(7);
+  });
+
   it('confirma, promove e atualiza a linha', async () => {
     await criar();
 

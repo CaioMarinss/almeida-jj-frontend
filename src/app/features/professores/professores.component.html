@@ -71,7 +71,7 @@
             <svg lucideUsers icone aria-hidden="true"></svg>
           </ajj-estado-vazio>
         }
-        <ajj-paginacao [pagina]="paginada().pagina" [totalPaginas]="paginada().totalPaginas" (paginaChange)="irParaPagina($event)" />
+        <ajj-paginacao [pagina]="paginaExibida()" [totalPaginas]="totalPaginasExibido()" (paginaChange)="irParaPagina($event)" />
       }
       @if (semAlunos()) {
         <ajj-estado-vazio titulo="Nenhum aluno ativo" texto="Quando alguém criar a conta e verificar o e-mail, aparece aqui.">

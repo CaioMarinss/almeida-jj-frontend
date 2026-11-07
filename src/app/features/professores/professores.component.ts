@@ -51,7 +51,7 @@ export class ProfessoresComponent {
   readonly cargo = signal<FiltroCargo>('todos');
   readonly pagina = signal(1);
   readonly selecionada = signal<PessoaAcademia | null>(null);
-  private readonly idsFixados = signal<number[] | null>(null);
+  private readonly fixacao = signal<{ ids: number[]; pagina: number; totalPaginas: number; total: number } | null>(null);
 
   readonly filtradas = computed(() => {
     const cargo = this.cargo();
@@ -62,15 +62,17 @@ export class ProfessoresComponent {
   });
   readonly paginada = computed(() => paginar(this.filtradas(), this.pagina(), TAMANHO_PAGINA_DONO));
   readonly visiveis = computed(() => {
-    const ids = this.idsFixados();
-    if (ids === null) {
+    const fixacao = this.fixacao();
+    if (fixacao === null) {
       return this.paginada().itens;
     }
     const porId = new Map(this.pessoas().map(p => [p.id, p]));
-    return ids.flatMap(id => porId.get(id) ?? []);
+    return fixacao.ids.flatMap(id => porId.get(id) ?? []);
   });
+  readonly paginaExibida = computed(() => this.fixacao()?.pagina ?? this.paginada().pagina);
+  readonly totalPaginasExibido = computed(() => this.fixacao()?.totalPaginas ?? this.paginada().totalPaginas);
   readonly contador = computed(() => {
-    const total = this.filtradas().length;
+    const total = this.fixacao()?.total ?? this.filtradas().length;
     return total === 1 ? '1 pessoa' : `${total} pessoas`;
   });
 
@@ -86,7 +88,7 @@ export class ProfessoresComponent {
 
   irParaPagina(pagina: number): void {
     this.pagina.set(pagina);
-    this.idsFixados.set(null);
+    this.fixacao.set(null);
   }
 
   abrir(pessoa: PessoaAcademia): void {
@@ -109,7 +111,7 @@ export class ProfessoresComponent {
 
   private recomecar(): void {
     this.pagina.set(1);
-    this.idsFixados.set(null);
+    this.fixacao.set(null);
   }
 
   constructor() {
@@ -135,7 +137,13 @@ export class ProfessoresComponent {
       }
       const novo = promover ? 'PROFESSOR' : 'ALUNO';
       await firstValueFrom(this.service.alterarPerfil(pessoa.id, novo), { defaultValue: undefined });
-      this.idsFixados.set(this.visiveis().map(p => p.id));
+      const { pagina, totalPaginas } = this.paginada();
+      this.fixacao.set({
+        ids: this.visiveis().map(p => p.id),
+        pagina,
+        totalPaginas,
+        total: this.filtradas().length
+      });
       this.pessoas.update(lista => lista.map(p => (p.id === pessoa.id ? { ...p, perfil: novo } : p)));
       await this.notificador.sucesso(
         promover ? `${pessoa.nome} agora é professor.` : `${pessoa.nome} voltou a ser aluno.`
