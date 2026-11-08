@@ -8,6 +8,17 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não lançado]
 
+### Adicionado
+- **Presença**: botão "Vou" na aba Aulas (e na Início) para marcar e desmarcar a ida à aula da semana, com o contador "N vão"; depois que a janela fecha (fim da aula + 30 min) aparece "Presença contada" ou "Janela fechada".
+- Card **Próxima aula** na Início, no lugar do "Check-in em breve", com o botão "Vou".
+- Aba **Presença** com "X de Y presenças até a graduação de DD/MM", barra de progresso e a lista das presenças contadas (origem: contada, incluída pelo professor ou pelo dono).
+- Tela **Chamada** (`/app/chamada`, professor e dono): escolha do dia e da aula, quem está presente, "Tirar" com confirmação e "+ Incluir aluno"; fora do prazo a chamada fica só para consulta, com o aviso de até quando o professor pode ajustar. Item "Chamada" no menu e atalho na Início.
+- **Mínimos de presença** na próxima graduação (para grau e para faixa) e botão "Ver aptos" na tela Graduação, com as seções "Troca de grau" e "Troca de faixa", o botão "Graduou" (liberado a partir da data do evento) e a confirmação já preenchida com a sugestão.
+- Testes e2e da presença (`e2e/tests/presenca.spec.ts`) e dos aptos (`e2e/tests/graduacao.spec.ts`).
+
+### Alterado
+- Próxima graduação: o formulário exige os dois mínimos ("Mínimo para grau" e "Mínimo para faixa"); a linha mostra "Mínimo: N grau · M faixa".
+
 ## [0.2.5] - 2026-11-08
 
 ### Adicionado

@@ -121,11 +121,34 @@ Os alunos ganham um nome único (`UPDATE ... NOME` no banco) para a busca da tel
 | O dono chega em Graduação pelo perfil | desktop e celular | "Gerenciar graduações" abre a tela. |
 | O menu lateral do dono tem Graduação | só desktop | O item do menu abre a tela. |
 | Conta desativada antes de salvar | só desktop | Desativa a conta com a modal aberta; salvar mostra o alerta "Aluno não encontrado" e a tela continua usável. |
-| Agendar e cancelar a próxima graduação (botão "Alterar") | só desktop (serial) | Aluno vê "Próxima graduação: DD/MM"; ao cancelar, "Sem data definida para a próxima graduação". |
-| Trocar a data agendada (botão "Alterar") | só desktop (serial) | A nova data substitui a anterior. |
+| Agendar e cancelar a próxima graduação (botão "Alterar") | só desktop (serial) | Preenche os mínimos (`#minimo-grau`, `#minimo-faixa`); a linha mostra "Mínimo: 10 grau · 20 faixa"; aluno vê "Próxima graduação: DD/MM"; ao cancelar, "Sem data definida para a próxima graduação". |
+| Trocar a data agendada (botão "Alterar") | só desktop (serial) | A nova data (com os mínimos) substitui a anterior. |
+| A aba Presença mostra X de Y | só desktop (serial) | Evento daqui a 10 dias com mínimo de grau 5 e 2 presenças da semana passada (SQL): título "2 de 5 presenças até a graduação de DD/MM", "Faltam 3", barra `aria-valuenow=2`, 2 itens "contada". |
+| Antes da data o Graduou fica desabilitado | só desktop (serial) | "Ver aptos" lista o aluno com "2/2" e "Disponível em DD/MM" com o botão Graduou desabilitado; quem tem 1 de 2 mostra "faltam 1" e não tem o botão. |
+| Mínimos, apto e Graduou | só desktop (serial) | Salvar fica desabilitado até os dois mínimos; evento para hoje; o aluno aparece em "Troca de grau" com "2/2"; Graduou abre a confirmação preenchida (Faixa Branca, 1º grau); depois do toast "<nome> graduou." o aluno mostra "faltam 2" sem o botão e a API tem a Faixa Branca 1 grau. |
 | API: professor e aluno não registram nem agendam | só desktop | 403 em registrar, agendar, cancelar e listar alunos. |
 | API: grau 5 na Faixa Azul | só desktop | 422 com `codigo` `ERR012`. |
 | API: data futura no registro | só desktop | 400 com `codigo` `ERR013`. |
+
+### Presença (`tests/presenca.spec.ts`)
+
+Os cenários de marcação usam aulas avulsas criadas pela API para o dia de hoje, com horário sorteado a partir da hora atual (janela de presença aberta) e removidas no `finally`; a aula "fechada" é uma avulsa de hoje à 00:10-00:30, então depende de já ser mais de 01:00 em São Paulo. O cancelamento usa uma aula de grade de domingo com horário sorteado, removida no `finally`. Quando não há horário livre hoje, o teste usa `test.skip` com o motivo. Presenças de datas passadas entram por SQL (`suporte/presenca.ts`), em aulas do seed da semana passada. Os cenários que dependem do evento de graduação (global) ficam no bloco serial de `graduacao.spec.ts` (ver acima), para não disputarem a data com outro arquivo.
+
+| Cenário | Onde roda | O que verifica |
+|---|---|---|
+| Aluno marca Vou e desmarca | desktop e celular | Contador "1 vai" -> "2 vão" ao marcar (botão `aria-pressed`, "✓ Vou") e de volta a "1 vai" ao desmarcar; a API concorda. |
+| Início mostra a Próxima aula | desktop e celular | Card com o botão "Vou na aula das HH:mm". |
+| Presença contada | desktop e celular | Em aula já encerrada com presença: "Presença contada" na aba Aulas, sem botão; quem não marcou vê "Janela fechada"; a aba Presença lista o item "contada". |
+| Professor inclui e tira na Chamada | desktop e celular | "Professor pode ajustar até DD/MM", "+ Incluir aluno" com busca, origem "incluída pelo professor", contador "1 presença"; "Tirar" com confirmação volta a "Ninguém registrado nesta aula.". |
+| Semana passada: só leitura para o professor, editável para o dono | desktop e celular | Professor vê "Fora do prazo: esta chamada só pode ser consultada." sem Tirar nem Incluir; o dono vê os dois e tira o aluno. |
+| Dono inclui na semana passada | desktop e celular | Origem "incluída pelo dono" na Chamada e na aba Presença do aluno. |
+| Dono cancela aula com marcação aberta | desktop e celular | O aluno vê "Cancelada · motivo", sem botão nem contador; pela API `euVou` falso e `vao` 0. |
+| Aluno não acessa a Chamada | desktop e celular | Sem item no menu nem atalho; `/app/chamada` leva para `/app/inicio`. |
+| Professor chega na Chamada pelo atalho | desktop e celular | O botão "Chamada" da Início abre `/app/chamada`. |
+| API: cancelar o dia com janela fechada | só desktop | 422 `ERR030`. |
+| API: aluno nas rotas da chamada | só desktop | GET, POST e DELETE respondem 403. |
+| API: professor nos aptos | só desktop | `GET /graduacoes/aptos` e `POST /graduacoes/aptos/{id}` respondem 403. |
+| API: marcar fora da semana atual | só desktop | Semana passada e semana que vem respondem 422 `ERR025`. |
 
 ### Área do dono (`tests/area-dono.spec.ts`)
 
