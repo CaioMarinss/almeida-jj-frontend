@@ -1,0 +1,65 @@
+<div class="dias" role="group" aria-label="Dia da semana">
+  @for (d of dias; track d.numero) {
+    <button
+      type="button"
+      class="dia"
+      [attr.aria-label]="d.nome"
+      [attr.aria-pressed]="d.numero === diaSemana()"
+      (click)="selecionar(d.numero)"
+    >
+      {{ d.curto }}
+    </button>
+  }
+</div>
+
+@if (carregando()) {
+  <div class="carregando"><ion-spinner name="crescent" aria-label="Carregando a grade" /></div>
+} @else if (erroCarga()) {
+  <ajj-estado-vazio class="erro-carga" titulo="Não foi possível carregar a grade" texto="Confira sua conexão e tente de novo.">
+    <svg lucideTriangleAlert icone aria-hidden="true"></svg>
+    <ajj-botao variante="secundario" (clique)="carregar()">Tentar de novo</ajj-botao>
+  </ajj-estado-vazio>
+} @else {
+  @if (doDia().length > 0) {
+    <ul class="lista">
+      @for (aula of doDia(); track aula.id) {
+        <li class="aula ajj-card" [attr.data-modalidade]="aula.modalidade">
+          <span class="hora">
+            <strong>{{ aula.inicio }}</strong>
+            <span class="fim">até {{ aula.fim }}</span>
+          </span>
+          <span class="chip">{{ rotulo[aula.modalidade] }}</span>
+          <button type="button" class="editar" [attr.aria-label]="'Editar aula das ' + aula.inicio" (click)="abrirEdicao(aula)">
+            <svg lucidePencil aria-hidden="true"></svg>
+          </button>
+        </li>
+      }
+    </ul>
+  } @else {
+    <ajj-estado-vazio titulo="Sem aulas neste dia" texto="Adicione o primeiro horário deste dia da semana.">
+      <svg lucideCalendarCog icone aria-hidden="true"></svg>
+    </ajj-estado-vazio>
+  }
+  <ajj-botao class="adicionar" variante="secundario" (clique)="abrirNova()">{{ rotuloAdicionar() }}</ajj-botao>
+}
+
+<ion-modal
+  [isOpen]="painel() !== null"
+  [breakpoints]="[0, 0.7]"
+  [initialBreakpoint]="0.7"
+  aria-labelledby="painel-aula-titulo"
+  (didDismiss)="fechar()"
+>
+  <ng-template>
+    @if (painel(); as p) {
+      <app-form-aula
+        [aula]="p.aula"
+        [diaSemana]="p.aula?.diaSemana ?? diaSemana()"
+        [salvando]="salvando()"
+        (salvar)="salvar($event)"
+        (tirar)="tirar()"
+        (cancelar)="fechar()"
+      />
+    }
+  </ng-template>
+</ion-modal>

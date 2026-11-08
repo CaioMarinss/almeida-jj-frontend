@@ -1,0 +1,78 @@
+.painel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ajj-espaco-3);
+  padding: var(--ajj-espaco-5) var(--ajj-espaco-4) calc(var(--ajj-espaco-4) + env(safe-area-inset-bottom, 0px));
+
+  ajj-botao {
+    align-self: stretch;
+  }
+}
+
+.horarios {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--ajj-espaco-3);
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ajj-espaco-1);
+
+  input {
+    min-height: 44px;
+    padding: 0 var(--ajj-espaco-3);
+    border: 1px solid var(--ajj-borda);
+    border-radius: var(--ajj-raio-m);
+    background: var(--ajj-superficie);
+    color: var(--ajj-texto);
+    color-scheme: dark;
+    font: inherit;
+
+    &:focus-visible {
+      outline: 2px solid var(--ajj-primaria);
+      outline-offset: 2px;
+    }
+
+    &[aria-invalid='true'] {
+      border-color: var(--ajj-perigo);
+    }
+  }
+}
+
+.erro {
+  color: var(--ajj-perigo);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ajj-espaco-2);
+}
+
+.opcao {
+  min-height: 44px;
+  padding: 0 var(--ajj-espaco-4);
+  border: 1px solid var(--ajj-borda);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ajj-texto);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+
+  &.ativo {
+    border-color: var(--ajj-primaria);
+    background: var(--ajj-primaria);
+    color: var(--ajj-sobre-primaria);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ajj-primaria);
+    outline-offset: 2px;
+  }
+}

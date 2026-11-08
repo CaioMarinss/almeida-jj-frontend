@@ -49,6 +49,21 @@ describe('ShellComponent', () => {
     expect(itemProfessores()?.textContent).toContain('Professores');
   });
 
+  it('mostra o item Agenda só para o dono, entre Professores e Graduação', async () => {
+    const itemAgenda = () => fixture.nativeElement.querySelector('ion-menu [routerLink="/app/agenda"]');
+    expect(itemAgenda()).toBeNull();
+
+    logar(sessao, 'Carla Dias', 'DONO');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(itemAgenda()?.textContent).toContain('Agenda');
+    const itens = Array.from(fixture.nativeElement.querySelectorAll('ion-menu ion-item')).map(i =>
+      (i as HTMLElement).textContent?.trim()
+    );
+    expect(itens.slice(-5)).toEqual(['Professores', 'Agenda', 'Graduação', 'Perfil', 'Sair']);
+  });
+
   it('no menu lateral, Perfil fica logo acima de Sair, no fim', async () => {
     logar(sessao, 'Carla Dias', 'DONO');
     fixture.detectChanges();

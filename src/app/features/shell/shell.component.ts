@@ -13,6 +13,7 @@ import {
 } from '@ionic/angular';
 import {
   LucideAward,
+  LucideCalendarCog,
   LucideCalendarDays,
   LucideCircleCheck,
   LucideHouse,
@@ -41,6 +42,7 @@ import { ROTULO_PERFIL } from '../../core/auth/usuario';
     IonTabButton,
     LucideAward,
     LucideHouse,
+    LucideCalendarCog,
     LucideCalendarDays,
     LucideCircleCheck,
     LucideWallet,

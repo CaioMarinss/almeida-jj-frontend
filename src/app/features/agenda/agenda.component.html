@@ -1,0 +1,20 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>Agenda</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="ajj-coluna">
+    <ion-segment [value]="aba()" aria-label="Seção da agenda" (ionChange)="aoMudarSegmento($event.detail.value)">
+      <ion-segment-button value="grade"><ion-label>Grade semanal</ion-label></ion-segment-button>
+      <ion-segment-button value="excecoes"><ion-label>Exceções</ion-label></ion-segment-button>
+    </ion-segment>
+
+    @if (aba() === 'grade') {
+      <app-grade-semanal />
+    } @else {
+      <p class="excecoes-em-breve ajj-suave">As exceções (feriados, aulas canceladas e aulas avulsas) chegam em breve.</p>
+    }
+  </div>
+</ion-content>

@@ -1,0 +1,49 @@
+<form class="painel" novalidate (submit)="$event.preventDefault(); enviar()">
+  <strong id="painel-aula-titulo" class="ajj-titulo">{{ titulo() }}</strong>
+
+  <div class="horarios">
+    <div class="campo">
+      <label for="aula-inicio" class="ajj-rotulo">Início</label>
+      <input id="aula-inicio" type="time" required [value]="inicio()" (input)="mudar('inicio', $any($event.target).value)" />
+    </div>
+    <div class="campo">
+      <label for="aula-fim" class="ajj-rotulo">Fim</label>
+      <input
+        id="aula-fim"
+        type="time"
+        required
+        [value]="fim()"
+        [attr.aria-invalid]="erro() ? 'true' : null"
+        [attr.aria-describedby]="erro() ? 'aula-erro' : null"
+        (input)="mudar('fim', $any($event.target).value)"
+      />
+    </div>
+  </div>
+  @if (erro()) {
+    <small id="aula-erro" class="erro" role="alert">{{ erro() }}</small>
+  }
+
+  <div class="campo">
+    <span id="rotulo-modalidade" class="ajj-rotulo">Modalidade</span>
+    <div class="chips" role="group" aria-labelledby="rotulo-modalidade">
+      @for (m of modalidades; track m) {
+        <button
+          type="button"
+          class="opcao"
+          [attr.data-modalidade]="m"
+          [class.ativo]="modalidade() === m"
+          [attr.aria-pressed]="modalidade() === m"
+          (click)="escolher(m)"
+        >
+          {{ rotulo[m] }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <ajj-botao class="salvar" [carregando]="salvando()" (clique)="enviar()">Salvar</ajj-botao>
+  @if (aula()) {
+    <ajj-botao class="tirar" variante="secundario" [desabilitado]="salvando()" (clique)="tirar.emit()">Tirar da grade</ajj-botao>
+  }
+  <ajj-botao class="cancelar" variante="texto" (clique)="cancelar.emit()">Cancelar</ajj-botao>
+</form>
