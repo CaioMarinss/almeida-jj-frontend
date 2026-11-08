@@ -249,6 +249,23 @@ describe('AptosComponent', () => {
     enviar();
 
     expect(service.aptos).toHaveBeenCalledTimes(2);
+    expect(el().querySelector('#graduou-faixa')).toBeNull();
+  });
+
+  it('recarregar as faixas depois não sobrescreve a faixa já escolhida', () => {
+    service.faixas.and.returnValue(throwError(() => new Error('x')));
+    service.aptos.and.returnValue(
+      of(lista({ faixa: [apto(5, 'Duda', { atual: { faixa: ROXA, grau: 4 }, sugestao: null })] }))
+    );
+    criar();
+    service.faixas.and.returnValue(of(FAIXAS));
+    clicarEm(linhas('Troca de faixa')[0], 'Graduou');
+    clicarEm(el(), 'Tentar de novo');
+    escolherOpcao('graduou-faixa', '2');
+    fixture.componentInstance.carregarFaixas();
+    fixture.detectChanges();
+
+    expect(select('graduou-faixa').value).toBe('2');
   });
 
   it('sem evento corrente (ERR033) mostra estado vazio, sem toast de erro', () => {

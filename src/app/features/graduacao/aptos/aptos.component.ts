@@ -90,7 +90,9 @@ export class AptosComponent implements OnInit {
     this.service.faixas().subscribe({
       next: (lista) => {
         this.faixas.set(lista);
-        this.preencher();
+        if (this.idFaixa() === null) {
+          this.preencher();
+        }
       },
       error: () => this.erroFaixas.set(true)
     });
@@ -141,6 +143,7 @@ export class AptosComponent implements OnInit {
         void this.notificador.erroDaApi(erro, 'Não foi possível registrar a graduação.');
         const codigo = codigoDeErro(erro);
         if (codigo === 'ERR031' || codigo === 'ERR032') {
+          this.selecionado.set(null);
           this.carregar();
         }
       }
