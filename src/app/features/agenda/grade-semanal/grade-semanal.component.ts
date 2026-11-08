@@ -3,7 +3,7 @@ import { IonModal, IonSpinner } from '@ionic/angular';
 import { LucideCalendarCog, LucidePencil, LucideTriangleAlert } from '@lucide/angular';
 import { firstValueFrom } from 'rxjs';
 import { Notificador } from '../../../core/notificacao/notificador';
-import { AulaGrade, EdicaoAula, ROTULO_MODALIDADE } from '../../../shared/agenda/agenda.model';
+import { AulaGrade, CLASSE_CHIP_MODALIDADE, EdicaoAula, ROTULO_MODALIDADE } from '../../../shared/agenda/agenda.model';
 import { AgendaService } from '../../../shared/agenda/agenda.service';
 import { DIAS_SEMANA_CURTOS } from '../../../shared/agenda/datas';
 import { BotaoComponent } from '../../../shared/ui/botao/botao.component';
@@ -36,6 +36,7 @@ export class GradeSemanalComponent {
   private readonly notificador = inject(Notificador);
 
   readonly rotulo = ROTULO_MODALIDADE;
+  readonly classeChip = CLASSE_CHIP_MODALIDADE;
   readonly dias = DIAS_SEMANA_CURTOS.map((curto, i) => ({ numero: i + 1, curto, nome: DIAS_SEMANA_LONGOS[i] }));
 
   readonly aulas = signal<AulaGrade[]>([]);

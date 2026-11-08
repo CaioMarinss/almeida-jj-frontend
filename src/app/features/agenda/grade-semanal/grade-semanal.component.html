@@ -23,12 +23,12 @@
   @if (doDia().length > 0) {
     <ul class="lista">
       @for (aula of doDia(); track aula.id) {
-        <li class="aula ajj-card" [attr.data-modalidade]="aula.modalidade">
+        <li class="aula ajj-card">
           <span class="hora">
             <strong>{{ aula.inicio }}</strong>
             <span class="fim">até {{ aula.fim }}</span>
           </span>
-          <span class="chip">{{ rotulo[aula.modalidade] }}</span>
+          <span class="chip ajj-chip-modalidade" [class]="classeChip[aula.modalidade]">{{ rotulo[aula.modalidade] }}</span>
           <button type="button" class="editar" [attr.aria-label]="'Editar aula das ' + aula.inicio" (click)="abrirEdicao(aula)">
             <svg lucidePencil aria-hidden="true"></svg>
           </button>

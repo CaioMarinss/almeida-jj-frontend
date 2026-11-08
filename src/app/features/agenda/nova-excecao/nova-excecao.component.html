@@ -1,0 +1,98 @@
+<form class="painel" novalidate (submit)="$event.preventDefault(); enviar()">
+  @if (tipo() === null) {
+    <strong id="painel-excecao-titulo" class="ajj-titulo">Nova exceção</strong>
+    <div class="tipos">
+      @for (t of tipos; track t) {
+        <button type="button" class="tipo" (click)="escolherTipo(t)">
+          <span class="tipo-titulo">{{ titulos[t] }}</span>
+          <small>{{ descricoes[t] }}</small>
+        </button>
+      }
+    </div>
+    <ajj-botao class="cancelar" variante="texto" (clique)="cancelar.emit()">Cancelar</ajj-botao>
+  } @else {
+    <strong id="painel-excecao-titulo" class="ajj-titulo">{{ titulos[tipo()!] }}</strong>
+
+    <div class="campo">
+      <label for="excecao-data" class="ajj-rotulo">Data</label>
+      <input
+        id="excecao-data"
+        type="date"
+        required
+        [min]="hoje"
+        [value]="data()"
+        [attr.aria-invalid]="erro() && !data() ? 'true' : null"
+        (input)="mudarData(valor($event))"
+      />
+    </div>
+
+    @if (tipo() === 'AULA') {
+      @if (buscandoAulas()) {
+        <div class="carregando"><ion-spinner name="crescent" aria-label="Carregando as aulas" /></div>
+      } @else if (aulasBuscadas()) {
+        @if (aulas().length > 0) {
+          <div class="campo">
+            <span id="rotulo-aula" class="ajj-rotulo">Aula</span>
+            <div class="aulas" role="group" aria-labelledby="rotulo-aula">
+              @for (a of aulas(); track a.id) {
+                <button
+                  type="button"
+                  class="aula-opcao"
+                  [attr.aria-pressed]="idAula() === a.id"
+                  (click)="idAula.set(a.id)"
+                >
+                  <strong>{{ a.inicio.slice(0, 5) }}</strong>
+                  <span class="ajj-chip-modalidade" [class]="classeChip[a.modalidade]">{{ rotulo[a.modalidade] }}</span>
+                </button>
+              }
+            </div>
+          </div>
+        } @else {
+          <p class="sem-aulas ajj-suave">Nenhuma aula para cancelar nesta data.</p>
+        }
+      }
+    }
+
+    @if (tipo() === 'AVULSA') {
+      <div class="horarios">
+        <div class="campo">
+          <label for="excecao-inicio" class="ajj-rotulo">Início</label>
+          <input id="excecao-inicio" type="time" required [value]="inicio()" (input)="inicio.set(valor($event))" />
+        </div>
+        <div class="campo">
+          <label for="excecao-fim" class="ajj-rotulo">Fim</label>
+          <input id="excecao-fim" type="time" required [value]="fim()" (input)="fim.set(valor($event))" />
+        </div>
+      </div>
+      <div class="campo">
+        <span id="rotulo-modalidade" class="ajj-rotulo">Modalidade</span>
+        <div class="chips" role="group" aria-labelledby="rotulo-modalidade">
+          @for (m of modalidades; track m) {
+            <button
+              type="button"
+              class="opcao"
+              [attr.data-modalidade]="m"
+              [attr.aria-pressed]="modalidade() === m"
+              (click)="modalidade.set(m)"
+            >
+              {{ rotulo[m] }}
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    <div class="campo">
+      <label for="excecao-motivo" class="ajj-rotulo">Motivo (opcional)</label>
+      <input id="excecao-motivo" type="text" maxlength="80" [value]="motivo()" (input)="motivo.set(valor($event))" />
+    </div>
+
+    @if (erro()) {
+      <small class="erro" role="alert">{{ erro() }}</small>
+    }
+
+    <ajj-botao class="salvar" [carregando]="salvando()" (clique)="enviar()">Salvar</ajj-botao>
+    <ajj-botao class="voltar" variante="secundario" [desabilitado]="salvando()" (clique)="voltar()">Voltar</ajj-botao>
+    <ajj-botao class="cancelar" variante="texto" (clique)="cancelar.emit()">Cancelar</ajj-botao>
+  }
+</form>

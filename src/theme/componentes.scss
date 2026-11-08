@@ -24,6 +24,39 @@
   color: var(--ajj-texto-suave);
 }
 
+.ajj-chip-modalidade {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--ajj-espaco-2);
+  border-radius: 999px;
+  background: var(--ajj-superficie-2);
+  color: var(--ajj-texto);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.ajj-chip-modalidade--no-gi {
+  background: color-mix(in srgb, var(--ajj-primaria) 18%, var(--ajj-superficie));
+  color: var(--ajj-primaria);
+}
+
+.ajj-chip-modalidade--kids {
+  background: color-mix(in srgb, var(--ajj-modalidade-kids) 18%, var(--ajj-superficie));
+  color: var(--ajj-modalidade-kids);
+}
+
+.ajj-chip-modalidade--teens {
+  background: color-mix(in srgb, var(--ajj-modalidade-teens) 18%, var(--ajj-superficie));
+  color: var(--ajj-modalidade-teens);
+}
+
+.ajj-chip-modalidade--defesa-pessoal {
+  background: color-mix(in srgb, var(--ajj-sucesso) 18%, var(--ajj-superficie));
+  color: var(--ajj-sucesso);
+}
+
 .ajj-numero {
   font-family: var(--ajj-fonte-titulo);
   font-weight: 700;

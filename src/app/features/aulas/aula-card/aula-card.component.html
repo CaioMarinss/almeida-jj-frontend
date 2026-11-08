@@ -1,13 +1,13 @@
-<div class="aula ajj-card" [class.cancelada]="aula().cancelada" [attr.data-modalidade]="aula().modalidade">
+<div class="aula ajj-card" [class.cancelada]="aula().cancelada">
   <span class="hora">
     <strong>{{ aula().inicio }}</strong>
     <span class="fim">até {{ aula().fim }}</span>
   </span>
   <span class="detalhe">
     <span class="chips">
-      <span class="chip">{{ rotulo[aula().modalidade] }}</span>
+      <span class="chip ajj-chip-modalidade" [class]="classeChip[aula().modalidade]">{{ rotulo[aula().modalidade] }}</span>
       @if (aula().avulsa) {
-        <span class="chip avulsa">Avulsa</span>
+        <span class="chip ajj-chip-modalidade avulsa">Avulsa</span>
       }
     </span>
     @if (aula().cancelada) {

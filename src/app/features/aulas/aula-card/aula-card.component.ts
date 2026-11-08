@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { AulaDoDia, ROTULO_MODALIDADE } from '../../../shared/agenda/agenda.model';
+import { AulaDoDia, CLASSE_CHIP_MODALIDADE, ROTULO_MODALIDADE } from '../../../shared/agenda/agenda.model';
 
 @Component({
   selector: 'app-aula-card',
@@ -10,4 +10,5 @@ import { AulaDoDia, ROTULO_MODALIDADE } from '../../../shared/agenda/agenda.mode
 export class AulaCardComponent {
   readonly aula = input.required<AulaDoDia>();
   readonly rotulo = ROTULO_MODALIDADE;
+  readonly classeChip = CLASSE_CHIP_MODALIDADE;
 }

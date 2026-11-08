@@ -41,38 +41,7 @@
   gap: var(--ajj-espaco-2);
 }
 
-.chip {
-  padding: 2px var(--ajj-espaco-2);
-  border-radius: 999px;
-  background: var(--ajj-superficie-2);
-  color: var(--ajj-texto);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-[data-modalidade='NO_GI'] .chip:first-child {
-  background: color-mix(in srgb, var(--ajj-primaria) 18%, var(--ajj-superficie));
-  color: var(--ajj-primaria);
-}
-
-[data-modalidade='KIDS'] .chip:first-child {
-  background: color-mix(in srgb, var(--ajj-modalidade-kids) 18%, var(--ajj-superficie));
-  color: var(--ajj-modalidade-kids);
-}
-
-[data-modalidade='TEENS'] .chip:first-child {
-  background: color-mix(in srgb, var(--ajj-modalidade-teens) 18%, var(--ajj-superficie));
-  color: var(--ajj-modalidade-teens);
-}
-
-[data-modalidade='DEFESA_PESSOAL'] .chip:first-child {
-  background: color-mix(in srgb, var(--ajj-sucesso) 18%, var(--ajj-superficie));
-  color: var(--ajj-sucesso);
-}
-
-.chip.avulsa {
+.avulsa {
   background: var(--ajj-primaria);
   color: var(--ajj-sobre-primaria);
 }

@@ -6,8 +6,9 @@ import { AgendaComponent } from './agenda.component';
 
 describe('AgendaComponent', () => {
   async function montar() {
-    const service = jasmine.createSpyObj<AgendaService>('AgendaService', ['grade']);
+    const service = jasmine.createSpyObj<AgendaService>('AgendaService', ['grade', 'excecoes']);
     service.grade.and.returnValue(of([]));
+    service.excecoes.and.returnValue(of([]));
     TestBed.configureTestingModule({
       imports: [AgendaComponent],
       providers: [...provedoresApp(), { provide: AgendaService, useValue: service }]
@@ -28,14 +29,15 @@ describe('AgendaComponent', () => {
     expect(tela.querySelector('app-grade-semanal')).not.toBeNull();
   });
 
-  it('a aba Exceções mostra um aviso sem dados inventados', async () => {
+  it('a aba Exceções mostra a lista de exceções no lugar da grade', async () => {
     const fixture = await montar();
 
     fixture.componentInstance.mudarAba('excecoes');
     fixture.detectChanges();
+    await fixture.whenStable();
 
     const tela: HTMLElement = fixture.nativeElement;
     expect(tela.querySelector('app-grade-semanal')).toBeNull();
-    expect(tela.querySelector('.excecoes-em-breve')).not.toBeNull();
+    expect(tela.querySelector('app-excecoes')).not.toBeNull();
   });
 });
