@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
 import { donoGuard } from './core/auth/dono.guard';
+import { professorGuard } from './core/auth/professor.guard';
 import { visitanteGuard } from './core/auth/visitante.guard';
 
 const login = () => import('./features/auth/login/login.component').then(m => m.LoginComponent);
@@ -53,6 +54,11 @@ export const routes: Routes = [
         path: 'professores',
         canActivate: [donoGuard],
         loadComponent: () => import('./features/professores/professores.component').then(m => m.ProfessoresComponent)
+      },
+      {
+        path: 'chamada',
+        canActivate: [professorGuard],
+        loadComponent: () => import('./features/chamada/chamada.component').then(m => m.ChamadaComponent)
       },
       {
         path: 'agenda',

@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { IonContent } from '@ionic/angular';
+import { IonContent, NavController } from '@ionic/angular';
 import { SessionService } from '../../core/auth/session.service';
 import { Notificador } from '../../core/notificacao/notificador';
+import { BotaoComponent } from '../../shared/ui/botao/botao.component';
 import { AulaDoDia, CLASSE_CHIP_MODALIDADE, ROTULO_MODALIDADE } from '../../shared/agenda/agenda.model';
 import { AgendaService } from '../../shared/agenda/agenda.service';
 import { diaSemanaIso, formatarDiaMes, inicioDaSemana, somarDias } from '../../shared/agenda/datas';
@@ -16,7 +17,7 @@ const NOMES_DIAS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado',
 
 @Component({
   selector: 'app-inicio',
-  imports: [IonContent, BotaoVouComponent, CardGraduacaoComponent, AreaDonoComponent],
+  imports: [IonContent, BotaoComponent, BotaoVouComponent, CardGraduacaoComponent, AreaDonoComponent],
   templateUrl: './inicio.component.html',
   styleUrl: './inicio.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -26,6 +27,7 @@ export class InicioComponent {
   private readonly agenda = inject(AgendaService);
   private readonly presenca = inject(PresencaService);
   private readonly notificador = inject(Notificador);
+  private readonly nav = inject(NavController);
 
   readonly proxima = signal<{ data: string; aula: AulaDoDia } | null>(null);
   readonly salvando = signal(false);
@@ -44,6 +46,10 @@ export class InicioComponent {
 
   readonly primeiroNome = computed(() => (this.sessao.usuario()?.nome ?? '').trim().split(/\s+/)[0].toUpperCase());
   readonly ehDono = computed(() => this.sessao.usuario()?.perfil === 'DONO');
+  readonly ehProfessor = computed(() => {
+    const perfil = this.sessao.usuario()?.perfil;
+    return perfil === 'PROFESSOR' || perfil === 'DONO';
+  });
   readonly inicial = computed(() => this.primeiroNome().charAt(0));
 
   ionViewWillEnter(): void {
@@ -69,6 +75,10 @@ export class InicioComponent {
         }
       }
     });
+  }
+
+  abrirChamada(): Promise<boolean> {
+    return this.nav.navigateForward('/app/chamada');
   }
 
   alternarPresenca(aula: AulaDoDia): void {

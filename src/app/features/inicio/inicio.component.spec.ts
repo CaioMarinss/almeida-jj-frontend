@@ -132,6 +132,14 @@ describe('InicioComponent', () => {
     expect(tela.querySelector('.proxima-aula')).toBeNull();
   });
 
+  it('professor e dono veem o atalho Chamada, aluno não', async () => {
+    expect((await renderizar('Pedro', 'PROFESSOR')).querySelector('ajj-botao.chamada')?.textContent?.trim()).toBe('Chamada');
+    TestBed.resetTestingModule();
+    expect((await renderizar('Carla', 'DONO')).querySelector('ajj-botao.chamada')?.textContent?.trim()).toBe('Chamada');
+    TestBed.resetTestingModule();
+    expect((await renderizar('Ana', 'ALUNO')).querySelector('ajj-botao.chamada')).toBeNull();
+  });
+
   it('dono vê o card Área do dono logo após a saudação', async () => {
     const tela = await renderizar('Carla', 'DONO');
 

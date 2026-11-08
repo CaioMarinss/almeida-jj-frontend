@@ -12,6 +12,12 @@
       <app-area-dono />
     }
 
+    @if (ehProfessor()) {
+      <section class="ajj-card atalho-chamada" aria-label="Atalho da chamada">
+        <ajj-botao variante="secundario" class="chamada" (clique)="abrirChamada()">Chamada</ajj-botao>
+      </section>
+    }
+
     @if (proxima(); as p) {
       <section class="ajj-card proxima-aula" aria-labelledby="proxima-aula-titulo">
         <span class="ajj-rotulo" id="proxima-aula-titulo">Próxima aula</span>

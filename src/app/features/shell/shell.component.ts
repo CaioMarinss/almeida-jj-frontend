@@ -16,6 +16,7 @@ import {
   LucideCalendarCog,
   LucideCalendarDays,
   LucideCircleCheck,
+  LucideClipboardCheck,
   LucideHouse,
   LucideLogOut,
   LucideUser,
@@ -45,6 +46,7 @@ import { ROTULO_PERFIL } from '../../core/auth/usuario';
     LucideCalendarCog,
     LucideCalendarDays,
     LucideCircleCheck,
+    LucideClipboardCheck,
     LucideWallet,
     LucideUser,
     LucideUsers,
@@ -64,6 +66,10 @@ export class ShellComponent {
     return usuario ? ROTULO_PERFIL[usuario.perfil] : '';
   });
   readonly inicial = computed(() => this.nome().charAt(0).toUpperCase());
+  readonly ehProfessor = computed(() => {
+    const perfil = this.sessao.usuario()?.perfil;
+    return perfil === 'PROFESSOR' || perfil === 'DONO';
+  });
   readonly ehDono = computed(() => this.sessao.usuario()?.perfil === 'DONO');
 
   sair(): Promise<void> {
