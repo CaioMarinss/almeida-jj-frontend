@@ -25,9 +25,6 @@
           <ion-item button detail="false" routerLink="/app/financeiro" routerLinkActive="ativo">
             <svg lucideWallet aria-hidden="true" slot="start"></svg><ion-label>Financeiro</ion-label>
           </ion-item>
-          <ion-item button detail="false" routerLink="/app/perfil" routerLinkActive="ativo">
-            <svg lucideUser aria-hidden="true" slot="start"></svg><ion-label>Perfil</ion-label>
-          </ion-item>
           @if (ehDono()) {
             <ion-item button detail="false" routerLink="/app/professores" routerLinkActive="ativo">
               <svg lucideUsers aria-hidden="true" slot="start"></svg><ion-label>Professores</ion-label>
@@ -38,6 +35,9 @@
           }
         </ion-list>
 
+        <ion-item button detail="false" lines="none" class="perfil" routerLink="/app/perfil" routerLinkActive="ativo">
+          <svg lucideUser aria-hidden="true" slot="start"></svg><ion-label>Perfil</ion-label>
+        </ion-item>
         <ion-item button detail="false" lines="none" class="sair" (click)="sair()">
           <svg lucideLogOut aria-hidden="true" slot="start"></svg><ion-label>Sair</ion-label>
         </ion-item>

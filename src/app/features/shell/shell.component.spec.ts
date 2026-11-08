@@ -49,6 +49,18 @@ describe('ShellComponent', () => {
     expect(itemProfessores()?.textContent).toContain('Professores');
   });
 
+  it('no menu lateral, Perfil fica logo acima de Sair, no fim', async () => {
+    logar(sessao, 'Carla Dias', 'DONO');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const itens = Array.from(fixture.nativeElement.querySelectorAll('ion-menu ion-item')).map(i =>
+      (i as HTMLElement).textContent?.trim()
+    );
+
+    expect(itens.slice(-2)).toEqual(['Perfil', 'Sair']);
+  });
+
   it('tem cinco abas', () => {
     const abas = Array.from(fixture.nativeElement.querySelectorAll('ion-tab-button')).map(
       a => (a as HTMLElement).getAttribute('tab')

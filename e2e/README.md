@@ -79,6 +79,7 @@ São 53 testes, que viram 83 execuções: os 53 rodam no desktop e 30 rodam de n
 | Cenário | O que verifica |
 |---|---|
 | Bloqueia senha fraca, mostra o erro da API e troca com senha forte | Senha fraca não chama a API. Senha atual errada mostra "Senha atual incorreta.". Com os dados certos, troca a senha, desloga e entra com a nova. |
+| Perfil fica logo acima de Sair no menu lateral (só desktop) | Os dois últimos itens do menu são Perfil e Sair; clicar em Perfil abre `/app/perfil`. |
 
 ### API recusa senha fraca sem passar pelo front (`tests/api-regras-senha.spec.ts`), só desktop
 
