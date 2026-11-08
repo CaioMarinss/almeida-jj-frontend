@@ -57,7 +57,7 @@ e2e/
 
 ## Cenários
 
-São 64 testes (1 pulado com `fixme`); na última rodada completa, 102 execuções passaram (desktop e celular) e 28 foram puladas (testes só de desktop no celular e o `fixme`).
+São 63 testes; a última rodada completa teve 102 execuções passando e 26 puladas (testes só de desktop no celular), 0 falhas.
 
 ### Cadastro (`tests/cadastro.spec.ts`), desktop e celular
 
@@ -154,9 +154,8 @@ A agenda é global e os dois projetos rodam em paralelo, então cada projeto usa
 | Cancelar uma aula com motivo | desktop e celular | Dono cancela a aula das 18:00 da terça; o aluno vê "Cancelada · motivo"; o dono desfaz e volta ao normal. |
 | Cancelar o dia inteiro | desktop e celular | Aviso "Dia sem aula" com motivo e as 5 aulas da quarta canceladas; desfazer limpa tudo. |
 | Aula avulsa | desktop e celular | Dono cria aula avulsa na quinta; o aluno vê a etiqueta "Avulsa"; ao remover, some. |
-| Adicionar e editar aula da grade | desktop e celular | Dono adiciona aula no domingo, aluno vê; a edição troca o horário (vale a partir de amanhã, então o aluno da semana que vem só vê o novo). |
+| Adicionar, editar e tirar da grade uma aula | desktop e celular | Dono adiciona aula no domingo, aluno vê; a edição troca o horário (vale a partir de amanhã, então o aluno da semana que vem só vê o novo); tirar a versão editada da grade funciona e deixa o domingo limpo. |
 | Tirar uma aula da grade | desktop e celular | Aula recém-adicionada sai da grade com confirmação e o aluno vê "Sem aulas neste dia". |
-| Tirar da grade uma aula já editada | pulado (`fixme`) | A API responde 500 (`ck_aulas_vigencia`): a versão criada pela edição começa amanhã e a remoção a encerra hoje. |
 | Aluno e professor não veem a Agenda | desktop e celular | Sem item no menu, sem card/atalho nem "Gerenciar agenda"; `/app/agenda` leva para `/app/inicio`. |
 | O dono chega na Agenda pelo atalho e pelo Perfil | desktop e celular | O card "Área do dono" e "Gerenciar agenda" abrem `/app/agenda`. |
 | API: aluno e professor não alteram grade nem cancelam | só desktop | 403 em `POST /aulas/grade` e `POST /agenda/cancelamentos`. |

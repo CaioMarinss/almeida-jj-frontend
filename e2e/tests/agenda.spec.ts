@@ -229,7 +229,7 @@ test.describe('Agenda de aulas', () => {
     }
   });
 
-  test('o dono adiciona e edita uma aula da grade e o aluno acompanha', async ({ page, request }, info) => {
+  test('o dono adiciona, edita e tira da grade uma aula e o aluno acompanha', async ({ page, request }, info) => {
     test.setTimeout(120_000);
     const semanas = semanasAFrente(info.project.name);
     const data = dataDaSemana(semanas, DOMINGO);
@@ -263,6 +263,12 @@ test.describe('Agenda de aulas', () => {
       await verDiaComoAluno(page, aluno, semanas, data, DOMINGO);
       await expect(cartao(page, inicioEditado)).toContainText(`até ${fimEditado}`);
       await expect(cartao(page, inicioNovo)).toHaveCount(0);
+
+      await abrirGradeDoDomingo(page, dono);
+      await page.getByRole('button', { name: `Editar aula das ${inicioEditado}`, exact: true }).click();
+      await painel(page).getByRole('button', { name: 'Tirar da grade', exact: true }).click();
+      await responderAlerta(page, 'Tirar da grade');
+      await esperarToast(page, 'Aula tirada da grade.');
     } finally {
       await limparGrade(request, dono, DOMINGO, [inicioNovo, inicioEditado]);
     }
@@ -299,32 +305,6 @@ test.describe('Agenda de aulas', () => {
       await expect(cartao(page, inicio)).toHaveCount(0);
     } finally {
       await limparGrade(request, dono, DOMINGO, [inicio]);
-    }
-  });
-
-  test.fixme('o dono tira da grade uma aula já editada (API responde 500: ck_aulas_vigencia)', async ({ page, request }, info) => {
-    const dono = await criarDono(request);
-    const inicio = info.project.name === 'celular' ? '04:30' : '04:00';
-    const fim = info.project.name === 'celular' ? '05:30' : '05:00';
-    const editado = info.project.name === 'celular' ? '04:45' : '04:15';
-
-    try {
-      await abrirGradeDoDomingo(page, dono);
-      await botao(page, '+ Aula no domingo').click();
-      await painel(page).locator('#aula-inicio').fill(inicio);
-      await painel(page).locator('#aula-fim').fill(fim);
-      await salvarNoPainel(page);
-      await esperarToast(page, 'Aula adicionada.');
-      await page.getByRole('button', { name: `Editar aula das ${inicio}`, exact: true }).click();
-      await painel(page).locator('#aula-inicio').fill(editado);
-      await salvarNoPainel(page);
-      await esperarToast(page, 'Aula alterada.');
-      await page.getByRole('button', { name: `Editar aula das ${editado}`, exact: true }).click();
-      await painel(page).getByRole('button', { name: 'Tirar da grade', exact: true }).click();
-      await responderAlerta(page, 'Tirar da grade');
-      await esperarToast(page, 'Aula tirada da grade.');
-    } finally {
-      await limparGrade(request, dono, DOMINGO, [inicio, editado]);
     }
   });
 
