@@ -6,8 +6,60 @@
 
 <ion-content>
   <div class="ajj-coluna">
-    <ajj-estado-vazio titulo="Grade em breve" texto="Em breve você vai ver aqui os horários das aulas da academia.">
-      <svg lucideCalendarDays icone aria-hidden="true"></svg>
-    </ajj-estado-vazio>
+    <nav class="semana" aria-label="Semana">
+      <button type="button" class="seta" aria-label="Semana anterior" [disabled]="semanaAnteriorBloqueada()" (click)="mudarSemana(-1)">
+        <svg lucideChevronLeft aria-hidden="true"></svg>
+      </button>
+      <span class="intervalo" aria-live="polite">{{ intervalo() }}</span>
+      <button type="button" class="seta" aria-label="Próxima semana" [disabled]="proximaSemanaBloqueada()" (click)="mudarSemana(1)">
+        <svg lucideChevronRight aria-hidden="true"></svg>
+      </button>
+    </nav>
+
+    <div class="dias">
+      @for (d of tira(); track d.data) {
+        <button
+          type="button"
+          class="dia"
+          [class.hoje]="d.hoje"
+          [attr.aria-label]="d.rotulo"
+          [attr.aria-pressed]="d.data === selecionado()"
+          (click)="selecionar(d.data)"
+        >
+          <span class="curto">{{ d.curto }}</span>
+          <strong>{{ d.numero }}</strong>
+        </button>
+      }
+    </div>
+
+    @if (carregando()) {
+      <div class="carregando"><ion-spinner name="crescent" aria-label="Carregando aulas" /></div>
+    } @else if (erro()) {
+      <ajj-estado-vazio class="erro-carga" titulo="Não foi possível carregar as aulas" texto="Confira sua conexão e tente de novo.">
+        <svg lucideTriangleAlert icone aria-hidden="true"></svg>
+        <ajj-botao variante="secundario" (clique)="carregar()">Tentar de novo</ajj-botao>
+      </ajj-estado-vazio>
+    } @else {
+      @let dia = diaAtual();
+      @if (dia?.diaCancelado; as cancelado) {
+        <p class="aviso" role="status">
+          <strong>Dia sem aula</strong>
+          @if (cancelado.motivo) {
+            <span>{{ cancelado.motivo }}</span>
+          }
+        </p>
+      }
+      @if (dia && dia.aulas.length > 0) {
+        <ul class="lista">
+          @for (aula of dia.aulas; track aula.id) {
+            <li><app-aula-card [aula]="aula" /></li>
+          }
+        </ul>
+      } @else {
+        <ajj-estado-vazio titulo="Sem aulas neste dia" texto="Escolha outro dia da semana para ver os horários.">
+          <svg lucideCalendarDays icone aria-hidden="true"></svg>
+        </ajj-estado-vazio>
+      }
+    }
   </div>
 </ion-content>

@@ -1,0 +1,98 @@
+:host {
+  display: block;
+}
+
+.aula {
+  display: flex;
+  align-items: center;
+  gap: var(--ajj-espaco-4);
+  min-height: 64px;
+  padding: var(--ajj-espaco-3) var(--ajj-espaco-4);
+}
+
+.hora {
+  display: flex;
+  flex-direction: column;
+  min-width: 64px;
+
+  strong {
+    font-family: var(--ajj-fonte-titulo);
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.1;
+  }
+}
+
+.fim {
+  font-size: 12px;
+  color: var(--ajj-texto-suave);
+}
+
+.detalhe {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ajj-espaco-1);
+  min-width: 0;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ajj-espaco-2);
+}
+
+.chip {
+  padding: 2px var(--ajj-espaco-2);
+  border-radius: 999px;
+  background: var(--ajj-superficie-2);
+  color: var(--ajj-texto);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+[data-modalidade='NO_GI'] .chip:first-child {
+  background: color-mix(in srgb, var(--ajj-primaria) 18%, var(--ajj-superficie));
+  color: var(--ajj-primaria);
+}
+
+[data-modalidade='KIDS'] .chip:first-child {
+  background: color-mix(in srgb, #7fd3f2 18%, var(--ajj-superficie));
+  color: #7fd3f2;
+}
+
+[data-modalidade='TEENS'] .chip:first-child {
+  background: color-mix(in srgb, #c4a1ff 18%, var(--ajj-superficie));
+  color: #c4a1ff;
+}
+
+[data-modalidade='DEFESA_PESSOAL'] .chip:first-child {
+  background: color-mix(in srgb, var(--ajj-sucesso) 18%, var(--ajj-superficie));
+  color: var(--ajj-sucesso);
+}
+
+.chip.avulsa {
+  background: var(--ajj-primaria);
+  color: var(--ajj-sobre-primaria);
+}
+
+.motivo {
+  font-size: 13px;
+  color: var(--ajj-texto-suave);
+
+  &.perigo {
+    color: var(--ajj-perigo);
+  }
+}
+
+.cancelada {
+  .hora,
+  .chips {
+    opacity: 0.55;
+  }
+
+  .hora strong {
+    text-decoration: line-through;
+  }
+}

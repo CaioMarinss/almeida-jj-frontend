@@ -1,0 +1,21 @@
+<div class="aula ajj-card" [class.cancelada]="aula().cancelada" [attr.data-modalidade]="aula().modalidade">
+  <span class="hora">
+    <strong>{{ aula().inicio }}</strong>
+    <span class="fim">até {{ aula().fim }}</span>
+  </span>
+  <span class="detalhe">
+    <span class="chips">
+      <span class="chip">{{ rotulo[aula().modalidade] }}</span>
+      @if (aula().avulsa) {
+        <span class="chip avulsa">Avulsa</span>
+      }
+    </span>
+    @if (aula().cancelada) {
+      <span class="motivo perigo">
+        Cancelada{{ aula().motivoCancelamento ? ' · ' + aula().motivoCancelamento : '' }}
+      </span>
+    } @else if (aula().avulsa && aula().motivo) {
+      <span class="motivo">{{ aula().motivo }}</span>
+    }
+  </span>
+</div>
