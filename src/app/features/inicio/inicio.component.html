@@ -12,12 +12,24 @@
       <app-area-dono />
     }
 
-    <section class="ajj-card checkin" aria-labelledby="checkin-titulo">
-      <span class="ajj-rotulo">Check-in</span>
-      <h2 id="checkin-titulo">Em breve</h2>
-      <p class="ajj-suave">Em breve você faz o check-in da aula direto pelo app.</p>
-      <ajj-botao [desabilitado]="true">Fazer check-in</ajj-botao>
-    </section>
+    @if (proxima(); as p) {
+      <section class="ajj-card proxima-aula" aria-labelledby="proxima-aula-titulo">
+        <span class="ajj-rotulo" id="proxima-aula-titulo">Próxima aula</span>
+        <div class="linha">
+          <div class="info">
+            <strong class="hora">{{ p.aula.inicio }}</strong>
+            <span class="quando">{{ quando() }}</span>
+            <span class="detalhe">
+              <span class="chip ajj-chip-modalidade" [class]="classeChip[p.aula.modalidade]">{{ rotulo[p.aula.modalidade] }}</span>
+              @if (contador(); as texto) {
+                <span class="contador">{{ texto }}</span>
+              }
+            </span>
+          </div>
+          <app-botao-vou [aula]="p.aula" [salvando]="salvando()" (alternar)="alternarPresenca($event)" />
+        </div>
+      </section>
+    }
 
     <app-card-graduacao />
 

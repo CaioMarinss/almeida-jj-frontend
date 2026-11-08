@@ -124,4 +124,32 @@ describe('CardGraduacaoComponent', () => {
     expect(minha).toHaveBeenCalledTimes(2);
     expect(el.textContent).toContain('Faixa Azul · 2 graus');
   });
+
+  describe('presenças do ciclo', () => {
+    const linha = (el: HTMLElement): string | undefined => el.querySelector('.presencas')?.textContent?.trim();
+
+    it('mostra X de Y até a graduação', async () => {
+      const { el } = await renderizar(of(dados({ presencas: { trilha: 'GRAU', desde: '2026-06-10', ate: '2026-12-14', minimo: 30, contadas: 12 } })));
+
+      expect(linha(el)).toBe('12 de 30 presenças até a graduação de 14/12');
+    });
+
+    it('sem mínimo mostra mínimo não definido', async () => {
+      const { el } = await renderizar(of(dados({ presencas: { trilha: 'GRAU', desde: null, ate: '2026-12-14', minimo: null, contadas: 5 } })));
+
+      expect(linha(el)).toBe('5 presenças · mínimo não definido');
+    });
+
+    it('sem evento não mostra a linha', async () => {
+      const { el } = await renderizar(of(dados({ presencas: { trilha: 'GRAU', desde: null, ate: null, minimo: null, contadas: 5 } })));
+
+      expect(el.querySelector('.presencas')).toBeNull();
+    });
+
+    it('sem ciclo não mostra a linha', async () => {
+      const { el } = await renderizar(of(dados()));
+
+      expect(el.querySelector('.presencas')).toBeNull();
+    });
+  });
 });

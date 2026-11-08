@@ -14,6 +14,9 @@
       <h2 id="graduacao-titulo">{{ descricao() }}</h2>
       <ajj-barra-faixa [faixa]="atual.faixa" [grau]="atual.grau" />
       <p class="proxima ajj-suave">{{ proxima() }}</p>
+      @if (presencas(); as linha) {
+        <p class="presencas">{{ linha }}</p>
+      }
 
       @if (resumo().length > 0) {
         <h3 class="ajj-rotulo evolucao-titulo">Evolução</h3>

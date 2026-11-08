@@ -17,5 +17,9 @@
     } @else if (aula().avulsa && aula().motivo) {
       <span class="motivo">{{ aula().motivo }}</span>
     }
+    @if (contador(); as texto) {
+      <span class="contador">{{ texto }}</span>
+    }
   </span>
+  <app-botao-vou class="presenca" [aula]="aula()" [salvando]="salvando()" (alternar)="alternar.emit($event)" />
 </div>

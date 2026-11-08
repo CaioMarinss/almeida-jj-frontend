@@ -1,0 +1,15 @@
+@if (aula().podeMarcar && !aula().cancelada) {
+  <button
+    type="button"
+    class="vou"
+    [class.marcado]="aula().euVou"
+    [attr.aria-pressed]="aula().euVou"
+    [attr.aria-label]="'Vou na aula das ' + aula().inicio"
+    [disabled]="salvando()"
+    (click)="alternar.emit(aula())"
+  >
+    {{ aula().euVou ? '✓ Vou' : 'Vou' }}
+  </button>
+} @else if (situacao(); as texto) {
+  <span class="situacao" [class.contada]="aula().euVou">{{ texto }}</span>
+}

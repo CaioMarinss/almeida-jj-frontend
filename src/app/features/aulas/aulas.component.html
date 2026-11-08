@@ -52,7 +52,7 @@
       @if (dia && dia.aulas.length > 0) {
         <ul class="lista">
           @for (aula of dia.aulas; track aula.id) {
-            <li><app-aula-card [aula]="aula" /></li>
+            <li><app-aula-card [aula]="aula" [salvando]="estaSalvando(dia.data, aula)" (alternar)="alternarPresenca(dia.data, $event)" /></li>
           }
         </ul>
       } @else {

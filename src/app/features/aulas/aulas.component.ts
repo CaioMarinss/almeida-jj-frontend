@@ -2,9 +2,12 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { IonContent, IonHeader, IonSpinner, IonTitle, IonToolbar } from '@ionic/angular';
 import { LucideCalendarDays, LucideChevronLeft, LucideChevronRight, LucideTriangleAlert } from '@lucide/angular';
 import { AgendaService } from '../../shared/agenda/agenda.service';
-import { DiaAgenda } from '../../shared/agenda/agenda.model';
+import { Notificador } from '../../core/notificacao/notificador';
+import { AulaDoDia, DiaAgenda } from '../../shared/agenda/agenda.model';
 import { DIAS_SEMANA_CURTOS, diaSemanaIso, formatarDiaMes, inicioDaSemana, somarDias } from '../../shared/agenda/datas';
 import { hojeEmSaoPaulo } from '../../shared/graduacao/descrever';
+import { PresencaService } from '../../shared/presenca/presenca.service';
+import { aplicarPresenca } from '../../shared/presenca/vou';
 import { BotaoComponent } from '../../shared/ui/botao/botao.component';
 import { EstadoVazioComponent } from '../../shared/ui/estado-vazio/estado-vazio.component';
 import { AulaCardComponent } from './aula-card/aula-card.component';
@@ -34,6 +37,8 @@ const NOMES_DIAS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado',
 })
 export class AulasComponent {
   private readonly service = inject(AgendaService);
+  private readonly presenca = inject(PresencaService);
+  private readonly notificador = inject(Notificador);
 
   private readonly hoje = signal(hojeEmSaoPaulo());
   private readonly semanaAtual = computed(() => inicioDaSemana(this.hoje()));
@@ -44,6 +49,7 @@ export class AulasComponent {
   readonly dias = signal<DiaAgenda[]>([]);
   readonly carregando = signal(true);
   readonly erro = signal(false);
+  readonly salvando = signal<ReadonlySet<string>>(new Set());
 
   readonly semanaAnteriorBloqueada = computed(() => this.semana() <= this.semanaAtual());
   readonly proximaSemanaBloqueada = computed(() => this.semana() >= this.ultimaSemana());
@@ -88,6 +94,40 @@ export class AulasComponent {
     this.semana.set(nova);
     this.selecionado.set(somarDias(nova, diaDaSemana - 1));
     this.carregar();
+  }
+
+  estaSalvando(data: string, aula: AulaDoDia): boolean {
+    return this.salvando().has(`${data}#${aula.id}`);
+  }
+
+  alternarPresenca(data: string, aula: AulaDoDia): void {
+    const chave = `${data}#${aula.id}`;
+    if (this.salvando().has(chave)) {
+      return;
+    }
+    this.salvando.update(s => new Set(s).add(chave));
+    const marcar = !aula.euVou;
+    const chamada = marcar ? this.presenca.marcar(data, aula.id) : this.presenca.desmarcar(data, aula.id);
+    chamada.subscribe({
+      next: () => {
+        this.dias.update(dias =>
+          dias.map(d => (d.data === data ? { ...d, aulas: d.aulas.map(a => (a.id === aula.id ? aplicarPresenca(a, marcar) : a)) } : d))
+        );
+        this.liberar(chave);
+      },
+      error: erro => {
+        this.liberar(chave);
+        void this.notificador.erroDaApi(erro);
+      }
+    });
+  }
+
+  private liberar(chave: string): void {
+    this.salvando.update(s => {
+      const novo = new Set(s);
+      novo.delete(chave);
+      return novo;
+    });
   }
 
   carregar(): void {
