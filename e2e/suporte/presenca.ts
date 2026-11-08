@@ -1,4 +1,4 @@
-import { APIRequestContext, expect } from '@playwright/test';
+import { APIRequestContext, expect, test } from '@playwright/test';
 import { URL_API } from '../../playwright.config';
 import { executarSql } from './banco';
 import { Conta, idDe, tokenDe } from './contas';
@@ -161,4 +161,27 @@ export async function agendarProximaPorApi(
 
 export async function cancelarProximaPorApi(request: APIRequestContext, dono: Conta): Promise<void> {
   await request.delete(`${URL_API}/graduacoes/proxima`, { headers: await autorizacao(request, dono) });
+}
+
+export function descartarAulaPorSql(aula: AulaCriada): void {
+  executarSql(`UPDATE ALMEIDAJJ.PRESENCAS SET DTHR_INATIVACAO = CURRENT_TIMESTAMP WHERE ID_AULA = ${aula.id} AND DTHR_INATIVACAO IS NULL`);
+  executarSql(`UPDATE ALMEIDAJJ.AULAS SET DTHR_INATIVACAO = CURRENT_TIMESTAMP WHERE ID_AULA = ${aula.id}`);
+}
+
+export function descartarPresencasDoAluno(idAluno: number): void {
+  executarSql(`UPDATE ALMEIDAJJ.PRESENCAS SET DTHR_INATIVACAO = CURRENT_TIMESTAMP WHERE ID_ALUNO = ${idAluno} AND DTHR_INATIVACAO IS NULL`);
+}
+
+export function horarioDeSaoPaulo(): string {
+  return `${hojeEmSaoPaulo()} ${hora(minutosAgora())} (São Paulo)`;
+}
+
+export function exigirAula(aula: AulaCriada | null, motivo: string): AulaCriada {
+  if (!aula) {
+    test.info().annotations.push({ type: 'pulado-por-horario', description: `${motivo}; agora ${horarioDeSaoPaulo()}` });
+    test.skip(true, motivo);
+  } else {
+    test.info().annotations.push({ type: 'horario-sorteado', description: `aula ${aula.id} em ${aula.data} ${aula.inicio}; agora ${horarioDeSaoPaulo()}` });
+  }
+  return aula as AulaCriada;
 }

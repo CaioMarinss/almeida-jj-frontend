@@ -7,6 +7,9 @@ import {
   AulaCriada,
   avulsaAberta,
   avulsaFechada,
+  descartarAulaPorSql,
+  descartarPresencasDoAluno,
+  exigirAula,
   gradeDoDomingoAberta,
   idDaGrade,
   inserirPresencaNaAula,
@@ -19,6 +22,7 @@ import {
 import { entrar, esperarAlerta, esperarToast, responderAlerta } from '../suporte/telas';
 
 const NOMES_DIAS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
+const MOTIVO_AULA_FECHADA = 'a aula de teste só tem janela fechada depois de 01:00 (horário de São Paulo)';
 const MOTIVO_SEM_AULA = 'sem horário livre hoje para criar uma aula com a janela de presença aberta';
 
 async function sairDaSessao(page: Page): Promise<void> {
@@ -70,12 +74,11 @@ test.describe('Presença', () => {
     const dono = await criarDono(request);
     const aluno = await criarContaAtiva(request);
     const colega = await criarContaAtiva(request);
-    const aula = await avulsaAberta(request, dono);
-    test.skip(!aula, MOTIVO_SEM_AULA);
-    const { inicio, data } = aula as AulaCriada;
+    const aula = exigirAula(await avulsaAberta(request, dono), MOTIVO_SEM_AULA);
+    const { inicio, data } = aula;
 
     try {
-      await marcarPorApi(request, colega, aula as AulaCriada);
+      await marcarPorApi(request, colega, aula);
       await entrarNoInicio(page, aluno);
       await abrirDiaDasAulas(page, data);
 
@@ -89,24 +92,23 @@ test.describe('Presença', () => {
       await expect(vou).toHaveAttribute('aria-pressed', 'true');
       await expect(vou).toHaveText('✓ Vou');
       await expect(card.locator('.contador')).toHaveText('2 vão');
-      expect((await aulaDoApi(request, aluno, aula as AulaCriada)).euVou).toBe(true);
+      expect((await aulaDoApi(request, aluno, aula)).euVou).toBe(true);
 
       await vou.click();
       await expect(vou).toHaveAttribute('aria-pressed', 'false');
       await expect(card.locator('.contador')).toHaveText('1 vai');
-      const depois = await aulaDoApi(request, aluno, aula as AulaCriada);
+      const depois = await aulaDoApi(request, aluno, aula);
       expect(depois.euVou).toBe(false);
       expect(depois.vao).toBe(1);
     } finally {
-      await removerAvulsa(request, dono, aula as AulaCriada);
+      await removerAvulsa(request, dono, aula);
     }
   });
 
   test('a Início mostra o card Próxima aula com o botão Vou', async ({ page, request }) => {
     const dono = await criarDono(request);
     const aluno = await criarContaAtiva(request);
-    const aula = await avulsaAberta(request, dono);
-    test.skip(!aula, MOTIVO_SEM_AULA);
+    const aula = exigirAula(await avulsaAberta(request, dono), MOTIVO_SEM_AULA);
 
     try {
       await entrarNoInicio(page, aluno);
@@ -115,7 +117,7 @@ test.describe('Presença', () => {
       await expect(proxima.getByText('Próxima aula', { exact: true })).toBeVisible();
       await expect(proxima.getByRole('button', { name: /^Vou na aula das \d{2}:\d{2}$/ })).toBeVisible();
     } finally {
-      await removerAvulsa(request, dono, aula as AulaCriada);
+      await removerAvulsa(request, dono, aula);
     }
   });
 
@@ -123,27 +125,30 @@ test.describe('Presença', () => {
     const dono = await criarDono(request);
     const aluno = await criarContaAtiva(request);
     const semMarca = await criarContaAtiva(request);
-    const aula = await avulsaFechada(request, dono);
-    test.skip(!aula, 'a aula de teste só tem janela fechada depois de 01:00 (horário de São Paulo)');
-    const { inicio, data, id } = aula as AulaCriada;
-    inserirPresencaNaAula(await idDe(request, aluno), id, data);
+    const aula = exigirAula(await avulsaFechada(request, dono), MOTIVO_AULA_FECHADA);
+    const { inicio, data, id } = aula;
 
-    await entrarNoInicio(page, aluno);
-    await abrirDiaDasAulas(page, data);
-    const card = cartao(page, inicio);
-    await expect(card.locator('.situacao')).toHaveText('Presença contada');
-    await expect(card.getByRole('button', { name: `Vou na aula das ${inicio}` })).toHaveCount(0);
-    await expect(card.locator('.contador')).toHaveText('1 vai');
+    try {
+      inserirPresencaNaAula(await idDe(request, aluno), id, data);
+      await entrarNoInicio(page, aluno);
+      await abrirDiaDasAulas(page, data);
+      const card = cartao(page, inicio);
+      await expect(card.locator('.situacao')).toHaveText('Presença contada');
+      await expect(card.getByRole('button', { name: `Vou na aula das ${inicio}` })).toHaveCount(0);
+      await expect(card.locator('.contador')).toHaveText('1 vai');
 
-    await page.goto('/app/presenca');
-    const linha = page.locator('ul.presencas li').filter({ hasText: inicio });
-    await expect(linha).toHaveCount(1);
-    await expect(linha).toContainText('contada');
-    await expect(linha).toContainText(diaMes(data));
+      await page.goto('/app/presenca');
+      const linha = page.locator('ul.presencas li').filter({ hasText: inicio });
+      await expect(linha).toHaveCount(1);
+      await expect(linha).toContainText('contada');
+      await expect(linha).toContainText(diaMes(data));
 
-    await entrarNoInicio(page, semMarca);
-    await abrirDiaDasAulas(page, data);
-    await expect(cartao(page, inicio).locator('.situacao')).toHaveText('Janela fechada');
+      await entrarNoInicio(page, semMarca);
+      await abrirDiaDasAulas(page, data);
+      await expect(cartao(page, inicio).locator('.situacao')).toHaveText('Janela fechada');
+    } finally {
+      descartarAulaPorSql(aula);
+    }
   });
 
   test('o professor inclui e tira um aluno da chamada dentro do prazo', async ({ page, request }) => {
@@ -151,9 +156,8 @@ test.describe('Presença', () => {
     const professor = await criarContaAtiva(request);
     await promoverProfessor(request, dono, professor);
     const aluno = await criarAlunoNomeado(request, 'Chamada');
-    const aula = await avulsaAberta(request, dono);
-    test.skip(!aula, MOTIVO_SEM_AULA);
-    const { id, data } = aula as AulaCriada;
+    const aula = exigirAula(await avulsaAberta(request, dono), MOTIVO_SEM_AULA);
+    const { id, data } = aula;
 
     try {
       await entrarNoInicio(page, professor);
@@ -177,7 +181,7 @@ test.describe('Presença', () => {
       await expect(page.getByText('Ninguém registrado nesta aula.')).toBeVisible();
       await expect(page.locator(`button.aula[data-id="${id}"] .quantidade`)).toHaveText('0 presenças');
     } finally {
-      await removerAvulsa(request, dono, aula as AulaCriada);
+      await removerAvulsa(request, dono, aula);
     }
   });
 
@@ -187,56 +191,65 @@ test.describe('Presença', () => {
     await promoverProfessor(request, dono, professor);
     const aluno = await criarAlunoNomeado(request, 'Passada');
     const data = dataDaSemana(-1, 1);
-    inserirPresencaNaGrade(await idDe(request, aluno), 1, '18:00', data);
+    const idAluno = await idDe(request, aluno);
+    inserirPresencaNaGrade(idAluno, 1, '18:00', data);
     const idAula = await idDaGrade(request, dono, 1, '18:00');
 
-    await entrarNoInicio(page, professor);
-    await abrirChamada(page, rotuloDoDia(data), idAula);
-    await expect(page.locator('li.presente').filter({ hasText: aluno.nome })).toContainText('contada');
-    await expect(page.getByText('Fora do prazo: esta chamada só pode ser consultada.')).toBeVisible();
-    await expect(page.getByRole('button', { name: `Tirar ${aluno.nome}`, exact: true })).toHaveCount(0);
-    await expect(page.getByRole('button', { name: '+ Incluir aluno', exact: true })).toHaveCount(0);
+    try {
+      await entrarNoInicio(page, professor);
+      await abrirChamada(page, rotuloDoDia(data), idAula);
+      await expect(page.locator('li.presente').filter({ hasText: aluno.nome })).toContainText('contada');
+      await expect(page.getByText('Fora do prazo: esta chamada só pode ser consultada.')).toBeVisible();
+      await expect(page.getByRole('button', { name: `Tirar ${aluno.nome}`, exact: true })).toHaveCount(0);
+      await expect(page.getByRole('button', { name: '+ Incluir aluno', exact: true })).toHaveCount(0);
 
-    await entrarNoInicio(page, dono);
-    await abrirChamada(page, rotuloDoDia(data), idAula);
-    await expect(page.getByText('Fora do prazo: esta chamada só pode ser consultada.')).toHaveCount(0);
-    await expect(page.getByRole('button', { name: '+ Incluir aluno', exact: true })).toBeVisible();
-    await page.getByRole('button', { name: `Tirar ${aluno.nome}`, exact: true }).click();
-    await responderAlerta(page, 'Tirar');
-    await esperarToast(page, `${aluno.nome} saiu da chamada.`);
-    await expect(page.locator('li.presente').filter({ hasText: aluno.nome })).toHaveCount(0);
+      await entrarNoInicio(page, dono);
+      await abrirChamada(page, rotuloDoDia(data), idAula);
+      await expect(page.getByText('Fora do prazo: esta chamada só pode ser consultada.')).toHaveCount(0);
+      await expect(page.getByRole('button', { name: '+ Incluir aluno', exact: true })).toBeVisible();
+      await page.getByRole('button', { name: `Tirar ${aluno.nome}`, exact: true }).click();
+      await responderAlerta(page, 'Tirar');
+      await esperarToast(page, `${aluno.nome} saiu da chamada.`);
+      await expect(page.locator('li.presente').filter({ hasText: aluno.nome })).toHaveCount(0);
+    } finally {
+      descartarPresencasDoAluno(idAluno);
+    }
   });
 
   test('o dono inclui o aluno em uma aula da semana passada e a origem aparece como incluída pelo dono', async ({ page, request }) => {
     const dono = await criarDono(request);
     const aluno = await criarAlunoNomeado(request, 'Incluido');
+    const idAluno = await idDe(request, aluno);
     const data = dataDaSemana(-1, 2);
     const idAula = await idDaGrade(request, dono, 2, '18:00');
 
-    await entrarNoInicio(page, dono);
-    await abrirChamada(page, rotuloDoDia(data), idAula);
-    await page.getByRole('button', { name: '+ Incluir aluno', exact: true }).click();
-    await page.locator('#busca-incluir').fill(aluno.nome);
-    await page.locator('app-incluir-aluno button.pessoa').filter({ hasText: aluno.nome }).click();
-    await esperarToast(page, `${aluno.nome} entrou na chamada.`);
-    await expect(page.locator('li.presente').filter({ hasText: aluno.nome })).toContainText('incluída pelo dono');
+    try {
+      await entrarNoInicio(page, dono);
+      await abrirChamada(page, rotuloDoDia(data), idAula);
+      await page.getByRole('button', { name: '+ Incluir aluno', exact: true }).click();
+      await page.locator('#busca-incluir').fill(aluno.nome);
+      await page.locator('app-incluir-aluno button.pessoa').filter({ hasText: aluno.nome }).click();
+      await esperarToast(page, `${aluno.nome} entrou na chamada.`);
+      await expect(page.locator('li.presente').filter({ hasText: aluno.nome })).toContainText('incluída pelo dono');
 
-    await entrarNoInicio(page, aluno);
-    await page.goto('/app/presenca');
-    const linha = page.locator('ul.presencas li').filter({ hasText: diaMes(data) });
-    await expect(linha).toContainText('incluída pelo dono');
+      await entrarNoInicio(page, aluno);
+      await page.goto('/app/presenca');
+      const linha = page.locator('ul.presencas li').filter({ hasText: diaMes(data) });
+      await expect(linha).toContainText('incluída pelo dono');
+    } finally {
+      descartarPresencasDoAluno(idAluno);
+    }
   });
 
   test('o dono cancela uma aula com marcação aberta e a marcação some para o aluno', async ({ page, request }) => {
     const dono = await criarDono(request);
     const aluno = await criarContaAtiva(request);
-    const aula = await gradeDoDomingoAberta(request, dono);
-    test.skip(!aula, 'domingo de hoje sem horário livre para criar uma aula com janela de presença aberta');
-    const { id, data, inicio } = aula as AulaCriada;
+    const aula = exigirAula(await gradeDoDomingoAberta(request, dono), 'domingo de hoje sem horário livre para criar uma aula com janela de presença aberta');
+    const { id, data, inicio } = aula;
     let cancelamento: number | null = null;
 
     try {
-      await marcarPorApi(request, aluno, aula as AulaCriada);
+      await marcarPorApi(request, aluno, aula);
       await entrarNoInicio(page, aluno);
       await abrirDiaDasAulas(page, data);
       const card = cartao(page, inicio);
@@ -254,7 +267,7 @@ test.describe('Presença', () => {
       await expect(card).toContainText('Cancelada · Teste e2e');
       await expect(card.getByRole('button', { name: `Vou na aula das ${inicio}` })).toHaveCount(0);
       await expect(card.locator('.contador')).toHaveCount(0);
-      const marcada = await aulaDoApi(request, aluno, aula as AulaCriada);
+      const marcada = await aulaDoApi(request, aluno, aula);
       expect(marcada.cancelada).toBe(true);
       expect(marcada.euVou).toBe(false);
       expect(marcada.vao).toBe(0);
@@ -262,7 +275,7 @@ test.describe('Presença', () => {
       if (cancelamento !== null) {
         await request.delete(`${URL_API}/agenda/cancelamentos/${cancelamento}`, { headers: await autorizacao(request, dono) });
       }
-      await removerGrade(request, dono, aula as AulaCriada);
+      await removerGrade(request, dono, aula);
     }
   });
 
@@ -295,16 +308,19 @@ test.describe('Presença, só desktop', () => {
 
   test('API: cancelar o dia quando uma aula já fechou a janela é recusado com ERR030', async ({ request }) => {
     const dono = await criarDono(request);
-    const aula = await avulsaFechada(request, dono);
-    test.skip(!aula, 'a aula de teste só tem janela fechada depois de 01:00 (horário de São Paulo)');
+    const aula = exigirAula(await avulsaFechada(request, dono), MOTIVO_AULA_FECHADA);
 
-    const resposta = await request.post(`${URL_API}/agenda/cancelamentos`, {
-      headers: await autorizacao(request, dono),
-      data: { data: hojeEmSaoPaulo(), motivo: 'Teste e2e' }
-    });
+    try {
+      const resposta = await request.post(`${URL_API}/agenda/cancelamentos`, {
+        headers: await autorizacao(request, dono),
+        data: { data: hojeEmSaoPaulo(), motivo: 'Teste e2e' }
+      });
 
-    expect(resposta.status()).toBe(422);
-    expect(((await resposta.json()) as { codigo: string }).codigo).toBe('ERR030');
+      expect(resposta.status()).toBe(422);
+      expect(((await resposta.json()) as { codigo: string }).codigo).toBe('ERR030');
+    } finally {
+      descartarAulaPorSql(aula);
+    }
   });
 
   test('API: aluno não acessa as rotas da chamada', async ({ request }) => {

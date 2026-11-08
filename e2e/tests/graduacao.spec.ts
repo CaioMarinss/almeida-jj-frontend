@@ -3,7 +3,7 @@ import { URL_API } from '../../playwright.config';
 import { executarSql } from '../suporte/banco';
 import { Conta, criarContaAtiva, criarDono, idDe, tokenDe } from '../suporte/contas';
 import { dataDaSemana } from '../suporte/datas';
-import { inserirPresencaNaGrade } from '../suporte/presenca';
+import { descartarPresencasDoAluno, inserirPresencaNaGrade } from '../suporte/presenca';
 import { botao, entrar, esperarAlerta, esperarToast, responderAlerta } from '../suporte/telas';
 
 interface Faixa {
@@ -391,6 +391,7 @@ test.describe('Graduação', () => {
           await expect(page.locator('ul.presencas li').first()).toContainText('contada');
         } finally {
           await cancelarProxima(request, dono);
+          descartarPresencasDoAluno(idAluno);
         }
       });
 
@@ -400,9 +401,11 @@ test.describe('Graduação', () => {
         const quase = await criarAluno(request);
         const evento = diaRelativo(3);
         const segunda = dataDaSemana(-1, 1);
-        inserirPresencaNaGrade(await idDe(request, apto), 1, '18:00', segunda);
-        inserirPresencaNaGrade(await idDe(request, apto), 1, '19:00', segunda);
-        inserirPresencaNaGrade(await idDe(request, quase), 1, '18:00', segunda);
+        const idApto = await idDe(request, apto);
+        const idQuase = await idDe(request, quase);
+        inserirPresencaNaGrade(idApto, 1, '18:00', segunda);
+        inserirPresencaNaGrade(idApto, 1, '19:00', segunda);
+        inserirPresencaNaGrade(idQuase, 1, '18:00', segunda);
         await cancelarProxima(request, dono);
         await agendarPorApi(request, dono, evento, 2, 2);
 
@@ -421,6 +424,8 @@ test.describe('Graduação', () => {
           await expect(linhaQuase.getByRole('button', { name: 'Graduou', exact: true })).toHaveCount(0);
         } finally {
           await cancelarProxima(request, dono);
+          descartarPresencasDoAluno(idApto);
+          descartarPresencasDoAluno(idQuase);
         }
       });
 
@@ -429,8 +434,9 @@ test.describe('Graduação', () => {
         const aluno = await criarAluno(request);
         const hoje = diaRelativo(0);
         const segunda = dataDaSemana(-1, 1);
-        inserirPresencaNaGrade(await idDe(request, aluno), 1, '18:00', segunda);
-        inserirPresencaNaGrade(await idDe(request, aluno), 1, '19:00', segunda);
+        const idAluno = await idDe(request, aluno);
+        inserirPresencaNaGrade(idAluno, 1, '18:00', segunda);
+        inserirPresencaNaGrade(idAluno, 1, '19:00', segunda);
         await cancelarProxima(request, dono);
 
         try {
@@ -463,6 +469,9 @@ test.describe('Graduação', () => {
           await page.locator('app-aptos').getByRole('button', { name: 'Confirmar', exact: true }).click();
           await esperarToast(page, `${aluno.nome} graduou.`);
 
+          await expect(page.locator('app-aptos li.linha.apto').filter({ hasText: aluno.nome })).toHaveCount(0);
+          await expect(linha).toHaveCount(1);
+          await expect(linha).not.toHaveClass(/apto/);
           await expect(linha).toContainText('faltam 2');
           await expect(linha.getByRole('button', { name: 'Graduou', exact: true })).toHaveCount(0);
           const graduacao = await graduacaoDe(request, aluno);
@@ -470,6 +479,7 @@ test.describe('Graduação', () => {
           expect(graduacao.atual?.grau).toBe(1);
         } finally {
           await cancelarProxima(request, dono);
+          descartarPresencasDoAluno(idAluno);
         }
       });
     });
