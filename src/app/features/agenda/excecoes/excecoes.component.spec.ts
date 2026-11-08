@@ -107,6 +107,30 @@ describe('ExcecoesComponent', () => {
     expect(rotulos).toEqual(['Desfazer exceção de 10/11', 'Desfazer exceção de 14/11', 'Desfazer exceção de 20/11']);
   });
 
+  it('lista as Passadas da mais recente para a mais antiga e mantém as Próximas em ordem crescente', async () => {
+    service.excecoes.and.returnValue(
+      of([
+        excecao({ id: 1, data: '2026-10-05', passada: true }),
+        excecao({ id: 2, data: '2026-11-02', passada: true }),
+        excecao({ id: 3, data: '2026-10-20', passada: true }),
+        excecao({ id: 4, data: '2026-11-12' }),
+        excecao({ id: 5, data: '2026-11-30' })
+      ])
+    );
+    fixture = TestBed.createComponent(ExcecoesComponent);
+    await atualizar();
+
+    expect(Array.from(el().querySelectorAll('.passadas .excecao .descricao')).map(n => n.textContent?.trim())).toEqual([
+      'Seg 02/11 · dia inteiro',
+      'Ter 20/10 · dia inteiro',
+      'Seg 05/10 · dia inteiro'
+    ]);
+    expect(Array.from(el().querySelectorAll('.proximas .excecao .descricao')).map(n => n.textContent?.trim())).toEqual([
+      'Qui 12/11 · dia inteiro',
+      'Seg 30/11 · dia inteiro'
+    ]);
+  });
+
   it('sem exceções próximas mostra a mensagem', async () => {
     service.excecoes.and.returnValue(of([]));
     fixture = TestBed.createComponent(ExcecoesComponent);

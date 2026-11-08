@@ -31,6 +31,7 @@ describe('AulasComponent', () => {
       providers: [...provedoresApp(), { provide: AgendaService, useValue: service }]
     });
     fixture = TestBed.createComponent(AulasComponent);
+    fixture.componentInstance.ionViewWillEnter();
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
@@ -133,5 +134,39 @@ describe('AulasComponent', () => {
     await clicar(botao);
     expect(service.agenda).toHaveBeenCalledTimes(2);
     expect(texto()).toContain('Sem aulas neste dia');
+  });
+
+  it('recarrega a agenda ao reentrar na aba', async () => {
+    await montar();
+    fixture.componentInstance.ionViewWillEnter();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(service.agenda).toHaveBeenCalledTimes(2);
+  });
+
+  it('volta para hoje ao reentrar depois da virada do dia', async () => {
+    await montar();
+    await clicar(botoesDia()[0]);
+    jasmine.clock().mockDate(new Date('2026-11-09T15:00:00Z'));
+    fixture.componentInstance.ionViewWillEnter();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(service.agenda).toHaveBeenCalledWith('2026-11-09', '2026-11-15');
+    expect(seta('Semana anterior').disabled).toBeTrue();
+    const marcados = botoesDia().filter(b => b.getAttribute('aria-pressed') === 'true');
+    expect(marcados.length).toBe(1);
+    expect(marcados[0].getAttribute('aria-label')).toBe('Segunda, 09/11');
+  });
+
+  it('mantém o dia escolhido ao reentrar quando ele não ficou no passado', async () => {
+    await montar();
+    await clicar(seta('Próxima semana'));
+    fixture.componentInstance.ionViewWillEnter();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const marcado = botoesDia().find(b => b.getAttribute('aria-pressed') === 'true')!;
+    expect(marcado.getAttribute('aria-label')).toBe('Sábado, 14/11');
   });
 });

@@ -35,18 +35,18 @@ const NOMES_DIAS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado',
 export class AulasComponent {
   private readonly service = inject(AgendaService);
 
-  private readonly hoje = hojeEmSaoPaulo();
-  private readonly semanaAtual = inicioDaSemana(this.hoje);
-  private readonly ultimaSemana = somarDias(this.semanaAtual, SEMANAS_A_FRENTE * 7);
+  private readonly hoje = signal(hojeEmSaoPaulo());
+  private readonly semanaAtual = computed(() => inicioDaSemana(this.hoje()));
+  private readonly ultimaSemana = computed(() => somarDias(this.semanaAtual(), SEMANAS_A_FRENTE * 7));
 
-  readonly semana = signal(this.semanaAtual);
-  readonly selecionado = signal(this.hoje);
+  readonly semana = signal(this.semanaAtual());
+  readonly selecionado = signal(this.hoje());
   readonly dias = signal<DiaAgenda[]>([]);
   readonly carregando = signal(true);
   readonly erro = signal(false);
 
-  readonly semanaAnteriorBloqueada = computed(() => this.semana() <= this.semanaAtual);
-  readonly proximaSemanaBloqueada = computed(() => this.semana() >= this.ultimaSemana);
+  readonly semanaAnteriorBloqueada = computed(() => this.semana() <= this.semanaAtual());
+  readonly proximaSemanaBloqueada = computed(() => this.semana() >= this.ultimaSemana());
   readonly intervalo = computed(() => `${formatarDiaMes(this.semana())} a ${formatarDiaMes(somarDias(this.semana(), 6))}`);
 
   readonly tira = computed(() =>
@@ -57,7 +57,7 @@ export class AulasComponent {
         curto,
         numero: data.slice(8),
         rotulo: `${NOMES_DIAS[i]}, ${formatarDiaMes(data)}`,
-        hoje: data === this.hoje
+        hoje: data === this.hoje()
       };
     })
   );
@@ -66,7 +66,12 @@ export class AulasComponent {
 
   private requisicao = 0;
 
-  constructor() {
+  ionViewWillEnter(): void {
+    this.hoje.set(hojeEmSaoPaulo());
+    if (this.selecionado() < this.hoje()) {
+      this.semana.set(this.semanaAtual());
+      this.selecionado.set(this.hoje());
+    }
     this.carregar();
   }
 
@@ -76,7 +81,7 @@ export class AulasComponent {
 
   mudarSemana(delta: number): void {
     const nova = somarDias(this.semana(), delta * 7);
-    if (nova < this.semanaAtual || nova > this.ultimaSemana) {
+    if (nova < this.semanaAtual() || nova > this.ultimaSemana()) {
       return;
     }
     const diaDaSemana = diaSemanaIso(this.selecionado());

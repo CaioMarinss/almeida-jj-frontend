@@ -56,6 +56,7 @@ export class ExcecoesComponent {
   readonly passadas = computed(() =>
     this.excecoes()
       .filter(e => e.passada)
+      .sort((a, b) => b.data.localeCompare(a.data))
       .map(e => this.linha(e))
   );
 

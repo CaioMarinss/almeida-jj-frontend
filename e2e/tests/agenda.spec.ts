@@ -9,6 +9,7 @@ const SEGUNDA = 1;
 const TERCA = 2;
 const QUARTA = 3;
 const QUINTA = 4;
+const SEXTA = 5;
 const DOMINGO = 7;
 
 interface ExcecaoApi {
@@ -77,6 +78,10 @@ async function verDiaComoAluno(page: Page, conta: Conta, semanas: number, data: 
     await page.getByRole('button', { name: 'Próxima semana', exact: true }).click();
   }
   await page.getByRole('button', { name: `${NOMES_DIAS[diaSemana - 1]}, ${diaMes(data)}`, exact: true }).click();
+}
+
+async function irParaAba(page: Page, nome: string): Promise<void> {
+  await page.locator('ion-menu ion-item, ion-tab-button').filter({ hasText: nome }).locator('visible=true').first().click();
 }
 
 async function abrirAgendaComoDono(page: Page, dono: Conta, aba: 'Grade semanal' | 'Exceções'): Promise<void> {
@@ -194,6 +199,34 @@ test.describe('Agenda de aulas', () => {
     }
   });
 
+  test('o aluno que já está na aba Aulas vê o cancelamento ao voltar para ela', async ({ page, request }, info) => {
+    const semanas = semanasAFrente(info.project.name);
+    const data = dataDaSemana(semanas, SEXTA);
+    const dono = await criarDono(request);
+    const aluno = await criarContaAtiva(request);
+
+    try {
+      await verDiaComoAluno(page, aluno, semanas, data, SEXTA);
+      await expect(cartao(page, '18:00')).toBeVisible();
+      await expect(page.locator('app-aula-card').filter({ hasText: 'Cancelada' })).toHaveCount(0);
+
+      const resposta = await request.post(`${URL_API}/agenda/cancelamentos`, {
+        headers: await autorizacao(request, dono),
+        data: { data, motivo: 'Treino fechado' }
+      });
+      expect(resposta.status()).toBe(201);
+
+      await irParaAba(page, 'Perfil');
+      await expect(page).toHaveURL(/\/app\/perfil$/);
+      await irParaAba(page, 'Aulas');
+      await expect(page).toHaveURL(/\/app\/aulas$/);
+
+      await expect(page.locator('app-aula-card').filter({ hasText: 'Cancelada' })).toHaveCount(2);
+    } finally {
+      await limparExcecoes(request, dono, data);
+    }
+  });
+
   test('o dono cria uma aula avulsa, o aluno vê a etiqueta e o dono remove', async ({ page, request }, info) => {
     const semanas = semanasAFrente(info.project.name);
     const data = dataDaSemana(semanas, QUINTA);
@@ -258,7 +291,7 @@ test.describe('Agenda de aulas', () => {
       await painel(page).locator('#aula-inicio').fill(inicioEditado);
       await painel(page).locator('#aula-fim').fill(fimEditado);
       await salvarNoPainel(page);
-      await esperarToast(page, 'Aula alterada.');
+      await esperarToast(page, 'Aula alterada a partir de amanhã.');
 
       await verDiaComoAluno(page, aluno, semanas, data, DOMINGO);
       await expect(cartao(page, inicioEditado)).toContainText(`até ${fimEditado}`);

@@ -102,7 +102,7 @@ describe('GradeSemanalComponent', () => {
 
     expect(service.editarAula).toHaveBeenCalledWith(1, { inicio: '07:30', fim: '08:30', modalidade: 'NO_GI' });
     expect(service.criarAula).not.toHaveBeenCalled();
-    expect(notificador.sucesso).toHaveBeenCalledWith('Aula alterada.');
+    expect(notificador.sucesso).toHaveBeenCalledWith('Aula alterada a partir de amanhã.');
     expect(horas()).toEqual(['07:30', '18:00']);
   });
 

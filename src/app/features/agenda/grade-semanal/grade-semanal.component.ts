@@ -99,7 +99,7 @@ export class GradeSemanalComponent {
         const nova = await firstValueFrom(this.service.editarAula(aula.id, valores));
         this.aulas.update(lista => lista.map(a => (a.id === aula.id ? nova : a)));
         this.fechar();
-        await this.notificador.sucesso('Aula alterada.');
+        await this.notificador.sucesso('Aula alterada a partir de amanhã.');
       } else {
         const criada = await firstValueFrom(
           this.service.criarAula({ diaSemana: this.diaSemana(), ...valores })
