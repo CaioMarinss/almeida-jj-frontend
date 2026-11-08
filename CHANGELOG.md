@@ -8,6 +8,15 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não lançado]
 
+### Adicionado
+- Aba **Aulas** com a agenda real: tira de 7 dias com setas de semana (até 4 semanas à frente), cartões com horário, modalidade, "Cancelada · motivo" e etiqueta "Avulsa", e aviso quando o dia inteiro está cancelado.
+- Tela **Agenda** (`/app/agenda`), só para o dono, com "Grade semanal" (adicionar, editar e tirar aulas da grade; edição e remoção valem a partir de amanhã) e "Exceções" (cancelar uma aula, cancelar o dia inteiro ou criar aula avulsa, com opção de desfazer). Acesso pelo menu lateral, pelo atalho "Agenda" no Início e por "Gerenciar agenda" no Perfil.
+- Chip global `.ajj-chip-modalidade` e tokens `--ajj-modalidade-kids` e `--ajj-modalidade-teens`.
+- Testes e2e da agenda (`e2e/tests/agenda.spec.ts`).
+
+### Alterado
+- Menu lateral do desktop: Perfil logo acima de Sair.
+
 ## [0.2.4] - 2026-11-07
 
 ### Adicionado

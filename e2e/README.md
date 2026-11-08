@@ -48,6 +48,7 @@ e2e/
 └── suporte/
     ├── ambiente.ts      docker compose e espera de serviços
     ├── banco.ts         executarSql: roda SQL no Postgres do ambiente (ex.: criar dono)
+    ├── datas.ts         datas em São Paulo (hoje, somar dias, dia da semana de uma semana à frente)
     ├── contas.ts        cria conta verificada (criarContaAtiva), dono (criarDono), nome único (nomear), token e id pela API
     ├── dados.ts         senhas de teste, e-mail e CPF válidos aleatórios
     ├── mailpit.ts       busca e-mail e extrai o link
@@ -56,7 +57,7 @@ e2e/
 
 ## Cenários
 
-São 53 testes, que viram 83 execuções: os 53 rodam no desktop e 30 rodam de novo no celular.
+São 64 testes (1 pulado com `fixme`); na última rodada completa, 102 execuções passaram (desktop e celular) e 28 foram puladas (testes só de desktop no celular e o `fixme`).
 
 ### Cadastro (`tests/cadastro.spec.ts`), desktop e celular
 
@@ -142,6 +143,24 @@ Contas com nome único (`nomear`), porque a lista é paginada em memória e cont
 | Graduação: remover registro antigo e o atual | desktop e celular | Mensagens de confirmação, toast "Registro removido.", faixa do painel e card do aluno voltam para a anterior; o último remove deixa "Sem graduação". |
 | API: remoção de registro | só desktop | 403 para professor e aluno; 404 `ERR015` para registro de outro aluno ou já removido; dono remove (200, `atual` nulo). |
 | API: lista de alunos da graduação | só desktop | `GET /graduacoes/alunos` devolve o array inteiro, sem paginação. |
+
+### Agenda de aulas (`tests/agenda.spec.ts`)
+
+A agenda é global e os dois projetos rodam em paralelo, então cada projeto usa uma semana (`desktop` = semana que vem, `celular` = daqui a 2 semanas, calculadas em `suporte/datas.ts` a partir de "hoje" em São Paulo) e cada cenário um dia da semana diferente. O cenário da grade usa o domingo (sem grade no seed) com horários próprios por projeto. Todo teste desfaz o que criou, inclusive no `finally`, pela API.
+
+| Cenário | Onde roda | O que verifica |
+|---|---|---|
+| O aluno vê a grade do seed na segunda | desktop e celular | Aba Aulas com 07:10, 18:00, 19:00 e 20:30 (Gi) e "até 19:00". |
+| Cancelar uma aula com motivo | desktop e celular | Dono cancela a aula das 18:00 da terça; o aluno vê "Cancelada · motivo"; o dono desfaz e volta ao normal. |
+| Cancelar o dia inteiro | desktop e celular | Aviso "Dia sem aula" com motivo e as 5 aulas da quarta canceladas; desfazer limpa tudo. |
+| Aula avulsa | desktop e celular | Dono cria aula avulsa na quinta; o aluno vê a etiqueta "Avulsa"; ao remover, some. |
+| Adicionar e editar aula da grade | desktop e celular | Dono adiciona aula no domingo, aluno vê; a edição troca o horário (vale a partir de amanhã, então o aluno da semana que vem só vê o novo). |
+| Tirar uma aula da grade | desktop e celular | Aula recém-adicionada sai da grade com confirmação e o aluno vê "Sem aulas neste dia". |
+| Tirar da grade uma aula já editada | pulado (`fixme`) | A API responde 500 (`ck_aulas_vigencia`): a versão criada pela edição começa amanhã e a remoção a encerra hoje. |
+| Aluno e professor não veem a Agenda | desktop e celular | Sem item no menu, sem card/atalho nem "Gerenciar agenda"; `/app/agenda` leva para `/app/inicio`. |
+| O dono chega na Agenda pelo atalho e pelo Perfil | desktop e celular | O card "Área do dono" e "Gerenciar agenda" abrem `/app/agenda`. |
+| API: aluno e professor não alteram grade nem cancelam | só desktop | 403 em `POST /aulas/grade` e `POST /agenda/cancelamentos`. |
+| API: cancelamento com data passada | só desktop | 400 com `codigo` `ERR018`. |
 
 ## No GitHub (Actions)
 
