@@ -7,6 +7,9 @@
 <ion-content>
   <div class="ajj-coluna">
     <app-proxima-graduacao />
+    <div class="aptos-acao">
+      <ajj-botao variante="secundario" (clique)="abrirAptos()">Ver aptos</ajj-botao>
+    </div>
 
     <div class="filtros">
       <div class="campo">
@@ -93,6 +96,21 @@
       @if (selecionado(); as aluno) {
         <app-registro-graduacao [aluno]="aluno" />
       }
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+<ion-modal [isOpen]="aptosAberto()" (didDismiss)="fecharAptos()">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <div class="topo-modal">
+          <ajj-botao variante="texto" (clique)="fecharAptos()">Fechar</ajj-botao>
+        </div>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content>
+      <app-aptos />
     </ion-content>
   </ng-template>
 </ion-modal>

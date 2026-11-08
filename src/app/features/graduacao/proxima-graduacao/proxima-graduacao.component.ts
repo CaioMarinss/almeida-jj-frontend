@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Notificador } from '../../../core/notificacao/notificador';
 import { formatarDiaMes, hojeEmSaoPaulo } from '../../../shared/graduacao/descrever';
+import { ProximaGraduacao } from '../../../shared/graduacao/graduacao.model';
 import { GraduacaoService } from '../../../shared/graduacao/graduacao.service';
 import { BotaoComponent } from '../../../shared/ui/botao/botao.component';
 
@@ -20,9 +21,17 @@ export class ProximaGraduacaoComponent implements OnInit {
   readonly erro = signal(false);
   readonly editando = signal(false);
   readonly rascunho = signal('');
+  readonly minimoGrau = signal<number | null>(null);
+  readonly minimoFaixa = signal<number | null>(null);
+  readonly rascunhoGrau = signal('');
+  readonly rascunhoFaixa = signal('');
   readonly minimo = signal(hojeEmSaoPaulo());
   readonly salvando = signal(false);
   readonly formatar = formatarDiaMes;
+  readonly minimosDefinidos = computed(() => this.minimoGrau() !== null && this.minimoFaixa() !== null);
+  readonly formularioValido = computed(
+    () => !!this.rascunho() && inteiroNaoNegativo(this.rascunhoGrau()) && inteiroNaoNegativo(this.rascunhoFaixa())
+  );
 
   ngOnInit(): void {
     this.carregar();
@@ -33,7 +42,7 @@ export class ProximaGraduacaoComponent implements OnInit {
     this.erro.set(false);
     this.service.proxima().subscribe({
       next: (proxima) => {
-        this.data.set(proxima?.data ?? null);
+        this.aplicar(proxima);
         this.carregando.set(false);
       },
       error: (erro: unknown) => {
@@ -47,6 +56,8 @@ export class ProximaGraduacaoComponent implements OnInit {
   abrir(): void {
     this.minimo.set(hojeEmSaoPaulo());
     this.rascunho.set(this.data() ?? '');
+    this.rascunhoGrau.set(this.minimoGrau()?.toString() ?? '');
+    this.rascunhoFaixa.set(this.minimoFaixa()?.toString() ?? '');
     this.editando.set(true);
   }
 
@@ -55,14 +66,14 @@ export class ProximaGraduacaoComponent implements OnInit {
   }
 
   salvar(): void {
-    const escolhida = this.rascunho();
-    if (!escolhida || this.salvando()) {
+    if (!this.formularioValido() || this.salvando()) {
       return;
     }
     this.salvando.set(true);
-    this.service.agendar(escolhida, null, null).subscribe({
-      next: ({ data }) => {
-        this.data.set(data);
+    this.service.agendar(this.rascunho(), Number(this.rascunhoGrau()), Number(this.rascunhoFaixa())).subscribe({
+      next: (agendada) => {
+        const { data } = agendada;
+        this.aplicar(agendada);
         this.salvando.set(false);
         this.editando.set(false);
         void this.notificador.sucesso(`Próxima graduação agendada para ${formatarDiaMes(data)}.`);
@@ -85,7 +96,7 @@ export class ProximaGraduacaoComponent implements OnInit {
     }
     this.service.cancelar().subscribe({
       next: () => {
-        this.data.set(null);
+        this.aplicar(null);
         this.editando.set(false);
         void this.notificador.sucesso('Data da próxima graduação cancelada.');
       },
@@ -94,4 +105,14 @@ export class ProximaGraduacaoComponent implements OnInit {
       }
     });
   }
+
+  private aplicar(proxima: ProximaGraduacao | null): void {
+    this.data.set(proxima?.data ?? null);
+    this.minimoGrau.set(proxima?.minimoGrau ?? null);
+    this.minimoFaixa.set(proxima?.minimoFaixa ?? null);
+  }
+}
+
+function inteiroNaoNegativo(valor: string): boolean {
+  return /^\d+$/.test(valor.trim());
 }

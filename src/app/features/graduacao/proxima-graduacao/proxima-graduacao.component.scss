@@ -20,6 +20,15 @@ p {
   padding: var(--ajj-espaco-3) var(--ajj-espaco-4);
 }
 
+.dados {
+  display: grid;
+  gap: var(--ajj-espaco-1, 4px);
+}
+
+.minimos {
+  font-size: 14px;
+}
+
 .linha-data {
   display: flex;
   flex-wrap: wrap;

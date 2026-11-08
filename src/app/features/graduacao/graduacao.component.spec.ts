@@ -69,10 +69,11 @@ describe('GraduacaoComponent', () => {
     jasmine.clock().mockDate(new Date('2026-11-07T15:00:00Z'));
     notificador = criarNotificador();
     alteracoes = new Subject<AtualAlterada>();
-    service = jasmine.createSpyObj<GraduacaoService>('GraduacaoService', ['alunos', 'faixas', 'proxima', 'historicoDe'], {
+    service = jasmine.createSpyObj<GraduacaoService>('GraduacaoService', ['alunos', 'faixas', 'proxima', 'historicoDe', 'aptos'], {
       atualAlterada$: alteracoes.asObservable()
     });
     service.historicoDe.and.returnValue(of([]));
+    service.aptos.and.returnValue(throwError(() => new Error('sem evento')));
     service.proxima.and.returnValue(of(null));
     service.faixas.and.returnValue(of(FAIXAS));
     service.alunos.and.returnValue(of([aluno(2, 'Bia'), aluno(1, 'Ana')]));
@@ -217,6 +218,22 @@ describe('GraduacaoComponent', () => {
 
     expect(linhas().length).toBe(0);
     expect(texto()).toContain('Nenhum aluno encontrado');
+  });
+
+  it('Ver aptos abre o painel de aptos e fecha ao ser dispensado', () => {
+    criar();
+    const modais = el().querySelectorAll<HTMLElement & { isOpen: boolean }>('ion-modal');
+    const modal = modais[modais.length - 1];
+    const ver = Array.from(el().querySelectorAll('ajj-botao')).find(b => b.textContent?.trim() === 'Ver aptos')!;
+    expect(modal.isOpen).toBeFalse();
+
+    ver.querySelector('ion-button')!.click();
+    fixture.detectChanges();
+    expect(modal.isOpen).toBeTrue();
+
+    modal.dispatchEvent(new CustomEvent('didDismiss'));
+    fixture.detectChanges();
+    expect(modal.isOpen).toBeFalse();
   });
 
   it('abrir seleciona o aluno e a linha abre ao clicar', () => {

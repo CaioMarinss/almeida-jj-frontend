@@ -19,8 +19,34 @@
           (input)="rascunho.set(entrada.value)"
         />
       </div>
+      <div class="campo">
+        <label for="minimo-grau" class="ajj-rotulo">Mínimo para grau</label>
+        <input
+          id="minimo-grau"
+          #entradaGrau
+          type="number"
+          inputmode="numeric"
+          min="0"
+          step="1"
+          [value]="rascunhoGrau()"
+          (input)="rascunhoGrau.set(entradaGrau.value)"
+        />
+      </div>
+      <div class="campo">
+        <label for="minimo-faixa" class="ajj-rotulo">Mínimo para faixa</label>
+        <input
+          id="minimo-faixa"
+          #entradaFaixa
+          type="number"
+          inputmode="numeric"
+          min="0"
+          step="1"
+          [value]="rascunhoFaixa()"
+          (input)="rascunhoFaixa.set(entradaFaixa.value)"
+        />
+      </div>
       <div class="acoes">
-        <ajj-botao tipo="submit" [carregando]="salvando()" [desabilitado]="!rascunho()">Salvar</ajj-botao>
+        <ajj-botao tipo="submit" [carregando]="salvando()" [desabilitado]="!formularioValido()">Salvar</ajj-botao>
         @if (data()) {
           <ajj-botao variante="texto" (clique)="cancelar()">Cancelar data</ajj-botao>
         }
@@ -30,10 +56,19 @@
   } @else {
     <div class="resumo">
       @if (data(); as proxima) {
-        <p class="linha-data">
-          <span class="ajj-rotulo">Próxima graduação</span>
-          <strong class="data ajj-numero">{{ formatar(proxima) }}</strong>
-        </p>
+        <div class="dados">
+          <p class="linha-data">
+            <span class="ajj-rotulo">Próxima graduação</span>
+            <strong class="data ajj-numero">{{ formatar(proxima) }}</strong>
+          </p>
+          <p class="ajj-suave minimos">
+            @if (minimosDefinidos()) {
+              Mínimo: {{ minimoGrau() }} grau · {{ minimoFaixa() }} faixa
+            } @else {
+              mínimo não definido
+            }
+          </p>
+        </div>
       } @else {
         <p class="ajj-suave">Sem data definida para a próxima graduação</p>
       }
