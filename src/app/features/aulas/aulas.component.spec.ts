@@ -6,7 +6,7 @@ import { provedoresApp } from '../testes-app';
 import { AulasComponent } from './aulas.component';
 
 function aula(extra: Partial<AulaDoDia> = {}): AulaDoDia {
-  return { id: 1, inicio: '07:10', fim: '08:10', modalidade: 'GI', avulsa: false, motivo: null, cancelada: false, motivoCancelamento: null, ...extra };
+  return { id: 1, inicio: '07:10', fim: '08:10', modalidade: 'GI', avulsa: false, motivo: null, cancelada: false, motivoCancelamento: null, vao: 0, euVou: false, janelaFechada: false, podeMarcar: false, ...extra };
 }
 
 function semana(inicio: string, porData: Record<string, Partial<DiaAgenda>> = {}): DiaAgenda[] {

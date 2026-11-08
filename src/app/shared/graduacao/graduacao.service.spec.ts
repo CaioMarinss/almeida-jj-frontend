@@ -72,32 +72,60 @@ describe('GraduacaoService', () => {
     expect(anuncios).toEqual([{ idAluno: 7, atual: { faixa, grau: 0 } }, { idAluno: 7, atual: null }]);
   });
 
-  it('devolve a data da próxima graduação', () => {
-    let valor: string | null | undefined;
+  it('devolve a próxima graduação com os mínimos', () => {
+    let valor: unknown;
     service.proxima().subscribe((v) => (valor = v));
-    http.expectOne(`${api}/graduacoes/proxima`).flush({ data: '2026-12-14' });
-    expect(valor).toBe('2026-12-14');
+    http.expectOne(`${api}/graduacoes/proxima`).flush({ data: '2026-12-14', minimoGrau: 20, minimoFaixa: null });
+    expect(valor).toEqual({ data: '2026-12-14', minimoGrau: 20, minimoFaixa: null });
   });
 
   it('transforma 204 em null', () => {
-    let valor: string | null | undefined;
+    let valor: unknown;
     service.proxima().subscribe((v) => (valor = v));
     http.expectOne(`${api}/graduacoes/proxima`).flush(null, { status: 204, statusText: 'No Content' });
     expect(valor).toBeNull();
   });
 
   it('agenda e cancela a próxima graduação', () => {
-    let valor: string | undefined;
-    service.agendar('2026-12-14').subscribe((v) => (valor = v));
+    let valor: unknown;
+    service.agendar('2026-12-14', 20, null).subscribe((v) => (valor = v));
     const put = http.expectOne(`${api}/graduacoes/proxima`);
     expect(put.request.method).toBe('PUT');
-    expect(put.request.body).toEqual({ data: '2026-12-14' });
-    put.flush({ data: '2026-12-14' });
-    expect(valor).toBe('2026-12-14');
+    expect(put.request.body).toEqual({ data: '2026-12-14', minimoGrau: 20, minimoFaixa: null });
+    put.flush({ data: '2026-12-14', minimoGrau: 20, minimoFaixa: null });
+    expect(valor).toEqual({ data: '2026-12-14', minimoGrau: 20, minimoFaixa: null });
 
     service.cancelar().subscribe();
     const del = http.expectOne(`${api}/graduacoes/proxima`);
     expect(del.request.method).toBe('DELETE');
     del.flush(null, { status: 204, statusText: 'No Content' });
+  });
+
+  it('lista os aptos', () => {
+    let lista: unknown;
+    service.aptos().subscribe((v) => (lista = v));
+    const req = http.expectOne(`${api}/graduacoes/aptos`);
+    expect(req.request.method).toBe('GET');
+    const corpo = { evento: { data: '2026-12-14', minimoGrau: 20, minimoFaixa: 40 }, grau: [], faixa: [] };
+    req.flush(corpo);
+    expect(lista).toEqual(corpo);
+  });
+
+  it('graduou sem escolha envia corpo vazio e anuncia a atual', () => {
+    const anuncios: unknown[] = [];
+    service.atualAlterada$.subscribe((a) => anuncios.push(a));
+    service.graduou(7).subscribe();
+    const req = http.expectOne(`${api}/graduacoes/aptos/7`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({});
+    req.flush({ id: 1, atual: { faixa: { id: 1 }, grau: 3 } });
+    expect(anuncios).toEqual([{ idAluno: 7, atual: { faixa: { id: 1 }, grau: 3 } }]);
+  });
+
+  it('graduou com escolha envia faixa e grau', () => {
+    service.graduou(7, { idGraduacao: 2, grau: 1 }).subscribe();
+    const req = http.expectOne(`${api}/graduacoes/aptos/7`);
+    expect(req.request.body).toEqual({ idGraduacao: 2, grau: 1 });
+    req.flush({ id: 1, atual: null });
   });
 });

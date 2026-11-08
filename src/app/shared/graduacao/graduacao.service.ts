@@ -2,7 +2,15 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { map, Observable, Subject, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AlunoGraduacao, Faixa, GraduacaoAtual, MinhaGraduacao, RegistroGraduacao } from './graduacao.model';
+import {
+  AlunoGraduacao,
+  Faixa,
+  GraduacaoAtual,
+  ListaAptos,
+  MinhaGraduacao,
+  ProximaGraduacao,
+  RegistroGraduacao
+} from './graduacao.model';
 
 export interface NovoRegistro {
   idGraduacao: number;
@@ -23,8 +31,9 @@ interface RegistroRemovido {
   atual: GraduacaoAtual | null;
 }
 
-interface DataProxima {
-  data: string;
+export interface EscolhaGraduacao {
+  idGraduacao: number;
+  grau: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -66,17 +75,27 @@ export class GraduacaoService {
       );
   }
 
-  proxima(): Observable<string | null> {
+  proxima(): Observable<ProximaGraduacao | null> {
     return this.http
-      .get<DataProxima>(`${this.base}/graduacoes/proxima`, { observe: 'response' })
-      .pipe(map((r: HttpResponse<DataProxima>) => (r.status === 204 || !r.body ? null : r.body.data)));
+      .get<ProximaGraduacao>(`${this.base}/graduacoes/proxima`, { observe: 'response' })
+      .pipe(map((r: HttpResponse<ProximaGraduacao>) => (r.status === 204 || !r.body ? null : r.body)));
   }
 
-  agendar(data: string): Observable<string> {
-    return this.http.put<DataProxima>(`${this.base}/graduacoes/proxima`, { data }).pipe(map((r) => r.data));
+  agendar(data: string, minimoGrau: number | null, minimoFaixa: number | null): Observable<ProximaGraduacao> {
+    return this.http.put<ProximaGraduacao>(`${this.base}/graduacoes/proxima`, { data, minimoGrau, minimoFaixa });
   }
 
   cancelar(): Observable<void> {
     return this.http.delete<void>(`${this.base}/graduacoes/proxima`);
+  }
+
+  aptos(): Observable<ListaAptos> {
+    return this.http.get<ListaAptos>(`${this.base}/graduacoes/aptos`);
+  }
+
+  graduou(idAluno: number, escolha?: EscolhaGraduacao): Observable<RegistroCriado> {
+    return this.http
+      .post<RegistroCriado>(`${this.base}/graduacoes/aptos/${idAluno}`, escolha ?? {})
+      .pipe(tap((r) => this.alteracoes.next({ idAluno, atual: r.atual })));
   }
 }

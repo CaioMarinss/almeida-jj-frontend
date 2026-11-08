@@ -3,7 +3,7 @@ import { AulaDoDia } from '../../../shared/agenda/agenda.model';
 import { AulaCardComponent } from './aula-card.component';
 
 const BASE: AulaDoDia = {
-  id: 1, inicio: '07:10', fim: '08:10', modalidade: 'GI', avulsa: false, motivo: null, cancelada: false, motivoCancelamento: null
+  id: 1, inicio: '07:10', fim: '08:10', modalidade: 'GI', avulsa: false, motivo: null, cancelada: false, motivoCancelamento: null, vao: 0, euVou: false, janelaFechada: false, podeMarcar: false
 };
 
 async function montar(aula: AulaDoDia): Promise<HTMLElement> {

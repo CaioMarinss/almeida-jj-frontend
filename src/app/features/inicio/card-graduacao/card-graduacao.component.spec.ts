@@ -21,7 +21,7 @@ function registro(id: number, grau: number, data: string): RegistroGraduacao {
 }
 
 function dados(parcial: Partial<MinhaGraduacao> = {}): MinhaGraduacao {
-  return { atual: { faixa: AZUL, grau: 2 }, historico: [], proxima: null, ...parcial };
+  return { atual: { faixa: AZUL, grau: 2 }, historico: [], proxima: null, presencas: null, ...parcial };
 }
 
 async function esperarAte(condicao: () => boolean): Promise<void> {

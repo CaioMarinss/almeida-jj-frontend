@@ -66,7 +66,11 @@ describe('ExcecoesComponent', () => {
         avulsa: true,
         motivo: null,
         cancelada: false,
-        motivoCancelamento: null
+        motivoCancelamento: null,
+        vao: 0,
+        euVou: false,
+        janelaFechada: false,
+        podeMarcar: false
       }));
     service.removerAvulsa.and.returnValue(of(undefined));
     TestBed.configureTestingModule({

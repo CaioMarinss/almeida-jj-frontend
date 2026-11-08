@@ -10,7 +10,7 @@ describe('InicioComponent', () => {
     sessionStorage.clear();
     TestBed.configureTestingModule({ imports: [InicioComponent], providers: [
         ...provedoresApp(),
-        { provide: GraduacaoService, useValue: { minha: () => of({ atual: null, historico: [], proxima: null }) } }
+        { provide: GraduacaoService, useValue: { minha: () => of({ atual: null, historico: [], proxima: null, presencas: null }) } }
       ]
     });
     logar(TestBed.inject(SessionService), nome, perfil);

@@ -32,8 +32,8 @@ export class ProximaGraduacaoComponent implements OnInit {
     this.carregando.set(true);
     this.erro.set(false);
     this.service.proxima().subscribe({
-      next: (data) => {
-        this.data.set(data);
+      next: (proxima) => {
+        this.data.set(proxima?.data ?? null);
         this.carregando.set(false);
       },
       error: (erro: unknown) => {
@@ -60,8 +60,8 @@ export class ProximaGraduacaoComponent implements OnInit {
       return;
     }
     this.salvando.set(true);
-    this.service.agendar(escolhida).subscribe({
-      next: (data) => {
+    this.service.agendar(escolhida, null, null).subscribe({
+      next: ({ data }) => {
         this.data.set(data);
         this.salvando.set(false);
         this.editando.set(false);

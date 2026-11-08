@@ -58,7 +58,7 @@ describe('ProximaGraduacaoComponent', () => {
     expect(textos()).not.toContain('Sem data definida');
     expect(botao('Alterar')).toBeUndefined();
 
-    service.proxima.and.returnValue(of('2026-12-14'));
+    service.proxima.and.returnValue(of({ data: '2026-12-14', minimoGrau: null, minimoFaixa: null }));
     clicar('Tentar de novo');
 
     expect(service.proxima).toHaveBeenCalledTimes(2);
@@ -68,7 +68,7 @@ describe('ProximaGraduacaoComponent', () => {
   });
 
   it('próxima graduação mostra a data e o botão Alterar', () => {
-    service.proxima.and.returnValue(of('2026-12-14'));
+    service.proxima.and.returnValue(of({ data: '2026-12-14', minimoGrau: null, minimoFaixa: null }));
     criar();
 
     expect(textos()).toContain('Próxima graduação');
@@ -80,7 +80,7 @@ describe('ProximaGraduacaoComponent', () => {
   });
 
   it('Alterar com data abre o formulário com Salvar, Cancelar data e Voltar', () => {
-    service.proxima.and.returnValue(of('2026-12-14'));
+    service.proxima.and.returnValue(of({ data: '2026-12-14', minimoGrau: null, minimoFaixa: null }));
     criar();
     clicar('Alterar');
 
@@ -114,7 +114,7 @@ describe('ProximaGraduacaoComponent', () => {
   });
 
   it('agendar chama a API, atualiza o bloco e mostra o toast', () => {
-    service.agendar.and.returnValue(of('2026-12-14'));
+    service.agendar.and.returnValue(of({ data: '2026-12-14', minimoGrau: null, minimoFaixa: null }));
     criar();
     clicar('Alterar');
     escolher('2026-12-14');
@@ -122,7 +122,7 @@ describe('ProximaGraduacaoComponent', () => {
     el().querySelector('form')!.dispatchEvent(new Event('submit'));
     fixture.detectChanges();
 
-    expect(service.agendar).toHaveBeenCalledWith('2026-12-14');
+    expect(service.agendar).toHaveBeenCalledWith('2026-12-14', null, null);
     expect(textos()).toContain('14/12');
     expect(botao('Alterar')).toBeDefined();
     expect(notificador.sucesso).toHaveBeenCalled();
@@ -152,7 +152,7 @@ describe('ProximaGraduacaoComponent', () => {
   });
 
   it('cancelar só chama a API se confirmado', async () => {
-    service.proxima.and.returnValue(of('2026-12-14'));
+    service.proxima.and.returnValue(of({ data: '2026-12-14', minimoGrau: null, minimoFaixa: null }));
     service.cancelar.and.returnValue(of(undefined));
     notificador.confirmar.and.resolveTo(false);
     criar();
@@ -174,7 +174,7 @@ describe('ProximaGraduacaoComponent', () => {
 
   it('erro ao cancelar usa erroDaApi e mantém a data', async () => {
     const erro = new Error('x');
-    service.proxima.and.returnValue(of('2026-12-14'));
+    service.proxima.and.returnValue(of({ data: '2026-12-14', minimoGrau: null, minimoFaixa: null }));
     service.cancelar.and.returnValue(throwError(() => erro));
     criar();
     clicar('Alterar');

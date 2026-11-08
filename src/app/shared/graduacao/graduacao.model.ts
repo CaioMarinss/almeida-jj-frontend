@@ -1,4 +1,5 @@
 import { Perfil } from '../../core/auth/usuario';
+import { CicloPresenca } from '../presenca/presenca.model';
 
 export type Categoria = 'INFANTIL' | 'ADULTO' | 'MESTRE';
 
@@ -29,6 +30,7 @@ export interface MinhaGraduacao {
   atual: GraduacaoAtual | null;
   historico: RegistroGraduacao[];
   proxima: string | null;
+  presencas: CicloPresenca | null;
 }
 
 export interface AlunoGraduacao {
@@ -37,4 +39,31 @@ export interface AlunoGraduacao {
   email: string;
   perfil: Perfil;
   atual: GraduacaoAtual | null;
+}
+
+export interface ProximaGraduacao {
+  data: string;
+  minimoGrau: number | null;
+  minimoFaixa: number | null;
+}
+
+export interface Sugestao {
+  faixa: Faixa;
+  grau: number;
+}
+
+export interface Apto {
+  id: number;
+  nome: string;
+  atual: GraduacaoAtual | null;
+  contadas: number;
+  minimo: number | null;
+  apto: boolean;
+  sugestao: Sugestao | null;
+}
+
+export interface ListaAptos {
+  evento: ProximaGraduacao;
+  grau: Apto[];
+  faixa: Apto[];
 }

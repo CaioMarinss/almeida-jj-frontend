@@ -27,6 +27,10 @@ export interface AulaDoDia {
   motivo: string | null;
   cancelada: boolean;
   motivoCancelamento: string | null;
+  vao: number;
+  euVou: boolean;
+  janelaFechada: boolean;
+  podeMarcar: boolean;
 }
 
 export interface DiaAgenda {
