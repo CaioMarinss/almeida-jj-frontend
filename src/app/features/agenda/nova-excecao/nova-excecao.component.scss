@@ -1,0 +1,133 @@
+.painel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ajj-espaco-3);
+  padding: var(--ajj-espaco-5) var(--ajj-espaco-4) calc(var(--ajj-espaco-4) + env(safe-area-inset-bottom, 0px));
+
+  ajj-botao {
+    align-self: stretch;
+  }
+}
+
+.tipos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ajj-espaco-2);
+}
+
+.tipo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-height: 56px;
+  padding: var(--ajj-espaco-2) var(--ajj-espaco-4);
+  border: 1px solid transparent;
+  border-radius: var(--ajj-raio-m);
+  background: var(--ajj-superficie-2);
+  color: var(--ajj-texto);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+
+  small {
+    color: var(--ajj-texto-suave);
+  }
+
+  &:hover {
+    border-color: var(--ajj-borda);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ajj-primaria);
+    outline-offset: 2px;
+  }
+}
+
+.tipo-titulo {
+  font-weight: 600;
+}
+
+.horarios {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--ajj-espaco-3);
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ajj-espaco-1);
+
+  input {
+    min-height: 44px;
+    padding: 0 var(--ajj-espaco-3);
+    border: 1px solid var(--ajj-borda);
+    border-radius: var(--ajj-raio-m);
+    background: var(--ajj-superficie);
+    color: var(--ajj-texto);
+    color-scheme: dark;
+    font: inherit;
+
+    &:focus-visible {
+      outline: 2px solid var(--ajj-primaria);
+      outline-offset: 2px;
+    }
+
+    &[aria-invalid='true'] {
+      border-color: var(--ajj-perigo);
+    }
+  }
+}
+
+.erro {
+  color: var(--ajj-perigo);
+}
+
+.carregando {
+  display: grid;
+  place-items: center;
+  padding: var(--ajj-espaco-4) 0;
+}
+
+.sem-aulas {
+  margin: 0;
+}
+
+.aulas,
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ajj-espaco-2);
+}
+
+.aula-opcao,
+.opcao {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ajj-espaco-2);
+  min-height: 44px;
+  padding: 0 var(--ajj-espaco-4);
+  border: 1px solid var(--ajj-borda);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ajj-texto);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+
+  &[aria-pressed='true'] {
+    border-color: var(--ajj-primaria);
+    background: var(--ajj-primaria);
+    color: var(--ajj-sobre-primaria);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ajj-primaria);
+    outline-offset: 2px;
+  }
+}

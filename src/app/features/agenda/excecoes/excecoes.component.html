@@ -1,0 +1,61 @@
+<ajj-botao class="nova" (clique)="abrirNova()">+ Nova exceção</ajj-botao>
+
+@if (carregando()) {
+  <div class="carregando"><ion-spinner name="crescent" aria-label="Carregando as exceções" /></div>
+} @else if (erroCarga()) {
+  <ajj-estado-vazio class="erro-carga" titulo="Não foi possível carregar as exceções" texto="Confira sua conexão e tente de novo.">
+    <svg lucideTriangleAlert icone aria-hidden="true"></svg>
+    <ajj-botao variante="secundario" (clique)="carregar()">Tentar de novo</ajj-botao>
+  </ajj-estado-vazio>
+} @else {
+  <section class="secao proximas">
+    <h2 class="ajj-rotulo">Próximas</h2>
+    @if (proximas().length > 0) {
+      <ul class="lista">
+        @for (l of proximas(); track l.excecao.tipo + l.excecao.id) {
+          <li class="excecao ajj-card">
+            <span class="texto">
+              <strong class="descricao">{{ l.descricao }}</strong>
+              <small class="detalhe">{{ l.detalhe }}</small>
+            </span>
+            <button type="button" class="lixeira" [attr.aria-label]="l.rotuloDesfazer" [disabled]="salvando()" (click)="desfazer(l.excecao)">
+              <svg lucideTrash2 aria-hidden="true"></svg>
+            </button>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="vazio ajj-suave">Nenhuma exceção marcada.</p>
+    }
+  </section>
+
+  @if (passadas().length > 0) {
+    <section class="secao passadas">
+      <h2 class="ajj-rotulo">Passadas</h2>
+      <ul class="lista">
+        @for (l of passadas(); track l.excecao.tipo + l.excecao.id) {
+          <li class="excecao ajj-card">
+            <span class="texto">
+              <strong class="descricao">{{ l.descricao }}</strong>
+              <small class="detalhe">{{ l.detalhe }}</small>
+            </span>
+          </li>
+        }
+      </ul>
+    </section>
+  }
+}
+
+<ion-modal
+  [isOpen]="painel()"
+  [breakpoints]="[0, 0.85]"
+  [initialBreakpoint]="0.85"
+  aria-labelledby="painel-excecao-titulo"
+  (didDismiss)="fechar()"
+>
+  <ng-template>
+    @if (painel()) {
+      <app-nova-excecao [salvando]="salvando()" (salvar)="salvar($event)" (cancelar)="fechar()" />
+    }
+  </ng-template>
+</ion-modal>

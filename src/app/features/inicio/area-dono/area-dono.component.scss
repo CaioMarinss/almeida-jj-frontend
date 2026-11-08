@@ -9,8 +9,14 @@
 
 .acoes {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: var(--ajj-espaco-3);
+}
+
+@media (min-width: 560px) {
+  .acoes {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .acoes ajj-botao {

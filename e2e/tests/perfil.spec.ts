@@ -47,3 +47,20 @@ test.describe('Troca de senha no perfil', () => {
     await expect(page).toHaveURL(/\/app\/inicio$/);
   });
 });
+
+test.describe('Perfil no menu lateral', () => {
+  test.skip(({ isMobile }) => isMobile, 'o menu lateral só aparece no desktop');
+
+  test('fica logo acima de Sair e abre o perfil', async ({ page, request }) => {
+    const conta = await criarContaAtiva(request);
+    await entrar(page, conta.email, conta.senha);
+    await expect(page).toHaveURL(/\/app\/inicio$/);
+
+    const itens = page.locator('ion-menu ion-item');
+    await expect(itens.nth(-2)).toHaveText('Perfil');
+    await expect(itens.nth(-1)).toHaveText('Sair');
+
+    await itens.nth(-2).click();
+    await expect(page).toHaveURL(/\/app\/perfil$/);
+  });
+});

@@ -11,7 +11,7 @@ describe('AreaDonoComponent', () => {
     return fixture.nativeElement as HTMLElement;
   }
 
-  it('mostra o título e os dois botões', () => {
+  it('mostra o título e os três botões', () => {
     const tela = renderizar();
 
     const secao = tela.querySelector('section');
@@ -19,6 +19,7 @@ describe('AreaDonoComponent', () => {
     expect(secao?.getAttribute('aria-labelledby')).toBe('area-dono-titulo');
     expect(titulo?.textContent?.trim()).toBe('Área do dono');
     expect(tela.querySelector('ajj-botao.professores')?.textContent?.trim()).toBe('Professores');
+    expect(tela.querySelector('ajj-botao.agenda')?.textContent?.trim()).toBe('Agenda');
     expect(tela.querySelector('ajj-botao.graducoes')?.textContent?.trim()).toBe('Graduações');
   });
 
@@ -28,8 +29,9 @@ describe('AreaDonoComponent', () => {
     const navegar = spyOn(TestBed.inject(NavController), 'navigateForward').and.resolveTo(true);
 
     await fixture.componentInstance.abrirProfessores();
+    await fixture.componentInstance.abrirAgenda();
     await fixture.componentInstance.abrirGraduacoes();
 
-    expect(navegar.calls.allArgs()).toEqual([['/app/professores'], ['/app/graduacao']]);
+    expect(navegar.calls.allArgs()).toEqual([['/app/professores'], ['/app/agenda'], ['/app/graduacao']]);
   });
 });

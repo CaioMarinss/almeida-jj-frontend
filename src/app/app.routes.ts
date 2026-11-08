@@ -55,6 +55,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/professores/professores.component').then(m => m.ProfessoresComponent)
       },
       {
+        path: 'agenda',
+        canActivate: [donoGuard],
+        loadComponent: () => import('./features/agenda/agenda.component').then(m => m.AgendaComponent)
+      },
+      {
         path: 'graduacao',
         canActivate: [donoGuard],
         loadComponent: () => import('./features/graduacao/graduacao.component').then(m => m.GraduacaoComponent)

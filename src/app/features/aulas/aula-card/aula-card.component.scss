@@ -1,0 +1,67 @@
+:host {
+  display: block;
+}
+
+.aula {
+  display: flex;
+  align-items: center;
+  gap: var(--ajj-espaco-4);
+  min-height: 64px;
+  padding: var(--ajj-espaco-3) var(--ajj-espaco-4);
+}
+
+.hora {
+  display: flex;
+  flex-direction: column;
+  min-width: 64px;
+
+  strong {
+    font-family: var(--ajj-fonte-titulo);
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.1;
+  }
+}
+
+.fim {
+  font-size: 12px;
+  color: var(--ajj-texto-suave);
+}
+
+.detalhe {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ajj-espaco-1);
+  min-width: 0;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ajj-espaco-2);
+}
+
+.avulsa {
+  background: var(--ajj-primaria);
+  color: var(--ajj-sobre-primaria);
+}
+
+.motivo {
+  font-size: 13px;
+  color: var(--ajj-texto-suave);
+
+  &.perigo {
+    color: var(--ajj-perigo);
+  }
+}
+
+.cancelada {
+  .hora,
+  .chips {
+    opacity: 0.55;
+  }
+
+  .hora strong {
+    text-decoration: line-through;
+  }
+}

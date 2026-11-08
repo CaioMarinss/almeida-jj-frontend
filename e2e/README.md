@@ -48,6 +48,7 @@ e2e/
 └── suporte/
     ├── ambiente.ts      docker compose e espera de serviços
     ├── banco.ts         executarSql: roda SQL no Postgres do ambiente (ex.: criar dono)
+    ├── datas.ts         datas em São Paulo (hoje, somar dias, dia da semana de uma semana à frente)
     ├── contas.ts        cria conta verificada (criarContaAtiva), dono (criarDono), nome único (nomear), token e id pela API
     ├── dados.ts         senhas de teste, e-mail e CPF válidos aleatórios
     ├── mailpit.ts       busca e-mail e extrai o link
@@ -56,7 +57,7 @@ e2e/
 
 ## Cenários
 
-São 53 testes, que viram 83 execuções: os 53 rodam no desktop e 30 rodam de novo no celular.
+São 63 testes; a última rodada completa teve 102 execuções passando e 26 puladas (testes só de desktop no celular), 0 falhas.
 
 ### Cadastro (`tests/cadastro.spec.ts`), desktop e celular
 
@@ -79,6 +80,7 @@ São 53 testes, que viram 83 execuções: os 53 rodam no desktop e 30 rodam de n
 | Cenário | O que verifica |
 |---|---|
 | Bloqueia senha fraca, mostra o erro da API e troca com senha forte | Senha fraca não chama a API. Senha atual errada mostra "Senha atual incorreta.". Com os dados certos, troca a senha, desloga e entra com a nova. |
+| Perfil fica logo acima de Sair no menu lateral (só desktop) | Os dois últimos itens do menu são Perfil e Sair; clicar em Perfil abre `/app/perfil`. |
 
 ### API recusa senha fraca sem passar pelo front (`tests/api-regras-senha.spec.ts`), só desktop
 
@@ -141,6 +143,24 @@ Contas com nome único (`nomear`), porque a lista é paginada em memória e cont
 | Graduação: remover registro antigo e o atual | desktop e celular | Mensagens de confirmação, toast "Registro removido.", faixa do painel e card do aluno voltam para a anterior; o último remove deixa "Sem graduação". |
 | API: remoção de registro | só desktop | 403 para professor e aluno; 404 `ERR015` para registro de outro aluno ou já removido; dono remove (200, `atual` nulo). |
 | API: lista de alunos da graduação | só desktop | `GET /graduacoes/alunos` devolve o array inteiro, sem paginação. |
+
+### Agenda de aulas (`tests/agenda.spec.ts`)
+
+A agenda é global e os dois projetos rodam em paralelo, então cada projeto usa uma semana (`desktop` = semana que vem, `celular` = daqui a 2 semanas, calculadas em `suporte/datas.ts` a partir de "hoje" em São Paulo) e cada cenário um dia da semana diferente. O cenário da grade usa o domingo (sem grade no seed) com horários próprios por projeto. Todo teste desfaz o que criou, inclusive no `finally`, pela API.
+
+| Cenário | Onde roda | O que verifica |
+|---|---|---|
+| O aluno vê a grade do seed na segunda | desktop e celular | Aba Aulas com 07:10, 18:00, 19:00 e 20:30 (Gi) e "até 19:00". |
+| Cancelar uma aula com motivo | desktop e celular | Dono cancela a aula das 18:00 da terça; o aluno vê "Cancelada · motivo"; o dono desfaz e volta ao normal. |
+| Cancelar o dia inteiro | desktop e celular | Aviso "Dia sem aula" com motivo e as 5 aulas da quarta canceladas; desfazer limpa tudo. |
+| Aula avulsa | desktop e celular | Dono cria aula avulsa na quinta; o aluno vê a etiqueta "Avulsa"; ao remover, some. |
+| Adicionar, editar e tirar da grade uma aula | desktop e celular | Dono adiciona aula no domingo, aluno vê; a edição troca o horário (vale a partir de amanhã, então o aluno da semana que vem só vê o novo); tirar a versão editada da grade funciona e deixa o domingo limpo. |
+| Aluno vê cancelamento sem novo login | desktop e celular | Aluno já está na aba Aulas (sexta), o dono cancela o dia por API, o aluno troca para Perfil e volta a Aulas e vê as aulas "Cancelada" (a aba recarrega ao reentrar). |
+| Tirar uma aula da grade | desktop e celular | Aula recém-adicionada sai da grade com confirmação e o card dela some para o aluno. |
+| Aluno e professor não veem a Agenda | desktop e celular | Sem item no menu, sem card/atalho nem "Gerenciar agenda"; `/app/agenda` leva para `/app/inicio`. |
+| O dono chega na Agenda pelo atalho e pelo Perfil | desktop e celular | O card "Área do dono" e "Gerenciar agenda" abrem `/app/agenda`. |
+| API: aluno e professor não alteram grade nem cancelam | só desktop | 403 em `POST /aulas/grade` e `POST /agenda/cancelamentos`. |
+| API: cancelamento com data passada | só desktop | 400 com `codigo` `ERR018`. |
 
 ## No GitHub (Actions)
 

@@ -76,6 +76,21 @@ describe('PerfilComponent', () => {
     expect(navegar).toHaveBeenCalledWith('/app/graduacao');
   });
 
+  it('mostra Gerenciar agenda só para o dono e abre a tela', async () => {
+    expect(tela.textContent).not.toContain('Gerenciar agenda');
+
+    logar(TestBed.inject(SessionService), 'Carla Dias', 'DONO');
+    const fixture = TestBed.createComponent(PerfilComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const botao: HTMLElement = fixture.nativeElement.querySelector('ajj-botao.gerenciar-agenda');
+    const navegar = spyOn(TestBed.inject(NavController), 'navigateForward').and.resolveTo(true);
+
+    expect(botao.textContent).toContain('Gerenciar agenda');
+    await fixture.componentInstance.abrirAgenda();
+    expect(navegar).toHaveBeenCalledWith('/app/agenda');
+  });
+
   it('mostra identidade com nome e e-mail truncáveis', () => {
     expect(tela.querySelector('.nome')?.classList).toContain('ajj-truncar');
     expect(tela.querySelector('.email')?.classList).toContain('ajj-truncar');

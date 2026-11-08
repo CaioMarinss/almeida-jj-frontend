@@ -16,6 +16,10 @@ export class AreaDonoComponent {
     return this.nav.navigateForward('/app/professores');
   }
 
+  abrirAgenda(): Promise<boolean> {
+    return this.nav.navigateForward('/app/agenda');
+  }
+
   abrirGraduacoes(): Promise<boolean> {
     return this.nav.navigateForward('/app/graduacao');
   }
