@@ -59,11 +59,11 @@ Old URLs redirect: `/dashboard`→`/app/inicio`, `/calendario`→`/app/aulas`, `
 | POST | `/alunos/{id}/graduacoes` `{idGraduacao, grau, data?}` (dono; 201 returns the record plus `atual`) | `GraduacaoService.registrar` |
 | DELETE | `/alunos/{id}/graduacoes/{idRegistro}` (dono) → 200 `{atual}`; 404 `ERR009` (student) / `ERR015` (record) | `GraduacaoService.remover` |
 | GET/PUT/DELETE | `/graduacoes/proxima` (PUT/DELETE dono) | `GraduacaoService.proxima/agendar/cancelar` |
-| GET | `/agenda?inicio=&fim=` → `[{data, diaCancelado, aulas}]` (every user) | `AgendaService.dias` |
-| GET/POST/PUT/DELETE | `/aulas/grade`, `/aulas/grade/{id}` (writes dono; edit and removal take effect tomorrow, add today) | `AgendaService` |
+| GET | `/agenda?inicio=&fim=` → `[{data, diaCancelado, aulas}]` (every user) | `AgendaService.agenda` |
+| GET/POST/PUT/DELETE | `/aulas/grade`, `/aulas/grade/{id}` (writes dono; edit and removal take effect tomorrow, add today) | `AgendaService.grade/criarAula/editarAula/tirarDaGrade` |
 | GET | `/agenda/excecoes` (dono) | `AgendaService.excecoes` |
-| POST/DELETE | `/agenda/cancelamentos` `{data, idAula?, motivo?}` / `/agenda/cancelamentos/{id}` (dono; no `idAula` cancels the whole day; past date → 400 `ERR018`) | `AgendaService` |
-| POST/DELETE | `/agenda/avulsas` `{data, inicio, fim, modalidade, motivo?}` / `/agenda/avulsas/{id}` (dono) | `AgendaService` |
+| POST/DELETE | `/agenda/cancelamentos` `{data, idAula?, motivo?}` / `/agenda/cancelamentos/{id}` (dono; no `idAula` cancels the whole day; past date → 400 `ERR018`) | `AgendaService.cancelar/desfazerCancelamento` |
+| POST/DELETE | `/agenda/avulsas` `{data, inicio, fim, modalidade, motivo?}` / `/agenda/avulsas/{id}` (dono) | `AgendaService.criarAvulsa/removerAvulsa` |
 | PUT | `/alunos/{id}/perfil` `{perfil: 'PROFESSOR' \| 'ALUNO'}` (dono) | `ProfessoresService.alterarPerfil` |
 
 Errors come as `ProblemDetail` (`detail`, `codigo`). Login with `codigo === 'ERR003'` (account not verified) sends the user to `/verificaremail?email=`.

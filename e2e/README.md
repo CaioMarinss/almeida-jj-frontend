@@ -155,7 +155,7 @@ A agenda é global e os dois projetos rodam em paralelo, então cada projeto usa
 | Cancelar o dia inteiro | desktop e celular | Aviso "Dia sem aula" com motivo e as 5 aulas da quarta canceladas; desfazer limpa tudo. |
 | Aula avulsa | desktop e celular | Dono cria aula avulsa na quinta; o aluno vê a etiqueta "Avulsa"; ao remover, some. |
 | Adicionar, editar e tirar da grade uma aula | desktop e celular | Dono adiciona aula no domingo, aluno vê; a edição troca o horário (vale a partir de amanhã, então o aluno da semana que vem só vê o novo); tirar a versão editada da grade funciona e deixa o domingo limpo. |
-| Tirar uma aula da grade | desktop e celular | Aula recém-adicionada sai da grade com confirmação e o aluno vê "Sem aulas neste dia". |
+| Tirar uma aula da grade | desktop e celular | Aula recém-adicionada sai da grade com confirmação e o card dela some para o aluno. |
 | Aluno e professor não veem a Agenda | desktop e celular | Sem item no menu, sem card/atalho nem "Gerenciar agenda"; `/app/agenda` leva para `/app/inicio`. |
 | O dono chega na Agenda pelo atalho e pelo Perfil | desktop e celular | O card "Área do dono" e "Gerenciar agenda" abrem `/app/agenda`. |
 | API: aluno e professor não alteram grade nem cancelam | só desktop | 403 em `POST /aulas/grade` e `POST /agenda/cancelamentos`. |
