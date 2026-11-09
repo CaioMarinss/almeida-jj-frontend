@@ -8,6 +8,8 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não lançado]
 
+## [0.2.6] - 2026-11-09
+
 ### Adicionado
 - **Presença**: botão "Vou" na aba Aulas (e na Início) para marcar e desmarcar a ida à aula da semana, com o contador "N vão"; depois que a janela fecha (fim da aula + 30 min) aparece "Presença contada" ou "Janela fechada".
 - Card **Próxima aula** na Início, no lugar do "Check-in em breve", com o botão "Vou".
