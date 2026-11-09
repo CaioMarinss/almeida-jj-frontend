@@ -13,6 +13,7 @@ import { EstadoVazioComponent } from '../../shared/ui/estado-vazio/estado-vazio.
 import { PaginacaoComponent } from '../../shared/ui/paginacao/paginacao.component';
 import { criarListaFixada } from '../../shared/utils/lista-fixada';
 import { compararNomes, contemNome } from '../../shared/utils/texto.util';
+import { AptosComponent } from './aptos/aptos.component';
 import { ProximaGraduacaoComponent } from './proxima-graduacao/proxima-graduacao.component';
 import { RegistroGraduacaoComponent } from './registro-graduacao/registro-graduacao.component';
 
@@ -32,6 +33,7 @@ type SelecaoFaixa = 'todas' | 'sem' | number;
     BotaoComponent,
     EstadoVazioComponent,
     PaginacaoComponent,
+    AptosComponent,
     ProximaGraduacaoComponent,
     RegistroGraduacaoComponent
   ],
@@ -51,6 +53,7 @@ export class GraduacaoComponent {
   readonly nome = signal('');
   readonly faixa = signal<SelecaoFaixa>('todas');
   readonly selecionado = signal<AlunoGraduacao | null>(null);
+  readonly aptosAberto = signal(false);
 
   private readonly faixas = toSignal(
     this.service.faixas().pipe(catchError(() => of<Faixa[]>([]))),
@@ -105,6 +108,14 @@ export class GraduacaoComponent {
 
   abrir(aluno: AlunoGraduacao): void {
     this.selecionado.set(aluno);
+  }
+
+  abrirAptos(): void {
+    this.aptosAberto.set(true);
+  }
+
+  fecharAptos(): void {
+    this.aptosAberto.set(false);
   }
 
   fechar(): void {

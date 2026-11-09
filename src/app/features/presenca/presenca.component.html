@@ -6,8 +6,61 @@
 
 <ion-content>
   <div class="ajj-coluna">
-    <ajj-estado-vazio titulo="Presenças em breve" texto="Em breve você vai ver aqui o histórico dos seus treinos.">
-      <svg lucideCircleCheck icone aria-hidden="true"></svg>
-    </ajj-estado-vazio>
+    @if (carregando()) {
+      <div class="carregando"><ion-spinner name="crescent" aria-label="Carregando presenças" /></div>
+    } @else if (erro()) {
+      <ajj-estado-vazio class="erro-carga" titulo="Não foi possível carregar suas presenças" texto="Confira sua conexão e tente de novo.">
+        <svg lucideTriangleAlert icone aria-hidden="true"></svg>
+        <ajj-botao variante="secundario" (clique)="carregar()">Tentar de novo</ajj-botao>
+      </ajj-estado-vazio>
+    } @else {
+      @let r = resumo();
+      @if (r) {
+        <section class="ajj-card ciclo" aria-label="Ciclo atual">
+          <h2 class="titulo-ciclo">{{ r.titulo }}</h2>
+          @if (r.progresso; as p) {
+            <div
+              class="barra"
+              role="progressbar"
+              aria-label="Presenças até a graduação"
+              [attr.aria-valuenow]="p.atual"
+              aria-valuemin="0"
+              [attr.aria-valuemax]="p.maximo"
+            >
+              <span class="preenchimento" [style.width.%]="p.percentual"></span>
+            </div>
+          }
+          @if (r.faltam) {
+            <p class="faltam">{{ r.faltam }}</p>
+          }
+          @if (r.trilha) {
+            <p class="detalhe">{{ r.trilha }} · {{ r.desde }}</p>
+          }
+        </section>
+      }
+
+      @if (visiveis().length > 0) {
+        <h2 class="secao">Presenças contadas</h2>
+        <ul class="presencas">
+          @for (p of visiveis(); track p.chave) {
+            <li>
+              <span class="quando">
+                <strong>{{ p.dia }}</strong>
+                <span>·</span>
+                <span>{{ p.aula }}</span>
+              </span>
+              <span class="origem">{{ p.origem }}</span>
+            </li>
+          }
+        </ul>
+        @if (temMais()) {
+          <ajj-botao variante="secundario" (clique)="verTodas()">Ver todas</ajj-botao>
+        }
+      } @else {
+        <ajj-estado-vazio titulo="Nenhuma presença contada ainda" texto="As aulas que você marcar e frequentar aparecem aqui.">
+          <svg lucideCircleCheck icone aria-hidden="true"></svg>
+        </ajj-estado-vazio>
+      }
+    }
   </div>
 </ion-content>

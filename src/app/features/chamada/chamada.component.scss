@@ -1,0 +1,231 @@
+.dias {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--ajj-espaco-1);
+  margin-bottom: var(--ajj-espaco-4);
+}
+
+.dia {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 56px;
+  padding: var(--ajj-espaco-2) 0;
+  border: 1px solid transparent;
+  border-radius: var(--ajj-raio-p);
+  background: var(--ajj-superficie);
+  color: var(--ajj-texto-suave);
+  font: inherit;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+
+  .curto {
+    font-size: 11px;
+  }
+
+  strong {
+    font-family: var(--ajj-fonte-titulo);
+    font-size: 16px;
+    color: var(--ajj-texto);
+  }
+
+  &.hoje {
+    border-color: var(--ajj-borda);
+  }
+
+  &[aria-pressed='true'] {
+    background: var(--ajj-primaria);
+    color: var(--ajj-sobre-primaria);
+
+    strong {
+      color: var(--ajj-sobre-primaria);
+    }
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ajj-primaria);
+    outline-offset: 2px;
+  }
+}
+
+.carregando {
+  display: grid;
+  place-items: center;
+  padding: var(--ajj-espaco-8) 0;
+}
+
+ajj-estado-vazio {
+  margin-top: var(--ajj-espaco-4);
+}
+
+.aulas,
+.presentes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ajj-espaco-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.aula {
+  display: flex;
+  align-items: center;
+  gap: var(--ajj-espaco-3);
+  width: 100%;
+  min-height: 56px;
+  padding: var(--ajj-espaco-2) var(--ajj-espaco-4);
+  border-left: 4px solid transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+
+  &.escolhida {
+    border-left-color: var(--ajj-primaria);
+  }
+
+  &.cancelada .hora {
+    text-decoration: line-through;
+    color: var(--ajj-texto-suave);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ajj-primaria);
+    outline-offset: 2px;
+  }
+}
+
+.hora {
+  min-width: 56px;
+  font-family: var(--ajj-fonte-titulo);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.quantidade {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--ajj-texto-suave);
+}
+
+.cancelada .quantidade {
+  color: var(--ajj-perigo);
+  font-weight: 600;
+}
+
+.chamada {
+  margin-top: var(--ajj-espaco-5);
+
+  h2 {
+    margin: 0 0 var(--ajj-espaco-3);
+  }
+}
+
+.prazo {
+  margin: 0 0 var(--ajj-espaco-3);
+  font-size: 13px;
+}
+
+.aviso {
+  margin: 0 0 var(--ajj-espaco-3);
+  padding: var(--ajj-espaco-3);
+  border: 1px solid color-mix(in srgb, var(--ajj-perigo) 45%, transparent);
+  border-radius: var(--ajj-raio-m);
+  background: color-mix(in srgb, var(--ajj-perigo) 12%, var(--ajj-superficie));
+  color: var(--ajj-perigo);
+}
+
+.presente {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ajj-espaco-3);
+  min-height: 56px;
+  padding: var(--ajj-espaco-2) var(--ajj-espaco-2) var(--ajj-espaco-2) var(--ajj-espaco-4);
+}
+
+.dados {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.origem {
+  font-size: 13px;
+}
+
+.tirar {
+  min-width: 64px;
+  min-height: 44px;
+  padding: 0 var(--ajj-espaco-3);
+  border: 1px solid var(--ajj-borda);
+  border-radius: var(--ajj-raio-p);
+  background: transparent;
+  color: var(--ajj-perigo);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--ajj-perigo) 12%, transparent);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ajj-primaria);
+    outline-offset: 2px;
+  }
+}
+
+.vazio {
+  margin: 0;
+  padding: var(--ajj-espaco-3) 0;
+}
+
+.incluir {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  margin-top: var(--ajj-espaco-4);
+  border: 1px dashed var(--ajj-borda);
+  border-radius: var(--ajj-raio-m);
+  background: transparent;
+  color: var(--ajj-primaria);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--ajj-primaria) 8%, transparent);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ajj-primaria);
+    outline-offset: 2px;
+  }
+}

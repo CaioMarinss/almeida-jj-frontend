@@ -30,21 +30,48 @@
   font-size: 22px;
 }
 
-.checkin {
+.proxima-aula {
   border-left: 4px solid var(--ajj-primaria);
   margin-bottom: var(--ajj-espaco-3);
 }
 
-.checkin h2 {
-  margin: var(--ajj-espaco-1) 0;
-  font-size: 26px;
+.linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ajj-espaco-3);
+  margin-top: var(--ajj-espaco-2);
 }
 
-.checkin p {
-  margin: 0 0 var(--ajj-espaco-4);
+.info {
+  display: grid;
+  gap: var(--ajj-espaco-1);
+  min-width: 0;
+}
+
+.hora {
+  font-family: var(--ajj-fonte-titulo);
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.quando {
   font-size: 15px;
+  color: var(--ajj-texto-suave);
 }
 
+.detalhe {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ajj-espaco-2);
+}
+
+.contador {
+  font-size: 13px;
+  color: var(--ajj-texto-suave);
+}
 
 .resumo {
   display: grid;
@@ -58,4 +85,8 @@
   font-weight: 600;
   font-size: 20px;
   text-transform: uppercase;
+}
+
+.atalho-chamada {
+  margin-bottom: var(--ajj-espaco-3);
 }

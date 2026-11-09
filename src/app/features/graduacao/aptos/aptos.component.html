@@ -1,0 +1,129 @@
+<section class="aptos" aria-labelledby="aptos-titulo">
+  <h2 id="aptos-titulo">Aptos</h2>
+
+  @switch (estado()) {
+    @case ('carregando') {
+      <p class="ajj-suave">Carregando…</p>
+    }
+    @case ('semEvento') {
+      <div class="vazio">
+        <strong>Nenhuma graduação agendada</strong>
+        <p class="ajj-suave">Agende a data da próxima graduação para ver quem está apto.</p>
+      </div>
+    }
+    @case ('erro') {
+      <div class="erro" role="alert">
+        <p>Não foi possível carregar os aptos.</p>
+        <ajj-botao variante="secundario" (clique)="carregar()">Tentar de novo</ajj-botao>
+      </div>
+    }
+    @case ('pronto') {
+      @if (selecionado(); as apto) {
+        <form class="confirmacao" (submit)="$event.preventDefault(); confirmar()">
+          <p class="pergunta">
+            <strong>{{ apto.nome }}</strong>
+            <span class="ajj-suave">
+              @if (apto.atual; as atual) {
+                {{ descrever(atual.faixa, atual.grau) }}
+              } @else {
+                Sem graduação
+              }
+            </span>
+          </p>
+
+          @if (!apto.sugestao) {
+            <p class="aviso" role="status">Sem sugestão: escolha a faixa e o grau.</p>
+          }
+
+          @if (erroFaixas()) {
+            <div class="erro" role="alert">
+              <p>Não foi possível carregar as faixas.</p>
+              <ajj-botao variante="secundario" (clique)="carregarFaixas()">Tentar de novo</ajj-botao>
+            </div>
+          }
+
+          <div class="campo">
+            <label for="graduou-faixa" class="ajj-rotulo">Faixa</label>
+            <select id="graduou-faixa" #selFaixa [value]="'' + (idFaixa() ?? '')" (change)="trocarFaixa(selFaixa.value)">
+              @if (idFaixa() === null) {
+                <option value="" selected>Escolha a faixa</option>
+              }
+              <optgroup label="Infantil">
+                @for (f of infantis(); track f.id) {
+                  <option [value]="f.id" [selected]="f.id === idFaixa()">{{ f.descricao }}</option>
+                }
+              </optgroup>
+              <optgroup label="Adulto">
+                @for (f of adultas(); track f.id) {
+                  <option [value]="f.id" [selected]="f.id === idFaixa()">{{ f.descricao }}</option>
+                }
+              </optgroup>
+              <optgroup label="Mestres">
+                @for (f of mestres(); track f.id) {
+                  <option [value]="f.id" [selected]="f.id === idFaixa()">{{ f.descricao }}</option>
+                }
+              </optgroup>
+            </select>
+          </div>
+
+          <div class="campo">
+            <label for="graduou-grau" class="ajj-rotulo">Grau</label>
+            <select id="graduou-grau" #selGrau [disabled]="!faixaEscolhida()" (change)="trocarGrau(selGrau.value)">
+              @for (g of opcoesGrau(); track g) {
+                <option [value]="g" [selected]="g === grau()">{{ rotuloGrau(g) }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="acoes">
+            <ajj-botao tipo="submit" [carregando]="salvando()" [desabilitado]="!podeConfirmar()">Confirmar</ajj-botao>
+            <ajj-botao variante="texto" [desabilitado]="salvando()" (clique)="voltar()">Voltar</ajj-botao>
+          </div>
+        </form>
+      } @else if (dados(); as lista) {
+        <p class="evento ajj-suave">
+          Graduação em <strong class="ajj-numero">{{ formatar(lista.evento.data) }}</strong>
+        </p>
+
+        @for (trilha of trilhas(); track trilha.id) {
+          <section class="trilha" [attr.aria-labelledby]="trilha.id">
+            <h3 [id]="trilha.id" class="ajj-rotulo">{{ trilha.titulo }}</h3>
+            @if (trilha.alunos.length === 0) {
+              <p class="ajj-suave">Ninguém nesta troca.</p>
+            } @else {
+              <ul class="lista">
+                @for (a of trilha.alunos; track a.id) {
+                  <li class="ajj-card linha" [class.apto]="a.apto">
+                    <div class="quem">
+                      <strong class="ajj-truncar">{{ a.nome }}</strong>
+                      @if (a.atual; as atual) {
+                        <ajj-barra-faixa [faixa]="atual.faixa" [grau]="atual.grau" />
+                      } @else {
+                        <span class="ajj-suave">Sem graduação</span>
+                      }
+                    </div>
+                    <div class="situacao">
+                      @if (a.minimo === null) {
+                        <span class="ajj-suave">mínimo não definido</span>
+                      } @else if (a.apto) {
+                        <span class="contagem ajj-numero">{{ a.contadas }}/{{ a.minimo }}</span>
+                      } @else {
+                        <span class="ajj-suave">faltam {{ faltam(a) }}</span>
+                      }
+                      @if (a.apto) {
+                        <ajj-botao [desabilitado]="!liberado()" (clique)="abrir(a)">Graduou</ajj-botao>
+                        @if (!liberado()) {
+                          <span class="dica ajj-suave">Disponível em {{ formatar(lista.evento.data) }}</span>
+                        }
+                      }
+                    </div>
+                  </li>
+                }
+              </ul>
+            }
+          </section>
+        }
+      }
+    }
+  }
+</section>

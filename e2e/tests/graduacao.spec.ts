@@ -2,6 +2,8 @@ import { APIRequestContext, expect, Page, test } from '@playwright/test';
 import { URL_API } from '../../playwright.config';
 import { executarSql } from '../suporte/banco';
 import { Conta, criarContaAtiva, criarDono, idDe, tokenDe } from '../suporte/contas';
+import { dataDaSemana } from '../suporte/datas';
+import { descartarPresencasDoAluno, inserirPresencaNaGrade } from '../suporte/presenca';
 import { botao, entrar, esperarAlerta, esperarToast, responderAlerta } from '../suporte/telas';
 
 interface Faixa {
@@ -71,6 +73,20 @@ async function graduacaoDe(request: APIRequestContext, conta: Conta): Promise<Gr
 
 async function cancelarProxima(request: APIRequestContext, dono: Conta): Promise<void> {
   await request.delete(`${URL_API}/graduacoes/proxima`, { headers: await autorizacao(request, dono) });
+}
+
+async function agendarPorApi(request: APIRequestContext, dono: Conta, data: string, minimoGrau: number, minimoFaixa: number): Promise<void> {
+  const resposta = await request.put(`${URL_API}/graduacoes/proxima`, {
+    headers: await autorizacao(request, dono),
+    data: { data, minimoGrau, minimoFaixa }
+  });
+  expect(resposta.status(), await resposta.text()).toBe(200);
+}
+
+async function abrirAptos(page: Page): Promise<void> {
+  await page.goto('/app/graduacao');
+  await botao(page, 'Ver aptos').click();
+  await expect(page.locator('app-aptos .evento')).toBeVisible();
 }
 
 async function abrirAluno(page: Page, aluno: Conta): Promise<void> {
@@ -297,9 +313,12 @@ test.describe('Graduação', () => {
           await expect(bloco).toContainText('Sem data definida');
           await botao(page, 'Alterar').click();
           await page.locator('#data-proxima').fill(futura);
+          await page.locator('#minimo-grau').fill('10');
+          await page.locator('#minimo-faixa').fill('20');
           await bloco.getByRole('button', { name: 'Salvar', exact: true }).click();
           await esperarToast(page, `Próxima graduação agendada para ${diaMes(futura)}.`);
           await expect(bloco).toContainText(diaMes(futura));
+          await expect(bloco).toContainText('Mínimo: 10 grau · 20 faixa');
 
           await trocarDeConta(page, aluno);
           await expect(page.locator('app-card-graduacao')).toContainText(`Próxima graduação: ${diaMes(futura)}`);
@@ -338,12 +357,134 @@ test.describe('Graduação', () => {
           await expect(bloco).toContainText(diaMes(primeira));
           await botao(page, 'Alterar').click();
           await page.locator('#data-proxima').fill(segunda);
+          await page.locator('#minimo-grau').fill('10');
+          await page.locator('#minimo-faixa').fill('20');
           await bloco.getByRole('button', { name: 'Salvar', exact: true }).click();
           await esperarToast(page, `Próxima graduação agendada para ${diaMes(segunda)}.`);
           await expect(bloco).toContainText(diaMes(segunda));
           await expect(bloco).not.toContainText(diaMes(primeira));
         } finally {
           await cancelarProxima(request, dono);
+        }
+      });
+
+      test('a aba Presença do aluno mostra X de Y presenças até a graduação', async ({ page, request }) => {
+        const dono = await criarDono(request);
+        const aluno = await criarAluno(request);
+        const evento = diaRelativo(10);
+        const idAluno = await idDe(request, aluno);
+        inserirPresencaNaGrade(idAluno, 1, '18:00', dataDaSemana(-1, 1));
+        inserirPresencaNaGrade(idAluno, 1, '19:00', dataDaSemana(-1, 1));
+        await cancelarProxima(request, dono);
+        await agendarPorApi(request, dono, evento, 5, 8);
+
+        try {
+          await trocarDeConta(page, aluno);
+          await page.goto('/app/presenca');
+
+          await expect(page.getByRole('heading', { name: `2 de 5 presenças até a graduação de ${diaMes(evento)}` })).toBeVisible();
+          await expect(page.getByText('Faltam 3')).toBeVisible();
+          const barra = page.getByRole('progressbar', { name: 'Presenças até a graduação' });
+          await expect(barra).toHaveAttribute('aria-valuenow', '2');
+          await expect(barra).toHaveAttribute('aria-valuemax', '5');
+          await expect(page.locator('ul.presencas li')).toHaveCount(2);
+          await expect(page.locator('ul.presencas li').first()).toContainText('contada');
+
+          await page.goto('/app/inicio');
+          const card = page.locator('app-card-graduacao');
+          await expect(card).toContainText('Sem graduação');
+          await expect(card).toContainText(`2 de 5 presenças até a graduação de ${diaMes(evento)}`);
+        } finally {
+          await cancelarProxima(request, dono);
+          descartarPresencasDoAluno(idAluno);
+        }
+      });
+
+      test('antes da data da graduação o apto aparece mas o Graduou fica desabilitado', async ({ page, request }) => {
+        const dono = await criarDono(request);
+        const apto = await criarAluno(request);
+        const quase = await criarAluno(request);
+        const evento = diaRelativo(3);
+        const segunda = dataDaSemana(-1, 1);
+        const idApto = await idDe(request, apto);
+        const idQuase = await idDe(request, quase);
+        inserirPresencaNaGrade(idApto, 1, '18:00', segunda);
+        inserirPresencaNaGrade(idApto, 1, '19:00', segunda);
+        inserirPresencaNaGrade(idQuase, 1, '18:00', segunda);
+        await cancelarProxima(request, dono);
+        await agendarPorApi(request, dono, evento, 2, 2);
+
+        try {
+          await entrar(page, dono.email, dono.senha);
+          await expect(page).toHaveURL(/\/app\/inicio$/);
+          await abrirAptos(page);
+
+          const linhaApto = page.locator('li.linha').filter({ hasText: apto.nome });
+          await expect(page.locator('app-aptos .evento')).toContainText(diaMes(evento));
+          await expect(linhaApto).toContainText('2/2');
+          await expect(linhaApto.getByRole('button', { name: 'Graduou', exact: true })).toBeDisabled();
+          await expect(linhaApto).toContainText(`Disponível em ${diaMes(evento)}`);
+          const linhaQuase = page.locator('li.linha').filter({ hasText: quase.nome });
+          await expect(linhaQuase).toContainText('faltam 1');
+          await expect(linhaQuase.getByRole('button', { name: 'Graduou', exact: true })).toHaveCount(0);
+        } finally {
+          await cancelarProxima(request, dono);
+          descartarPresencasDoAluno(idApto);
+          descartarPresencasDoAluno(idQuase);
+        }
+      });
+
+      test('o dono define os mínimos, vê o aluno apto e registra o Graduou', async ({ page, request }) => {
+        const dono = await criarDono(request);
+        const aluno = await criarAluno(request);
+        const hoje = diaRelativo(0);
+        const segunda = dataDaSemana(-1, 1);
+        const idAluno = await idDe(request, aluno);
+        inserirPresencaNaGrade(idAluno, 1, '18:00', segunda);
+        inserirPresencaNaGrade(idAluno, 1, '19:00', segunda);
+        await cancelarProxima(request, dono);
+
+        try {
+          await entrar(page, dono.email, dono.senha);
+          await expect(page).toHaveURL(/\/app\/inicio$/);
+          await page.goto('/app/graduacao');
+          const bloco = page.locator('app-proxima-graduacao');
+          await botao(page, 'Alterar').click();
+          await page.locator('#data-proxima').fill(hoje);
+          const salvar = bloco.getByRole('button', { name: 'Salvar', exact: true });
+          await expect(salvar).toBeDisabled();
+          await page.locator('#minimo-grau').fill('2');
+          await expect(salvar).toBeDisabled();
+          await page.locator('#minimo-faixa').fill('2');
+          await expect(salvar).toBeEnabled();
+          await salvar.click();
+          await esperarToast(page, `Próxima graduação agendada para ${diaMes(hoje)}.`);
+          await expect(bloco).toContainText('Mínimo: 2 grau · 2 faixa');
+
+          await abrirAptos(page);
+          const linha = page.locator('li.linha').filter({ hasText: aluno.nome });
+          await expect(page.locator('app-aptos #trilha-grau')).toHaveText('Troca de grau');
+          await expect(page.locator('app-aptos #trilha-faixa')).toHaveText('Troca de faixa');
+          await expect(linha).toContainText('2/2');
+          await linha.getByRole('button', { name: 'Graduou', exact: true }).click();
+
+          await expect(page.locator('app-aptos .confirmacao')).toContainText(aluno.nome);
+          await expect(page.locator('#graduou-faixa option:checked')).toHaveText('Faixa Branca');
+          await expect(page.locator('#graduou-grau option:checked')).toHaveText('1º grau');
+          await page.locator('app-aptos').getByRole('button', { name: 'Confirmar', exact: true }).click();
+          await esperarToast(page, `${aluno.nome} graduou.`);
+
+          await expect(page.locator('app-aptos li.linha.apto').filter({ hasText: aluno.nome })).toHaveCount(0);
+          await expect(linha).toHaveCount(1);
+          await expect(linha).not.toHaveClass(/apto/);
+          await expect(linha).toContainText('faltam 2');
+          await expect(linha.getByRole('button', { name: 'Graduou', exact: true })).toHaveCount(0);
+          const graduacao = await graduacaoDe(request, aluno);
+          expect(graduacao.atual?.faixa.codigo).toBe('FB');
+          expect(graduacao.atual?.grau).toBe(1);
+        } finally {
+          await cancelarProxima(request, dono);
+          descartarPresencasDoAluno(idAluno);
         }
       });
     });

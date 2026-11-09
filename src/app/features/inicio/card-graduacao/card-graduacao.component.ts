@@ -5,6 +5,7 @@ import { firstValueFrom } from 'rxjs';
 import { descreverGrau, descreverGraduacao, formatarDiaMes, formatarMesAno } from '../../../shared/graduacao/descrever';
 import { MinhaGraduacao, RegistroGraduacao } from '../../../shared/graduacao/graduacao.model';
 import { GraduacaoService } from '../../../shared/graduacao/graduacao.service';
+import { pluralPresencas } from '../../../shared/presenca/plural';
 import { BarraFaixaComponent } from '../../../shared/ui/barra-faixa/barra-faixa.component';
 import { BotaoComponent } from '../../../shared/ui/botao/botao.component';
 import { EstadoVazioComponent } from '../../../shared/ui/estado-vazio/estado-vazio.component';
@@ -33,6 +34,15 @@ export class CardGraduacaoComponent {
   readonly proxima = computed(() => {
     const data = this.dados()?.proxima;
     return data ? `Próxima graduação: ${formatarDiaMes(data)}` : 'Sem data definida para a próxima graduação';
+  });
+  readonly presencas = computed(() => {
+    const ciclo = this.dados()?.presencas;
+    if (!ciclo?.ate) {
+      return null;
+    }
+    return ciclo.minimo === null
+      ? `${pluralPresencas(ciclo.contadas)} · mínimo não definido`
+      : `${ciclo.contadas} de ${ciclo.minimo} presenças até a graduação de ${formatarDiaMes(ciclo.ate)}`;
   });
   readonly historico = computed(() => this.dados()?.historico ?? []);
   readonly resumo = computed(() => this.historico().slice(0, LIMITE_RESUMO));

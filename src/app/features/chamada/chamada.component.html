@@ -1,0 +1,123 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>Chamada</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="ajj-coluna">
+    <div class="dias" role="group" aria-label="Dia da chamada">
+      @for (d of dias(); track d.data) {
+        <button
+          type="button"
+          class="dia"
+          [class.hoje]="d.hoje"
+          [attr.aria-label]="d.rotulo"
+          [attr.aria-pressed]="d.data === selecionado()"
+          [disabled]="salvando()"
+          (click)="escolherDia(d.data)"
+        >
+          <span class="curto">{{ d.curto }}</span>
+          <strong>{{ d.numero }}</strong>
+        </button>
+      }
+    </div>
+
+    @if (carregandoAulas()) {
+      <div class="carregando"><ion-spinner name="crescent" aria-label="Carregando aulas" /></div>
+    } @else if (erroAulas()) {
+      <ajj-estado-vazio class="erro-carga" titulo="Não foi possível carregar as aulas" texto="Confira sua conexão e tente de novo.">
+        <svg lucideTriangleAlert icone aria-hidden="true"></svg>
+        <ajj-botao variante="secundario" (clique)="carregarAulas()">Tentar de novo</ajj-botao>
+      </ajj-estado-vazio>
+    } @else if (aulas().length === 0) {
+      <ajj-estado-vazio titulo="Nenhuma aula neste dia" texto="Escolha outro dia para ver a chamada.">
+        <svg lucideUsers icone aria-hidden="true"></svg>
+      </ajj-estado-vazio>
+    } @else {
+      <ul class="aulas" aria-label="Aulas do dia">
+        @for (a of aulas(); track a.id) {
+          <li>
+            <button
+              type="button"
+              class="aula ajj-card"
+              [class.escolhida]="a.id === idAula()"
+              [class.cancelada]="a.cancelada"
+              [attr.data-id]="a.id"
+              [attr.aria-pressed]="a.id === idAula()"
+              [disabled]="salvando()"
+              (click)="escolherAula(a)"
+            >
+              <strong class="hora">{{ a.inicio }}</strong>
+              <span class="ajj-chip-modalidade" [class]="classeChip[a.modalidade]">{{ rotulo[a.modalidade] }}</span>
+              <span class="quantidade">{{ a.cancelada ? 'Cancelada' : textoPresencas(a) }}</span>
+            </button>
+          </li>
+        }
+      </ul>
+    }
+
+    @if (idAula() !== null) {
+      <section class="chamada" aria-labelledby="chamada-titulo">
+        <h2 id="chamada-titulo" class="ajj-rotulo">Chamada</h2>
+
+        @if (carregandoChamada() && !chamada()) {
+          <div class="carregando"><ion-spinner name="crescent" aria-label="Carregando chamada" /></div>
+        } @else if (erroChamada() && !chamada()) {
+          <ajj-estado-vazio class="erro-chamada" titulo="Não foi possível carregar a chamada" texto="Confira sua conexão e tente de novo.">
+            <svg lucideTriangleAlert icone aria-hidden="true"></svg>
+            <ajj-botao variante="secundario" (clique)="carregarChamada()">Tentar de novo</ajj-botao>
+          </ajj-estado-vazio>
+        } @else if (chamada(); as c) {
+          @if (c.podeAjustar) {
+            @if (prazo(); as texto) {
+              <p class="prazo ajj-suave">{{ texto }}</p>
+            }
+          } @else if (aindaNaoAbriu()) {
+            <p class="aviso" role="status">A chamada abre no dia da aula.</p>
+          } @else {
+            <p class="aviso" role="status">Fora do prazo: esta chamada só pode ser consultada.</p>
+          }
+
+          @if (c.presencas.length > 0) {
+            <ul class="presentes">
+              @for (p of c.presencas; track p.idAluno) {
+                <li class="presente ajj-card">
+                  <span class="dados">
+                    <strong class="ajj-truncar">{{ p.nome }}</strong>
+                    <span class="ajj-suave origem">
+                      {{ rotuloOrigem[p.origem] }}@if (quemRegistrou(p); as quem) { · por {{ quem }}}
+                    </span>
+                  </span>
+                  @if (c.podeAjustar) {
+                    <button type="button" class="tirar" [disabled]="salvando()" [attr.aria-label]="'Tirar ' + p.nome" (click)="tirar(p)">
+                      Tirar
+                    </button>
+                  }
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="ajj-suave vazio" role="status">Ninguém registrado nesta aula.</p>
+          }
+
+          @if (podeIncluir()) {
+            <button type="button" class="incluir" [disabled]="salvando()" (click)="abrirIncluir()">+ Incluir aluno</button>
+          }
+        }
+      </section>
+    }
+  </div>
+</ion-content>
+
+<ion-modal
+  [isOpen]="incluindo()"
+  [breakpoints]="[0, 0.7, 1]"
+  [initialBreakpoint]="0.7"
+  aria-labelledby="painel-incluir-titulo"
+  (didDismiss)="fecharIncluir()"
+>
+  <ng-template>
+    <app-incluir-aluno [pessoas]="candidatos()" [salvando]="salvando()" (escolher)="incluir($event)" (fechar)="fecharIncluir()" />
+  </ng-template>
+</ion-modal>

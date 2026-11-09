@@ -64,6 +64,21 @@ describe('ShellComponent', () => {
     expect(itens.slice(-5)).toEqual(['Professores', 'Agenda', 'Graduação', 'Perfil', 'Sair']);
   });
 
+  it('mostra o item Chamada para professor e dono, mas não para aluno', async () => {
+    const itemChamada = () => fixture.nativeElement.querySelector('ion-menu [routerLink="/app/chamada"]');
+    expect(itemChamada()?.textContent).toContain('Chamada');
+
+    logar(sessao, 'Carla Dias', 'DONO');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(itemChamada()?.textContent).toContain('Chamada');
+
+    logar(sessao, 'Ana Souza', 'ALUNO');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(itemChamada()).toBeNull();
+  });
+
   it('no menu lateral, Perfil fica logo acima de Sair, no fim', async () => {
     logar(sessao, 'Carla Dias', 'DONO');
     fixture.detectChanges();

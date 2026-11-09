@@ -14,6 +14,9 @@
       <h2 id="graduacao-titulo">{{ descricao() }}</h2>
       <ajj-barra-faixa [faixa]="atual.faixa" [grau]="atual.grau" />
       <p class="proxima ajj-suave">{{ proxima() }}</p>
+      @if (presencas(); as linha) {
+        <p class="presencas">{{ linha }}</p>
+      }
 
       @if (resumo().length > 0) {
         <h3 class="ajj-rotulo evolucao-titulo">Evolução</h3>
@@ -31,6 +34,9 @@
     <ajj-estado-vazio class="graduacao" titulo="Sem graduação" texto="Quando sua graduação for registrada, você acompanha a evolução por aqui.">
       <svg lucideAward icone aria-hidden="true"></svg>
       <p class="proxima ajj-suave">{{ proxima() }}</p>
+      @if (presencas(); as linha) {
+        <p class="presencas">{{ linha }}</p>
+      }
     </ajj-estado-vazio>
   }
 }

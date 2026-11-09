@@ -1,0 +1,86 @@
+.carregando {
+  display: grid;
+  place-items: center;
+  padding: var(--ajj-espaco-8) 0;
+}
+
+.ciclo {
+  margin-bottom: var(--ajj-espaco-5);
+}
+
+.titulo-ciclo {
+  margin: 0 0 var(--ajj-espaco-3);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.barra {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--ajj-superficie-2);
+}
+
+.preenchimento {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--ajj-primaria);
+  transition: width 0.4s ease-out;
+}
+
+.faltam {
+  margin: var(--ajj-espaco-3) 0 0;
+  font-family: var(--ajj-fonte-titulo);
+  font-size: 18px;
+  letter-spacing: 0.04em;
+}
+
+.detalhe {
+  margin: var(--ajj-espaco-2) 0 0;
+  color: var(--ajj-texto-suave);
+  font-size: 13px;
+}
+
+.secao {
+  margin: 0 0 var(--ajj-espaco-2);
+  color: var(--ajj-texto-suave);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.presencas {
+  margin: 0 0 var(--ajj-espaco-4);
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--ajj-espaco-1) var(--ajj-espaco-3);
+    padding: var(--ajj-espaco-3) 0;
+    border-bottom: 1px solid var(--ajj-borda);
+  }
+}
+
+.quando {
+  display: flex;
+  gap: var(--ajj-espaco-2);
+  font-size: 15px;
+}
+
+.origem {
+  color: var(--ajj-texto-suave);
+  font-size: 13px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .preenchimento {
+    transition: none;
+  }
+}

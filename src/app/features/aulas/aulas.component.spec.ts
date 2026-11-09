@@ -1,12 +1,16 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { AulaDoDia, DiaAgenda } from '../../shared/agenda/agenda.model';
 import { AgendaService } from '../../shared/agenda/agenda.service';
+import { PresencaService } from '../../shared/presenca/presenca.service';
+import { Notificador } from '../../core/notificacao/notificador';
+import { criarNotificador } from '../auth/testes-auth';
 import { provedoresApp } from '../testes-app';
 import { AulasComponent } from './aulas.component';
 
 function aula(extra: Partial<AulaDoDia> = {}): AulaDoDia {
-  return { id: 1, inicio: '07:10', fim: '08:10', modalidade: 'GI', avulsa: false, motivo: null, cancelada: false, motivoCancelamento: null, ...extra };
+  return { id: 1, inicio: '07:10', fim: '08:10', modalidade: 'GI', avulsa: false, motivo: null, cancelada: false, motivoCancelamento: null, vao: 0, euVou: false, janelaFechada: false, podeMarcar: false, ...extra };
 }
 
 function semana(inicio: string, porData: Record<string, Partial<DiaAgenda>> = {}): DiaAgenda[] {
@@ -18,6 +22,8 @@ function semana(inicio: string, porData: Record<string, Partial<DiaAgenda>> = {}
 
 describe('AulasComponent', () => {
   let service: jasmine.SpyObj<AgendaService>;
+  let presenca: jasmine.SpyObj<PresencaService>;
+  let notificador: jasmine.SpyObj<Notificador>;
   let fixture: ComponentFixture<AulasComponent>;
 
   const el = (): HTMLElement => fixture.nativeElement;
@@ -28,7 +34,7 @@ describe('AulasComponent', () => {
   async function montar(): Promise<void> {
     TestBed.configureTestingModule({
       imports: [AulasComponent],
-      providers: [...provedoresApp(), { provide: AgendaService, useValue: service }]
+      providers: [...provedoresApp(notificador), { provide: AgendaService, useValue: service }, { provide: PresencaService, useValue: presenca }]
     });
     fixture = TestBed.createComponent(AulasComponent);
     fixture.componentInstance.ionViewWillEnter();
@@ -49,6 +55,8 @@ describe('AulasComponent', () => {
     jasmine.clock().mockDate(new Date('2026-11-07T15:00:00Z'));
     service = jasmine.createSpyObj<AgendaService>('AgendaService', ['agenda']);
     service.agenda.and.callFake(inicio => of(semana(inicio)));
+    presenca = jasmine.createSpyObj<PresencaService>('PresencaService', ['marcar', 'desmarcar']);
+    notificador = criarNotificador();
   });
 
   afterEach(() => jasmine.clock().uninstall());
@@ -168,5 +176,99 @@ describe('AulasComponent', () => {
     fixture.detectChanges();
     const marcado = botoesDia().find(b => b.getAttribute('aria-pressed') === 'true')!;
     expect(marcado.getAttribute('aria-label')).toBe('Sábado, 14/11');
+  });
+
+  describe('presença', () => {
+    const botaoVou = (): HTMLButtonElement => el().querySelector<HTMLButtonElement>('button.vou')!;
+    const contador = (): string => el().querySelector('.contador')?.textContent?.trim() ?? '';
+
+    function abertas(): void {
+      service.agenda.and.callFake(inicio =>
+        of(semana(inicio, { '2026-11-07': { aulas: [aula({ inicio: '18:00', vao: 2, podeMarcar: true }), aula({ id: 2, inicio: '19:00', vao: 5, podeMarcar: true })] } }))
+      );
+    }
+
+    it('marca, atualiza o card sem recarregar a semana', async () => {
+      abertas();
+      presenca.marcar.and.returnValue(of(undefined));
+      await montar();
+      await clicar(botaoVou());
+      expect(presenca.marcar).toHaveBeenCalledOnceWith('2026-11-07', 1);
+      expect(service.agenda).toHaveBeenCalledTimes(1);
+      expect(botaoVou().textContent?.trim()).toBe('✓ Vou');
+      expect(contador()).toBe('3 vão');
+      expect(el().querySelectorAll('.contador')[1].textContent?.trim()).toBe('5 vão');
+    });
+
+    it('desmarca quando já marcado', async () => {
+      service.agenda.and.callFake(inicio =>
+        of(semana(inicio, { '2026-11-07': { aulas: [aula({ vao: 4, euVou: true, podeMarcar: true })] } }))
+      );
+      presenca.desmarcar.and.returnValue(of(undefined));
+      await montar();
+      await clicar(botaoVou());
+      expect(presenca.desmarcar).toHaveBeenCalledOnceWith('2026-11-07', 1);
+      expect(presenca.marcar).not.toHaveBeenCalled();
+      expect(botaoVou().textContent?.trim()).toBe('Vou');
+      expect(contador()).toBe('3 vão');
+    });
+
+    it('ERR027 ao marcar assume que já está marcado', async () => {
+      abertas();
+      presenca.marcar.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409, error: { codigo: 'ERR027' } })));
+      await montar();
+      await clicar(botaoVou());
+      expect(botaoVou().textContent?.trim()).toBe('✓ Vou');
+      expect(notificador.erroDaApi).toHaveBeenCalled();
+    });
+
+    it('ERR028 ao desmarcar assume que não está marcado', async () => {
+      service.agenda.and.callFake(inicio =>
+        of(semana(inicio, { '2026-11-07': { aulas: [aula({ vao: 4, euVou: true, podeMarcar: true })] } }))
+      );
+      presenca.desmarcar.and.returnValue(throwError(() => new HttpErrorResponse({ status: 404, error: { codigo: 'ERR028' } })));
+      await montar();
+      await clicar(botaoVou());
+      expect(botaoVou().textContent?.trim()).toBe('Vou');
+    });
+
+    it('ERR026 e ERR021 recarregam a semana', async () => {
+      abertas();
+      presenca.marcar.and.returnValue(throwError(() => new HttpErrorResponse({ status: 422, error: { codigo: 'ERR026' } })));
+      await montar();
+      service.agenda.calls.reset();
+      await clicar(botaoVou());
+      expect(service.agenda).toHaveBeenCalledTimes(1);
+    });
+
+    it('protege contra duplo toque enquanto salva', async () => {
+      abertas();
+      const resposta = new Subject<void>();
+      presenca.marcar.and.returnValue(resposta);
+      await montar();
+      await clicar(botaoVou());
+      await clicar(botaoVou());
+      expect(presenca.marcar).toHaveBeenCalledTimes(1);
+      expect(botaoVou().disabled).toBeTrue();
+      resposta.next();
+      resposta.complete();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+      expect(botaoVou().disabled).toBeFalse();
+      expect(contador()).toBe('3 vão');
+    });
+
+    it('em erro avisa e mantém o estado', async () => {
+      abertas();
+      const falha = new Error('x');
+      presenca.marcar.and.returnValue(throwError(() => falha));
+      await montar();
+      await clicar(botaoVou());
+      expect(notificador.erroDaApi).toHaveBeenCalledWith(falha);
+      expect(botaoVou().textContent?.trim()).toBe('Vou');
+      expect(botaoVou().disabled).toBeFalse();
+      expect(contador()).toBe('2 vão');
+    });
   });
 });

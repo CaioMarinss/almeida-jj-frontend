@@ -25,6 +25,11 @@
           <ion-item button detail="false" routerLink="/app/financeiro" routerLinkActive="ativo">
             <svg lucideWallet aria-hidden="true" slot="start"></svg><ion-label>Financeiro</ion-label>
           </ion-item>
+          @if (ehProfessor()) {
+            <ion-item button detail="false" routerLink="/app/chamada" routerLinkActive="ativo">
+              <svg lucideClipboardCheck aria-hidden="true" slot="start"></svg><ion-label>Chamada</ion-label>
+            </ion-item>
+          }
           @if (ehDono()) {
             <ion-item button detail="false" routerLink="/app/professores" routerLinkActive="ativo">
               <svg lucideUsers aria-hidden="true" slot="start"></svg><ion-label>Professores</ion-label>

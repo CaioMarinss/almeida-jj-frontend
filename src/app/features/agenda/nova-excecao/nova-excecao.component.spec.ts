@@ -19,6 +19,10 @@ function aula(extra: Partial<AulaDoDia> = {}): AulaDoDia {
     motivo: null,
     cancelada: false,
     motivoCancelamento: null,
+    vao: 0,
+    euVou: false,
+    janelaFechada: false,
+    podeMarcar: false,
     ...extra
   };
 }
