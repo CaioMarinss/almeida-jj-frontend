@@ -189,7 +189,7 @@ export class ChamadaComponent {
       }
       this.carregandoChamada.set(false);
       this.erroChamada.set(true);
-      await this.notificador.erroDaApi(erro, 'Não foi possível carregar a chamada.');
+      await this.notificador.erroDaApi(erro, 'Não foi possível carregar as presenças.');
     }
   }
 

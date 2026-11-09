@@ -66,12 +66,12 @@ describe('ShellComponent', () => {
 
   it('mostra o item Chamada para professor e dono, mas não para aluno', async () => {
     const itemChamada = () => fixture.nativeElement.querySelector('ion-menu [routerLink="/app/chamada"]');
-    expect(itemChamada()?.textContent).toContain('Chamada');
+    expect(itemChamada()?.textContent).toContain('Controle de presença');
 
     logar(sessao, 'Carla Dias', 'DONO');
     fixture.detectChanges();
     await fixture.whenStable();
-    expect(itemChamada()?.textContent).toContain('Chamada');
+    expect(itemChamada()?.textContent).toContain('Controle de presença');
 
     logar(sessao, 'Ana Souza', 'ALUNO');
     fixture.detectChanges();

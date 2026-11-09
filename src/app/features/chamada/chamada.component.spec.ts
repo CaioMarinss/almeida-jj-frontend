@@ -182,7 +182,7 @@ describe('ChamadaComponent', () => {
 
     expect(el().querySelectorAll('button.tirar').length).toBe(0);
     expect(el().querySelector('button.incluir')).toBeNull();
-    expect(texto()).toContain('Fora do prazo: esta chamada só pode ser consultada.');
+    expect(texto()).toContain('Fora do prazo: estas presenças só podem ser consultadas.');
     expect(el().querySelectorAll('li.presente').length).toBe(2);
   });
 
@@ -305,7 +305,7 @@ describe('ChamadaComponent', () => {
     fixture.detectChanges();
     await escolherAula(7);
 
-    expect(texto()).toContain('A chamada abre no dia da aula.');
+    expect(texto()).toContain('O controle de presença abre no dia da aula.');
     expect(texto()).not.toContain('Fora do prazo');
   });
 

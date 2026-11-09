@@ -52,7 +52,7 @@ async function abrirDiaDasAulas(page: Page, data: string): Promise<void> {
 
 async function abrirChamada(page: Page, rotuloDia: string, idAula: number): Promise<void> {
   await page.goto('/app/chamada');
-  await page.getByRole('group', { name: 'Dia da chamada' }).getByRole('button', { name: rotuloDia, exact: true }).click();
+  await page.getByRole('group', { name: 'Dia da aula' }).getByRole('button', { name: rotuloDia, exact: true }).click();
   await page.locator(`button.aula[data-id="${idAula}"]`).click();
 }
 
@@ -199,13 +199,13 @@ test.describe('Presença', () => {
       await entrarNoInicio(page, professor);
       await abrirChamada(page, rotuloDoDia(data), idAula);
       await expect(page.locator('li.presente').filter({ hasText: aluno.nome })).toContainText('contada');
-      await expect(page.getByText('Fora do prazo: esta chamada só pode ser consultada.')).toBeVisible();
+      await expect(page.getByText('Fora do prazo: estas presenças só podem ser consultadas.')).toBeVisible();
       await expect(page.getByRole('button', { name: `Tirar ${aluno.nome}`, exact: true })).toHaveCount(0);
       await expect(page.getByRole('button', { name: '+ Incluir aluno', exact: true })).toHaveCount(0);
 
       await entrarNoInicio(page, dono);
       await abrirChamada(page, rotuloDoDia(data), idAula);
-      await expect(page.getByText('Fora do prazo: esta chamada só pode ser consultada.')).toHaveCount(0);
+      await expect(page.getByText('Fora do prazo: estas presenças só podem ser consultadas.')).toHaveCount(0);
       await expect(page.getByRole('button', { name: '+ Incluir aluno', exact: true })).toBeVisible();
       await page.getByRole('button', { name: `Tirar ${aluno.nome}`, exact: true }).click();
       await responderAlerta(page, 'Tirar');
@@ -283,7 +283,7 @@ test.describe('Presença', () => {
     const aluno = await criarContaAtiva(request);
 
     await entrarNoInicio(page, aluno);
-    await expect(page.locator('ion-menu ion-item').filter({ hasText: 'Chamada' })).toHaveCount(0);
+    await expect(page.locator('ion-menu ion-item').filter({ hasText: 'Controle de presença' })).toHaveCount(0);
     await expect(page.locator('section.atalho-chamada')).toHaveCount(0);
 
     await page.goto('/app/chamada');
@@ -296,10 +296,10 @@ test.describe('Presença', () => {
     await promoverProfessor(request, dono, professor);
 
     await entrarNoInicio(page, professor);
-    await page.locator('section.atalho-chamada').getByRole('button', { name: 'Chamada', exact: true }).click();
+    await page.locator('section.atalho-chamada').getByRole('button', { name: 'Controle de presença', exact: true }).click();
 
     await expect(page).toHaveURL(/\/app\/chamada$/);
-    await expect(page.getByRole('group', { name: 'Dia da chamada' })).toBeVisible();
+    await expect(page.getByRole('group', { name: 'Dia da aula' })).toBeVisible();
   });
 });
 

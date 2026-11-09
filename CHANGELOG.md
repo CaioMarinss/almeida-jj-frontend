@@ -8,6 +8,9 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não lançado]
 
+### Alterado
+- A tela **Chamada** passa a se chamar **Controle de presença** (menu, atalho da Início e título); o endereço continua `/app/chamada`.
+
 ## [0.2.6] - 2026-11-09
 
 ### Adicionado

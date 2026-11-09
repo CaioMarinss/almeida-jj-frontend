@@ -1,12 +1,12 @@
 <ion-header class="ion-no-border">
   <ion-toolbar>
-    <ion-title>Chamada</ion-title>
+    <ion-title>Controle de presença</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <div class="ajj-coluna">
-    <div class="dias" role="group" aria-label="Dia da chamada">
+    <div class="dias" role="group" aria-label="Dia da aula">
       @for (d of dias(); track d.data) {
         <button
           type="button"
@@ -31,7 +31,7 @@
         <ajj-botao variante="secundario" (clique)="carregarAulas()">Tentar de novo</ajj-botao>
       </ajj-estado-vazio>
     } @else if (aulas().length === 0) {
-      <ajj-estado-vazio titulo="Nenhuma aula neste dia" texto="Escolha outro dia para ver a chamada.">
+      <ajj-estado-vazio titulo="Nenhuma aula neste dia" texto="Escolha outro dia para ver as presenças.">
         <svg lucideUsers icone aria-hidden="true"></svg>
       </ajj-estado-vazio>
     } @else {
@@ -59,12 +59,12 @@
 
     @if (idAula() !== null) {
       <section class="chamada" aria-labelledby="chamada-titulo">
-        <h2 id="chamada-titulo" class="ajj-rotulo">Chamada</h2>
+        <h2 id="chamada-titulo" class="ajj-rotulo">Presenças da aula</h2>
 
         @if (carregandoChamada() && !chamada()) {
-          <div class="carregando"><ion-spinner name="crescent" aria-label="Carregando chamada" /></div>
+          <div class="carregando"><ion-spinner name="crescent" aria-label="Carregando presenças" /></div>
         } @else if (erroChamada() && !chamada()) {
-          <ajj-estado-vazio class="erro-chamada" titulo="Não foi possível carregar a chamada" texto="Confira sua conexão e tente de novo.">
+          <ajj-estado-vazio class="erro-chamada" titulo="Não foi possível carregar as presenças" texto="Confira sua conexão e tente de novo.">
             <svg lucideTriangleAlert icone aria-hidden="true"></svg>
             <ajj-botao variante="secundario" (clique)="carregarChamada()">Tentar de novo</ajj-botao>
           </ajj-estado-vazio>
@@ -74,9 +74,9 @@
               <p class="prazo ajj-suave">{{ texto }}</p>
             }
           } @else if (aindaNaoAbriu()) {
-            <p class="aviso" role="status">A chamada abre no dia da aula.</p>
+            <p class="aviso" role="status">O controle de presença abre no dia da aula.</p>
           } @else {
-            <p class="aviso" role="status">Fora do prazo: esta chamada só pode ser consultada.</p>
+            <p class="aviso" role="status">Fora do prazo: estas presenças só podem ser consultadas.</p>
           }
 
           @if (c.presencas.length > 0) {

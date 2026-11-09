@@ -139,12 +139,12 @@ Os cenários de marcação usam aulas avulsas criadas pela API para o dia de hoj
 | Aluno marca Vou e desmarca | desktop e celular | Contador "1 vai" -> "2 vão" ao marcar (botão `aria-pressed`, "✓ Vou") e de volta a "1 vai" ao desmarcar; a API concorda. |
 | Início mostra a Próxima aula | desktop e celular | Card com o botão "Vou na aula das HH:mm". |
 | Presença contada | desktop e celular | Em aula já encerrada com presença: "Presença contada" na aba Aulas, sem botão; quem não marcou vê "Janela fechada"; a aba Presença lista o item "contada". |
-| Professor inclui e tira na Chamada | desktop e celular | "Professor pode ajustar até DD/MM", "+ Incluir aluno" com busca, origem "incluída pelo professor", contador "1 presença"; "Tirar" com confirmação volta a "Ninguém registrado nesta aula.". |
-| Semana passada: só leitura para o professor, editável para o dono | desktop e celular | Professor vê "Fora do prazo: esta chamada só pode ser consultada." sem Tirar nem Incluir; o dono vê os dois e tira o aluno. |
-| Dono inclui na semana passada | desktop e celular | Origem "incluída pelo dono" na Chamada e na aba Presença do aluno. |
+| Professor inclui e tira no Controle de presença | desktop e celular | "Professor pode ajustar até DD/MM", "+ Incluir aluno" com busca, origem "incluída pelo professor", contador "1 presença"; "Tirar" com confirmação volta a "Ninguém registrado nesta aula.". |
+| Semana passada: só leitura para o professor, editável para o dono | desktop e celular | Professor vê "Fora do prazo: estas presenças só podem ser consultadas." sem Tirar nem Incluir; o dono vê os dois e tira o aluno. |
+| Dono inclui na semana passada | desktop e celular | Origem "incluída pelo dono" no Controle de presença e na aba Presença do aluno. |
 | Dono cancela aula com marcação aberta | desktop e celular | O aluno vê "Cancelada · motivo", sem botão nem contador; pela API `euVou` falso e `vao` 0. |
-| Aluno não acessa a Chamada | desktop e celular | Sem item no menu nem atalho; `/app/chamada` leva para `/app/inicio`. |
-| Professor chega na Chamada pelo atalho | desktop e celular | O botão "Chamada" da Início abre `/app/chamada`. |
+| Aluno não acessa o Controle de presença | desktop e celular | Sem item no menu nem atalho; `/app/chamada` leva para `/app/inicio`. |
+| Professor chega no Controle de presença pelo atalho | desktop e celular | O botão "Controle de presença" da Início abre `/app/chamada`. |
 | API: cancelar o dia com janela fechada | só desktop | 422 `ERR030`. |
 | API: aluno nas rotas da chamada | só desktop | GET, POST e DELETE respondem 403. |
 | API: professor nos aptos | só desktop | `GET /graduacoes/aptos` e `POST /graduacoes/aptos/{id}` respondem 403. |
