@@ -100,7 +100,7 @@
   </ng-template>
 </ion-modal>
 
-<ion-modal [isOpen]="aptosAberto()" (didDismiss)="fecharAptos()">
+<ion-modal [isOpen]="aptosAberto()" aria-labelledby="aptos-titulo" (didDismiss)="fecharAptos()">
   <ng-template>
     <ion-header>
       <ion-toolbar>

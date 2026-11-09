@@ -152,4 +152,25 @@ describe('CardGraduacaoComponent', () => {
       expect(el.querySelector('.presencas')).toBeNull();
     });
   });
+
+  it('sem graduação mostra a linha de presenças no ciclo', async () => {
+    const { el } = await renderizar(
+      of(dados({ atual: null, presencas: { trilha: 'GRAU', desde: null, ate: '2026-12-14', minimo: 30, contadas: 1 } }))
+    );
+
+    expect(el.textContent).toContain('Sem graduação');
+    expect(el.querySelector('.presencas')?.textContent).toContain('1 de 30 presenças até a graduação de 14/12');
+  });
+
+  it('sem data da graduação usa singular e plural', async () => {
+    const um = await renderizar(
+      of(dados({ presencas: { trilha: 'GRAU', desde: null, ate: '2026-12-14', minimo: null, contadas: 1 } }))
+    );
+    expect(um.el.querySelector('.presencas')?.textContent).toContain('1 presença · mínimo não definido');
+    TestBed.resetTestingModule();
+    const varias = await renderizar(
+      of(dados({ presencas: { trilha: 'GRAU', desde: null, ate: '2026-12-14', minimo: null, contadas: 3 } }))
+    );
+    expect(varias.el.querySelector('.presencas')?.textContent).toContain('3 presenças · mínimo não definido');
+  });
 });

@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { IonContent, IonHeader, IonModal, IonSpinner, IonTitle, IonToolbar } from '@ionic/angular';
 import { LucideTriangleAlert, LucideUsers } from '@lucide/angular';
 import { firstValueFrom } from 'rxjs';
+import { codigoDeErro } from '../../core/http/erro-api';
 import { SessionService } from '../../core/auth/session.service';
 import { Notificador } from '../../core/notificacao/notificador';
 import { AulaDoDia, CLASSE_CHIP_MODALIDADE, ROTULO_MODALIDADE } from '../../shared/agenda/agenda.model';
@@ -47,21 +48,23 @@ export class ChamadaComponent {
   readonly classeChip = CLASSE_CHIP_MODALIDADE;
   readonly rotuloOrigem = ROTULO_ORIGEM;
 
-  private readonly hoje = hojeEmSaoPaulo();
+  readonly hoje = signal(hojeEmSaoPaulo());
 
-  readonly dias = Array.from({ length: 14 }, (_, i) => {
-    const data = somarDias(inicioDaSemana(this.hoje), i - 7);
-    const indice = i % 7;
-    return {
-      data,
-      curto: DIAS_SEMANA_CURTOS[indice],
-      numero: data.slice(8),
-      rotulo: `${NOMES_DIAS[indice]}, ${formatarDiaMes(data)}`,
-      hoje: data === this.hoje
-    };
-  });
+  readonly dias = computed(() =>
+    Array.from({ length: 14 }, (_, i) => {
+      const data = somarDias(inicioDaSemana(this.hoje()), i - 7);
+      const indice = i % 7;
+      return {
+        data,
+        curto: DIAS_SEMANA_CURTOS[indice],
+        numero: data.slice(8),
+        rotulo: `${NOMES_DIAS[indice]}, ${formatarDiaMes(data)}`,
+        hoje: data === this.hoje()
+      };
+    })
+  );
 
-  readonly selecionado = signal(this.hoje);
+  readonly selecionado = signal(this.hoje());
   readonly aulas = signal<AulaDoDia[]>([]);
   readonly idAula = signal<number | null>(null);
   readonly chamada = signal<Chamada | null>(null);
@@ -73,6 +76,7 @@ export class ChamadaComponent {
   readonly incluindo = signal(false);
   readonly alunos = signal<PessoaAcademia[] | null>(null);
 
+  readonly aindaNaoAbriu = computed(() => this.selecionado() > this.hoje());
   readonly aula = computed(() => this.aulas().find(a => a.id === this.idAula()) ?? null);
   readonly podeIncluir = computed(() => (this.chamada()?.podeAjustar ?? false) && !(this.aula()?.cancelada ?? true));
   readonly candidatos = computed(() => {
@@ -90,9 +94,27 @@ export class ChamadaComponent {
 
   private requisicaoAulas = 0;
   private requisicaoChamada = 0;
+  private requisicaoContagem = 0;
+  private primeiraEntrada = true;
 
   constructor() {
     void this.carregarAulas();
+  }
+
+  async ionViewWillEnter(): Promise<void> {
+    if (this.primeiraEntrada) {
+      this.primeiraEntrada = false;
+      return;
+    }
+    this.hoje.set(hojeEmSaoPaulo());
+    if (!this.dias().some(d => d.data === this.selecionado())) {
+      this.selecionado.set(this.hoje());
+      this.idAula.set(null);
+      this.chamada.set(null);
+      this.requisicaoChamada++;
+    }
+    this.alunos.set(null);
+    await Promise.all([this.carregarAulas(), this.carregarChamada()]);
   }
 
   textoPresencas(aula: AulaDoDia): string {
@@ -104,7 +126,7 @@ export class ChamadaComponent {
   }
 
   async escolherDia(data: string): Promise<void> {
-    if (data === this.selecionado()) {
+    if (data === this.selecionado() || this.salvando()) {
       return;
     }
     this.selecionado.set(data);
@@ -115,6 +137,9 @@ export class ChamadaComponent {
   }
 
   async escolherAula(aula: AulaDoDia): Promise<void> {
+    if (this.salvando()) {
+      return;
+    }
     this.idAula.set(aula.id);
     this.chamada.set(null);
     await this.carregarChamada();
@@ -190,6 +215,7 @@ export class ChamadaComponent {
       await this.recarregar();
     } catch (erro: unknown) {
       await this.notificador.erroDaApi(erro, 'Não foi possível tirar a presença.');
+      await this.recarregarSeDesatualizada(erro);
     } finally {
       this.salvando.set(false);
     }
@@ -226,6 +252,7 @@ export class ChamadaComponent {
       await this.recarregar();
     } catch (erro: unknown) {
       await this.notificador.erroDaApi(erro, 'Não foi possível incluir o aluno.');
+      await this.recarregarSeDesatualizada(erro);
     } finally {
       this.salvando.set(false);
     }
@@ -235,12 +262,20 @@ export class ChamadaComponent {
     await Promise.all([this.carregarChamada(), this.atualizarContagem()]);
   }
 
+  private async recarregarSeDesatualizada(erro: unknown): Promise<void> {
+    const codigo = codigoDeErro(erro);
+    if (codigo === 'ERR027' || codigo === 'ERR028' || codigo === 'ERR029') {
+      this.fecharIncluir();
+      await this.recarregar();
+    }
+  }
+
   private async atualizarContagem(): Promise<void> {
     const data = this.selecionado();
-    const id = ++this.requisicaoAulas;
+    const id = ++this.requisicaoContagem;
     try {
       const dias = await firstValueFrom(this.agenda.agenda(data, data));
-      if (id === this.requisicaoAulas) {
+      if (id === this.requisicaoContagem && data === this.selecionado()) {
         this.aulas.set(dias.find(d => d.data === data)?.aulas ?? []);
       }
     } catch {

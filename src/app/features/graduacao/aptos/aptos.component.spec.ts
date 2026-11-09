@@ -107,8 +107,8 @@ describe('AptosComponent', () => {
   it('aptos vêm primeiro, com contagem 34/30 e Graduou; depois os não aptos com faltam N', () => {
     criar();
 
-    expect(nomes('Troca de grau')).toEqual(['Bia', 'Zeca', 'Caio']);
-    const [bia, zeca] = linhas('Troca de grau');
+    expect(nomes('Troca de grau')).toEqual(['Bia', 'Caio', 'Zeca']);
+    const [bia, , zeca] = linhas('Troca de grau');
     expect(bia.textContent).toContain('34/30');
     expect(botaoEm(bia, 'Graduou')).toBeDefined();
     expect(zeca.textContent).toContain('faltam 10');
@@ -118,7 +118,7 @@ describe('AptosComponent', () => {
   it('mínimo nulo mostra "mínimo não definido" e não é apto', () => {
     criar();
 
-    const caio = linhas('Troca de grau')[2];
+    const caio = linhas('Troca de grau')[1];
     expect(caio.textContent).toContain('mínimo não definido');
     expect(caio.textContent).not.toContain('faltam');
     expect(botaoEm(caio, 'Graduou')).toBeUndefined();

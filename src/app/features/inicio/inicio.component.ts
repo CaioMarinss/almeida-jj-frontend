@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { IonContent, NavController } from '@ionic/angular';
 import { SessionService } from '../../core/auth/session.service';
+import { codigoDeErro } from '../../core/http/erro-api';
 import { Notificador } from '../../core/notificacao/notificador';
 import { BotaoComponent } from '../../shared/ui/botao/botao.component';
 import { AulaDoDia, CLASSE_CHIP_MODALIDADE, ROTULO_MODALIDADE } from '../../shared/agenda/agenda.model';
@@ -96,6 +97,12 @@ export class InicioComponent {
       },
       error: erro => {
         this.salvando.set(false);
+        const codigo = codigoDeErro(erro);
+        if (codigo === 'ERR027' || codigo === 'ERR028') {
+          this.proxima.set({ data: atual.data, aula: { ...aula, euVou: codigo === 'ERR027' } });
+        } else if (codigo === 'ERR026' || codigo === 'ERR021') {
+          this.ionViewWillEnter();
+        }
         void this.notificador.erroDaApi(erro);
       }
     });

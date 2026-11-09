@@ -1,4 +1,4 @@
-import { APIRequestContext, expect, Page, test } from '@playwright/test';
+import { APIRequestContext, APIResponse, expect, Page, test } from '@playwright/test';
 import { URL_API } from '../../playwright.config';
 import { Conta, criarContaAtiva, criarDono, idDe, nomear, sufixoUnico } from '../suporte/contas';
 import { dataDaSemana, diaDaSemanaIso, diaMes, hojeEmSaoPaulo } from '../suporte/datas';
@@ -309,9 +309,10 @@ test.describe('Presença, só desktop', () => {
   test('API: cancelar o dia quando uma aula já fechou a janela é recusado com ERR030', async ({ request }) => {
     const dono = await criarDono(request);
     const aula = exigirAula(await avulsaFechada(request, dono), MOTIVO_AULA_FECHADA);
+    let resposta: APIResponse | null = null;
 
     try {
-      const resposta = await request.post(`${URL_API}/agenda/cancelamentos`, {
+      resposta = await request.post(`${URL_API}/agenda/cancelamentos`, {
         headers: await autorizacao(request, dono),
         data: { data: hojeEmSaoPaulo(), motivo: 'Teste e2e' }
       });
@@ -319,6 +320,10 @@ test.describe('Presença, só desktop', () => {
       expect(resposta.status()).toBe(422);
       expect(((await resposta.json()) as { codigo: string }).codigo).toBe('ERR030');
     } finally {
+      if (resposta?.status() === 201) {
+        const { id } = (await resposta.json()) as { id: number };
+        await request.delete(`${URL_API}/agenda/cancelamentos/${id}`, { headers: await autorizacao(request, dono) });
+      }
       descartarAulaPorSql(aula);
     }
   });

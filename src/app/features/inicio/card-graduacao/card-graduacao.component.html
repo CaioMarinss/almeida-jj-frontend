@@ -34,6 +34,9 @@
     <ajj-estado-vazio class="graduacao" titulo="Sem graduação" texto="Quando sua graduação for registrada, você acompanha a evolução por aqui.">
       <svg lucideAward icone aria-hidden="true"></svg>
       <p class="proxima ajj-suave">{{ proxima() }}</p>
+      @if (presencas(); as linha) {
+        <p class="presencas">{{ linha }}</p>
+      }
     </ajj-estado-vazio>
   }
 }

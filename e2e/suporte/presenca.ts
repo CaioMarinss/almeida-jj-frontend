@@ -76,12 +76,14 @@ export async function avulsaAberta(request: APIRequestContext, dono: Conta): Pro
 }
 
 export async function avulsaFechada(request: APIRequestContext, dono: Conta): Promise<AulaCriada | null> {
-  if (minutosAgora() < 60) {
+  const agora = minutosAgora();
+  const limite = Math.min(agora - 40, 23 * 60);
+  if (limite < 5) {
     return null;
   }
   return tentar(
-    () => sorteio(10, 20),
-    inicio => criarAvulsa(request, dono, hojeEmSaoPaulo(), inicio, 10)
+    () => sorteio(5, limite),
+    inicio => criarAvulsa(request, dono, hojeEmSaoPaulo(), inicio, 5)
   );
 }
 
@@ -114,6 +116,9 @@ export async function gradeDoDomingoAberta(request: APIRequestContext, dono: Con
 
 export async function removerGrade(request: APIRequestContext, dono: Conta, aula: AulaCriada): Promise<void> {
   await request.delete(`${URL_API}/aulas/grade/${aula.id}`, { headers: await autorizacao(request, dono) });
+  if (aula.data === hojeEmSaoPaulo()) {
+    descartarAulaPorSql(aula);
+  }
 }
 
 export async function idDaGrade(request: APIRequestContext, dono: Conta, diaSemana: number, inicio: string): Promise<number> {

@@ -163,6 +163,6 @@ export class AptosComponent implements OnInit {
   }
 
   private ordenar(lista: Apto[]): Apto[] {
-    return [...lista].sort((a, b) => Number(b.apto) - Number(a.apto));
+    return [...lista].sort((a, b) => Number(b.apto) - Number(a.apto) || a.nome.localeCompare(b.nome, 'pt-BR'));
   }
 }

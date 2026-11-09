@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, Subject, throwError } from 'rxjs';
 import { AulaDoDia, DiaAgenda } from '../../shared/agenda/agenda.model';
@@ -210,6 +211,34 @@ describe('AulasComponent', () => {
       expect(presenca.marcar).not.toHaveBeenCalled();
       expect(botaoVou().textContent?.trim()).toBe('Vou');
       expect(contador()).toBe('3 vão');
+    });
+
+    it('ERR027 ao marcar assume que já está marcado', async () => {
+      abertas();
+      presenca.marcar.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409, error: { codigo: 'ERR027' } })));
+      await montar();
+      await clicar(botaoVou());
+      expect(botaoVou().textContent?.trim()).toBe('✓ Vou');
+      expect(notificador.erroDaApi).toHaveBeenCalled();
+    });
+
+    it('ERR028 ao desmarcar assume que não está marcado', async () => {
+      service.agenda.and.callFake(inicio =>
+        of(semana(inicio, { '2026-11-07': { aulas: [aula({ vao: 4, euVou: true, podeMarcar: true })] } }))
+      );
+      presenca.desmarcar.and.returnValue(throwError(() => new HttpErrorResponse({ status: 404, error: { codigo: 'ERR028' } })));
+      await montar();
+      await clicar(botaoVou());
+      expect(botaoVou().textContent?.trim()).toBe('Vou');
+    });
+
+    it('ERR026 e ERR021 recarregam a semana', async () => {
+      abertas();
+      presenca.marcar.and.returnValue(throwError(() => new HttpErrorResponse({ status: 422, error: { codigo: 'ERR026' } })));
+      await montar();
+      service.agenda.calls.reset();
+      await clicar(botaoVou());
+      expect(service.agenda).toHaveBeenCalledTimes(1);
     });
 
     it('protege contra duplo toque enquanto salva', async () => {

@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { AulaDoDia, DiaAgenda } from '../../shared/agenda/agenda.model';
@@ -150,5 +151,36 @@ describe('InicioComponent', () => {
     expect((await renderizar('Ana', 'ALUNO')).querySelector('app-area-dono')).toBeNull();
     TestBed.resetTestingModule();
     expect((await renderizar('Pedro', 'PROFESSOR')).querySelector('app-area-dono')).toBeNull();
+  });
+
+  it('ERR027 ao marcar assume que já está marcado', async () => {
+    agenda.and.returnValue(of([dia('2026-11-04', [aula({ podeMarcar: true })])]));
+    presenca.marcar.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409, error: { codigo: 'ERR027' } })));
+    const tela = await renderizar('Ana');
+
+    await clicar(tela.querySelector<HTMLButtonElement>('.proxima-aula button.vou')!);
+
+    expect(tela.querySelector('.proxima-aula button.vou')?.textContent?.trim()).toBe('✓ Vou');
+  });
+
+  it('ERR028 ao desmarcar assume que não está marcado', async () => {
+    agenda.and.returnValue(of([dia('2026-11-04', [aula({ podeMarcar: true, euVou: true })])]));
+    presenca.desmarcar.and.returnValue(throwError(() => new HttpErrorResponse({ status: 404, error: { codigo: 'ERR028' } })));
+    const tela = await renderizar('Ana');
+
+    await clicar(tela.querySelector<HTMLButtonElement>('.proxima-aula button.vou')!);
+
+    expect(tela.querySelector('.proxima-aula button.vou')?.textContent?.trim()).toBe('Vou');
+  });
+
+  it('ERR026 recarrega a agenda', async () => {
+    agenda.and.returnValue(of([dia('2026-11-04', [aula({ podeMarcar: true })])]));
+    presenca.marcar.and.returnValue(throwError(() => new HttpErrorResponse({ status: 422, error: { codigo: 'ERR026' } })));
+    const tela = await renderizar('Ana');
+    agenda.calls.reset();
+
+    await clicar(tela.querySelector<HTMLButtonElement>('.proxima-aula button.vou')!);
+
+    expect(agenda).toHaveBeenCalledTimes(1);
   });
 });

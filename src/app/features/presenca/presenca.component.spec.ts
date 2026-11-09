@@ -163,4 +163,26 @@ describe('PresencaComponent', () => {
 
     expect(service.minhas).toHaveBeenCalledTimes(2);
   });
+
+  it('limita aria-valuenow ao máximo quando passou do mínimo', async () => {
+    service.minhas.and.returnValue(
+      of({ ciclo: { trilha: 'FAIXA', desde: null, ate: '2026-12-14', minimo: 30, contadas: 34 }, presencas: [contada()] })
+    );
+    await montar();
+
+    const barra = el().querySelector('[role="progressbar"]')!;
+    expect(barra.getAttribute('aria-valuenow')).toBe('30');
+    expect(barra.getAttribute('aria-valuemax')).toBe('30');
+  });
+
+  it('mínimo zero usa valuemax 1 e valuenow 1', async () => {
+    service.minhas.and.returnValue(
+      of({ ciclo: { trilha: 'GRAU', desde: null, ate: '2026-12-14', minimo: 0, contadas: 0 }, presencas: [contada()] })
+    );
+    await montar();
+
+    const barra = el().querySelector('[role="progressbar"]')!;
+    expect(barra.getAttribute('aria-valuenow')).toBe('1');
+    expect(barra.getAttribute('aria-valuemax')).toBe('1');
+  });
 });

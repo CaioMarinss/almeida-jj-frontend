@@ -389,6 +389,11 @@ test.describe('Graduação', () => {
           await expect(barra).toHaveAttribute('aria-valuemax', '5');
           await expect(page.locator('ul.presencas li')).toHaveCount(2);
           await expect(page.locator('ul.presencas li').first()).toContainText('contada');
+
+          await page.goto('/app/inicio');
+          const card = page.locator('app-card-graduacao');
+          await expect(card).toContainText('Sem graduação');
+          await expect(card).toContainText(`2 de 5 presenças até a graduação de ${diaMes(evento)}`);
         } finally {
           await cancelarProxima(request, dono);
           descartarPresencasDoAluno(idAluno);

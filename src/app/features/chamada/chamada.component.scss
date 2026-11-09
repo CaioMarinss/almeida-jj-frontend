@@ -44,6 +44,11 @@
     }
   }
 
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
   &:focus-visible {
     outline: 2px solid var(--ajj-primaria);
     outline-offset: 2px;
@@ -91,6 +96,11 @@ ajj-estado-vazio {
   &.cancelada .hora {
     text-decoration: line-through;
     color: var(--ajj-texto-suave);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
   }
 
   &:focus-visible {

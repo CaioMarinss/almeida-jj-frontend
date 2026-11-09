@@ -4,6 +4,7 @@ import { LucideCircleCheck, LucideTriangleAlert } from '@lucide/angular';
 import { ROTULO_MODALIDADE } from '../../shared/agenda/agenda.model';
 import { DIAS_SEMANA_CURTOS, diaSemanaIso, formatarDiaMes } from '../../shared/agenda/datas';
 import { CicloPresenca, MinhasPresencas, PresencaContada, ROTULO_ORIGEM } from '../../shared/presenca/presenca.model';
+import { pluralPresencas } from '../../shared/presenca/plural';
 import { PresencaService } from '../../shared/presenca/presenca.service';
 import { BotaoComponent } from '../../shared/ui/botao/botao.component';
 import { EstadoVazioComponent } from '../../shared/ui/estado-vazio/estado-vazio.component';
@@ -29,20 +30,16 @@ function capitalizar(texto: string): string {
   return texto.charAt(0) + texto.slice(1).toLowerCase();
 }
 
-function plural(n: number): string {
-  return n === 1 ? '1 presença' : `${n} presenças`;
-}
-
 function resumir(ciclo: CicloPresenca): ResumoCiclo {
   const desde = ciclo.desde ? `contando desde ${formatarDiaMes(ciclo.desde)}` : 'contando desde o início';
   const trilha = ciclo.trilha === 'FAIXA' ? 'troca de faixa' : 'troca de grau';
   const base = { trilha, desde, faltam: null, progresso: null };
   if (!ciclo.ate) {
     const quando = ciclo.desde ? `desde ${formatarDiaMes(ciclo.desde)}` : 'contadas';
-    return { ...base, titulo: `${plural(ciclo.contadas)} ${quando}` };
+    return { ...base, titulo: `${pluralPresencas(ciclo.contadas)} ${quando}` };
   }
   if (ciclo.minimo === null) {
-    return { ...base, titulo: `${plural(ciclo.contadas)} · mínimo não definido` };
+    return { ...base, titulo: `${pluralPresencas(ciclo.contadas)} · mínimo não definido` };
   }
   const falta = Math.max(ciclo.minimo - ciclo.contadas, 0);
   const percentual = ciclo.minimo > 0 ? Math.min(Math.round((ciclo.contadas / ciclo.minimo) * 100), 100) : 100;
@@ -50,7 +47,7 @@ function resumir(ciclo: CicloPresenca): ResumoCiclo {
     ...base,
     titulo: `${ciclo.contadas} de ${ciclo.minimo} presenças até a graduação de ${formatarDiaMes(ciclo.ate)}`,
     faltam: falta > 0 ? `Faltam ${falta}` : 'Você já atingiu o mínimo',
-    progresso: { atual: ciclo.contadas, maximo: ciclo.minimo, percentual }
+    progresso: ciclo.minimo > 0 ? { atual: Math.min(ciclo.contadas, ciclo.minimo), maximo: ciclo.minimo, percentual } : { atual: 1, maximo: 1, percentual }
   };
 }
 
@@ -96,7 +93,7 @@ export class PresencaComponent {
     if (dados.ciclo) {
       return resumir(dados.ciclo);
     }
-    return { titulo: `${plural(dados.presencas.length)} contadas`, trilha: '', desde: '', faltam: null, progresso: null };
+    return { titulo: `${pluralPresencas(dados.presencas.length)} contadas`, trilha: '', desde: '', faltam: null, progresso: null };
   });
 
   private readonly itens = computed(() => (this.dados()?.presencas ?? []).map(itemDe));

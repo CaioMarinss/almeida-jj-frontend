@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { IonContent, IonHeader, IonSpinner, IonTitle, IonToolbar } from '@ionic/angular';
 import { LucideCalendarDays, LucideChevronLeft, LucideChevronRight, LucideTriangleAlert } from '@lucide/angular';
 import { AgendaService } from '../../shared/agenda/agenda.service';
+import { codigoDeErro } from '../../core/http/erro-api';
 import { Notificador } from '../../core/notificacao/notificador';
 import { AulaDoDia, DiaAgenda } from '../../shared/agenda/agenda.model';
 import { DIAS_SEMANA_CURTOS, diaSemanaIso, formatarDiaMes, inicioDaSemana, somarDias } from '../../shared/agenda/datas';
@@ -117,6 +118,15 @@ export class AulasComponent {
       },
       error: erro => {
         this.liberar(chave);
+        const codigo = codigoDeErro(erro);
+        if (codigo === 'ERR027' || codigo === 'ERR028') {
+          const euVou = codigo === 'ERR027';
+          this.dias.update(dias =>
+            dias.map(d => (d.data === data ? { ...d, aulas: d.aulas.map(a => (a.id === aula.id ? { ...a, euVou } : a)) } : d))
+          );
+        } else if (codigo === 'ERR026' || codigo === 'ERR021') {
+          this.carregar();
+        }
         void this.notificador.erroDaApi(erro);
       }
     });

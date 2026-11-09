@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, Subject, throwError } from 'rxjs';
 import { SessionService } from '../../core/auth/session.service';
@@ -295,5 +296,113 @@ describe('ChamadaComponent', () => {
 
     expect(el().querySelector('.erro-carga')).not.toBeNull();
     expect(notificador.erroDaApi).toHaveBeenCalled();
+  });
+
+  it('chamada de dia futuro avisa que abre no dia da aula', async () => {
+    presenca.chamada.and.returnValue(of({ ...chamadaBase, podeAjustar: false }));
+    await criar();
+    await fixture.componentInstance.escolherDia('2026-11-05');
+    fixture.detectChanges();
+    await escolherAula(7);
+
+    expect(texto()).toContain('A chamada abre no dia da aula.');
+    expect(texto()).not.toContain('Fora do prazo');
+  });
+
+  it('trocar de dia fica bloqueado enquanto salva e as aulas não ficam travadas', async () => {
+    await criar();
+    await escolherAula(7);
+    const resposta = new Subject<void>();
+    presenca.tirar.and.returnValue(resposta);
+
+    const tirando = fixture.componentInstance.tirar(chamadaBase.presencas[0]);
+    await Promise.resolve();
+    fixture.detectChanges();
+    expect(el().querySelector<HTMLButtonElement>('button.dia')!.disabled).toBeTrue();
+    await fixture.componentInstance.escolherDia('2026-10-26');
+    expect(fixture.componentInstance.selecionado()).toBe('2026-11-04');
+
+    resposta.next();
+    resposta.complete();
+    await tirando;
+    fixture.detectChanges();
+    await fixture.componentInstance.escolherDia('2026-10-26');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(fixture.componentInstance.carregandoAulas()).toBeFalse();
+    expect(fixture.componentInstance.aulas().length).toBe(2);
+  });
+
+  it('a contagem atrasada de outro dia não sobrescreve as aulas do dia atual', async () => {
+    await criar();
+    await escolherAula(7);
+    const atrasada = new Subject<DiaAgenda[]>();
+    let chamadas = 0;
+    agenda.calls.reset();
+    agenda.and.callFake((inicio: string) =>
+      ++chamadas === 1 ? atrasada : of<DiaAgenda[]>([{ data: inicio, diaCancelado: null, aulas: [aula({ id: 9 })] }])
+    );
+    const tirando = fixture.componentInstance.tirar(chamadaBase.presencas[0]);
+    while (agenda.calls.count() === 0) {
+      await Promise.resolve();
+    }
+    fixture.componentInstance.selecionado.set('2026-10-26');
+    await fixture.componentInstance.carregarAulas();
+    atrasada.next([{ data: '2026-11-04', diaCancelado: null, aulas: [] }]);
+    atrasada.complete();
+    await tirando;
+
+    expect(fixture.componentInstance.aulas().map(a => a.id)).toEqual([9]);
+    expect(fixture.componentInstance.carregandoAulas()).toBeFalse();
+  });
+
+  for (const codigo of ['ERR027', 'ERR028', 'ERR029']) {
+    it(`${codigo} ao tirar recarrega a chamada`, async () => {
+      await criar();
+      await escolherAula(7);
+      presenca.tirar.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409, error: { codigo } })));
+      presenca.chamada.calls.reset();
+
+      await fixture.componentInstance.tirar(chamadaBase.presencas[0]);
+
+      expect(presenca.chamada).toHaveBeenCalledWith('2026-11-04', 7);
+    });
+  }
+
+  it('ERR029 ao incluir fecha o painel e recarrega a chamada', async () => {
+    await criar();
+    await escolherAula(7);
+    await fixture.componentInstance.abrirIncluir();
+    presenca.incluir.and.returnValue(throwError(() => new HttpErrorResponse({ status: 422, error: { codigo: 'ERR029' } })));
+    presenca.chamada.calls.reset();
+
+    await fixture.componentInstance.incluir(joao);
+
+    expect(fixture.componentInstance.incluindo()).toBeFalse();
+    expect(presenca.chamada).toHaveBeenCalledTimes(1);
+  });
+
+  it('ao voltar para a tela recalcula hoje, recarrega aulas e chamada e renova os alunos', async () => {
+    await criar();
+    await escolherAula(7);
+    await fixture.componentInstance.abrirIncluir();
+    fixture.componentInstance.fecharIncluir();
+    await fixture.componentInstance.ionViewWillEnter();
+    agenda.calls.reset();
+    presenca.chamada.calls.reset();
+    alunos.listar.calls.reset();
+    jasmine.clock().mockDate(new Date('2026-11-10T15:00:00Z'));
+
+    await fixture.componentInstance.ionViewWillEnter();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.hoje()).toBe('2026-11-10');
+    expect(fixture.componentInstance.selecionado()).toBe('2026-11-04');
+    expect(fixture.componentInstance.dias()[13].data).toBe('2026-11-15');
+    expect(agenda).toHaveBeenCalledWith('2026-11-04', '2026-11-04');
+    expect(presenca.chamada).toHaveBeenCalledWith('2026-11-04', 7);
+    await fixture.componentInstance.abrirIncluir();
+    expect(alunos.listar).toHaveBeenCalledTimes(1);
   });
 });

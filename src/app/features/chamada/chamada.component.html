@@ -7,13 +7,14 @@
 <ion-content>
   <div class="ajj-coluna">
     <div class="dias" role="group" aria-label="Dia da chamada">
-      @for (d of dias; track d.data) {
+      @for (d of dias(); track d.data) {
         <button
           type="button"
           class="dia"
           [class.hoje]="d.hoje"
           [attr.aria-label]="d.rotulo"
           [attr.aria-pressed]="d.data === selecionado()"
+          [disabled]="salvando()"
           (click)="escolherDia(d.data)"
         >
           <span class="curto">{{ d.curto }}</span>
@@ -44,6 +45,7 @@
               [class.cancelada]="a.cancelada"
               [attr.data-id]="a.id"
               [attr.aria-pressed]="a.id === idAula()"
+              [disabled]="salvando()"
               (click)="escolherAula(a)"
             >
               <strong class="hora">{{ a.inicio }}</strong>
@@ -71,6 +73,8 @@
             @if (prazo(); as texto) {
               <p class="prazo ajj-suave">{{ texto }}</p>
             }
+          } @else if (aindaNaoAbriu()) {
+            <p class="aviso" role="status">A chamada abre no dia da aula.</p>
           } @else {
             <p class="aviso" role="status">Fora do prazo: esta chamada só pode ser consultada.</p>
           }
