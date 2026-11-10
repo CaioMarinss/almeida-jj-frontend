@@ -43,6 +43,24 @@ describe('PresencaService', () => {
     expect(valor).toEqual({ ciclo: null, presencas: [] });
   });
 
+  it('busca as presenças de um aluno para o dono', () => {
+    const req = (service.doAluno(7).subscribe(), http.expectOne(`${api}/graduacoes/alunos/7/presencas`));
+    expect(req.request.method).toBe('GET');
+    req.flush({ ciclo: null, presencas: [] });
+  });
+
+  it('busca os alunos sumidos', () => {
+    const req = (service.sumidos().subscribe(), http.expectOne(`${api}/presencas/sumidos`));
+    expect(req.request.method).toBe('GET');
+    req.flush({ dias: 14, alunos: [] });
+  });
+
+  it('busca o prazo da chamada', () => {
+    const req = (service.prazo().subscribe(), http.expectOne(`${environment.apiUrl}/presencas/prazo`));
+    expect(req.request.method).toBe('GET');
+    req.flush({ ajustaDesde: null });
+  });
+
   it('busca a chamada da aula', () => {
     const req = (service.chamada('2026-11-10', 5).subscribe(), http.expectOne(`${aula}/presencas`));
     expect(req.request.method).toBe('GET');

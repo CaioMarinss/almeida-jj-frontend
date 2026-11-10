@@ -61,7 +61,7 @@ describe('ShellComponent', () => {
     const itens = Array.from(fixture.nativeElement.querySelectorAll('ion-menu ion-item')).map(i =>
       (i as HTMLElement).textContent?.trim()
     );
-    expect(itens.slice(-5)).toEqual(['Professores', 'Agenda', 'Graduação', 'Perfil', 'Sair']);
+    expect(itens.slice(-6)).toEqual(['Professores', 'Agenda', 'Graduação', 'Alunos sumidos', 'Perfil', 'Sair']);
   });
 
   it('mostra o item Chamada para professor e dono, mas não para aluno', async () => {

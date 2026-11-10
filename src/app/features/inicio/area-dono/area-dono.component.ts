@@ -23,4 +23,8 @@ export class AreaDonoComponent {
   abrirGraduacoes(): Promise<boolean> {
     return this.nav.navigateForward('/app/graduacao');
   }
+
+  abrirSumidos(): Promise<boolean> {
+    return this.nav.navigateForward('/app/sumidos');
+  }
 }

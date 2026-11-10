@@ -11,7 +11,7 @@ describe('AreaDonoComponent', () => {
     return fixture.nativeElement as HTMLElement;
   }
 
-  it('mostra o título e os três botões', () => {
+  it('mostra o título e os quatro botões', () => {
     const tela = renderizar();
 
     const secao = tela.querySelector('section');
@@ -21,6 +21,7 @@ describe('AreaDonoComponent', () => {
     expect(tela.querySelector('ajj-botao.professores')?.textContent?.trim()).toBe('Professores');
     expect(tela.querySelector('ajj-botao.agenda')?.textContent?.trim()).toBe('Agenda');
     expect(tela.querySelector('ajj-botao.graducoes')?.textContent?.trim()).toBe('Graduações');
+    expect(tela.querySelector('ajj-botao.sumidos')?.textContent?.trim()).toBe('Sumidos');
   });
 
   it('cada botão navega para a rota certa', async () => {
@@ -31,7 +32,8 @@ describe('AreaDonoComponent', () => {
     await fixture.componentInstance.abrirProfessores();
     await fixture.componentInstance.abrirAgenda();
     await fixture.componentInstance.abrirGraduacoes();
+    await fixture.componentInstance.abrirSumidos();
 
-    expect(navegar.calls.allArgs()).toEqual([['/app/professores'], ['/app/agenda'], ['/app/graduacao']]);
+    expect(navegar.calls.allArgs()).toEqual([['/app/professores'], ['/app/agenda'], ['/app/graduacao'], ['/app/sumidos']]);
   });
 });

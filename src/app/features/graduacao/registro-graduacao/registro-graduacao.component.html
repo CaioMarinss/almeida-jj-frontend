@@ -8,6 +8,8 @@
     }
   </p>
 
+  <app-presencas-aluno [idAluno]="aluno().id" />
+
   @if (erroFaixas()) {
     <div class="erro" role="alert">
       <p>Não foi possível carregar as faixas.</p>

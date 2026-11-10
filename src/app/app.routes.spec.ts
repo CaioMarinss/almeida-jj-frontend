@@ -14,7 +14,7 @@ describe('rotas', () => {
 
   it('a área logada fica em /app e exige autenticação', () => {
     expect(rota('app')?.canActivate?.length).toBe(1);
-    expect(filhos().map(r => r.path)).toEqual(['inicio', 'aulas', 'presenca', 'financeiro', 'perfil', 'professores', 'chamada', 'agenda', 'graduacao', '']);
+    expect(filhos().map(r => r.path)).toEqual(['inicio', 'aulas', 'presenca', 'financeiro', 'perfil', 'professores', 'chamada', 'agenda', 'graduacao', 'sumidos', '']);
   });
 
   it('professores só abre para o dono', () => {
@@ -27,6 +27,10 @@ describe('rotas', () => {
 
   it('agenda só abre para o dono', () => {
     expect(filhos().find(r => r.path === 'agenda')?.canActivate).toEqual([donoGuard]);
+  });
+
+  it('sumidos só abre para o dono', () => {
+    expect(filhos().find(r => r.path === 'sumidos')?.canActivate).toEqual([donoGuard]);
   });
 
   it('graduacao só abre para o dono', () => {

@@ -6,6 +6,16 @@
 
 <ion-content>
   <div class="ajj-coluna">
+    <nav class="semana" aria-label="Semana">
+      <button type="button" class="seta" aria-label="Semana anterior" [disabled]="semanaAnteriorBloqueada()" (click)="mudarSemana(-1)">
+        <svg lucideChevronLeft aria-hidden="true"></svg>
+      </button>
+      <span class="intervalo" aria-live="polite">{{ intervalo() }}</span>
+      <button type="button" class="seta" aria-label="Próxima semana" [disabled]="proximaSemanaBloqueada()" (click)="mudarSemana(1)">
+        <svg lucideChevronRight aria-hidden="true"></svg>
+      </button>
+    </nav>
+
     <div class="dias" role="group" aria-label="Dia da aula">
       @for (d of dias(); track d.data) {
         <button

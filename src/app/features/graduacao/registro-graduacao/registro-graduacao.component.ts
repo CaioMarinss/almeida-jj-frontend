@@ -6,10 +6,11 @@ import { descreverGraduacao, formatarMesAno, hojeEmSaoPaulo } from '../../../sha
 import { AlunoGraduacao, Faixa, RegistroGraduacao } from '../../../shared/graduacao/graduacao.model';
 import { GraduacaoService } from '../../../shared/graduacao/graduacao.service';
 import { BotaoComponent } from '../../../shared/ui/botao/botao.component';
+import { PresencasAlunoComponent } from '../presencas-aluno/presencas-aluno.component';
 
 @Component({
   selector: 'app-registro-graduacao',
-  imports: [BotaoComponent, LucideTrash2],
+  imports: [BotaoComponent, LucideTrash2, PresencasAlunoComponent],
   templateUrl: './registro-graduacao.component.html',
   styleUrl: './registro-graduacao.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

@@ -20,6 +20,7 @@ import {
   LucideHouse,
   LucideLogOut,
   LucideUser,
+  LucideUserX,
   LucideUsers,
   LucideWallet
 } from '@lucide/angular';
@@ -49,6 +50,7 @@ import { ROTULO_PERFIL } from '../../core/auth/usuario';
     LucideClipboardCheck,
     LucideWallet,
     LucideUser,
+    LucideUserX,
     LucideUsers,
     LucideLogOut
   ],
