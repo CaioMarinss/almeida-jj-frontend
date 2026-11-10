@@ -2,7 +2,7 @@
 
 Testam o sistema inteiro como um usuário: navegador real (Playwright) → front → API → Postgres. Os e-mails ficam presos no [Mailpit](https://mailpit.axllent.org/) e os testes leem deles os links de verificação e de redefinição.
 
-Não rodam no `npm test`. No GitHub, rodam a cada push ou PR para `dev` nos dois repositórios (veja [No GitHub](#no-github-actions)).
+Não rodam no `npm test`. No GitHub são **opcionais**: só rodam à mão (veja [No GitHub](#no-github-actions)).
 
 ## Pré-requisitos
 
@@ -192,10 +192,9 @@ A agenda é global e os dois projetos rodam em paralelo, então cada projeto usa
 
 ## No GitHub (Actions)
 
-`.github/workflows/e2e.yml` roda a suíte a cada push ou PR para `dev`, usando a branch `dev` da API. Também dá para rodar à mão em **Actions → e2e → Run workflow**. O repositório da API tem o mesmo workflow, que usa a `dev` deste repositório.
+`.github/workflows/e2e.yml` é **opcional** desde 2026-11-09: não roda no push nem no PR, só à mão em **Actions → e2e → Run workflow**, usando a branch `dev` da API. O repositório da API tem o mesmo workflow, que usa a `dev` deste repositório.
 
-- O push **não é bloqueado**. Se algum teste falhar, o commit fica com ❌, o GitHub avisa por e-mail e o relatório HTML fica para baixar em **Actions → execução → Artifacts → `relatorio-e2e`**. Quando falha, o log da API também aparece na execução.
-- O workflow **não roda** quando o push ou PR só muda arquivos que não afetam o e2e: `*.md`, `docs/`, arquivos de IA (`.claude/`, `.agents/`, `.superpowers/`) e testes unitários (`src/**/*.spec.ts`). Basta um arquivo fora dessa lista para ele rodar. Mudanças em `e2e/` sempre disparam o workflow. A lista fica em `paths-ignore`, no `.github/workflows/e2e.yml`.
+- Se algum teste falhar, a execução fica com ❌ e o relatório HTML fica para baixar em **Actions → execução → Artifacts → `relatorio-e2e`**. Quando falha, o log da API também aparece na execução.
 - No CI, um teste que falha roda de novo uma vez. Se passar na segunda tentativa, ele aparece como "flaky".
 - A API é privada, então o workflow baixa ela com a deploy key (só leitura) guardada no secret `API_DEPLOY_KEY`.
 
