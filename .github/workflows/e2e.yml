@@ -1,24 +1,6 @@
 name: e2e
 
 on:
-  push:
-    branches: [dev]
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - '.claude/**'
-      - '.agents/**'
-      - '.superpowers/**'
-      - 'src/**/*.spec.ts'
-  pull_request:
-    branches: [dev]
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - '.claude/**'
-      - '.agents/**'
-      - '.superpowers/**'
-      - 'src/**/*.spec.ts'
   workflow_dispatch:
 
 concurrency:

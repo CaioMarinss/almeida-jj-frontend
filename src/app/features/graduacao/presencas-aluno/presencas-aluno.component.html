@@ -1,0 +1,33 @@
+<section class="presencas-aluno" aria-labelledby="presencas-aluno-titulo">
+  <h3 id="presencas-aluno-titulo" class="ajj-rotulo">Presenças</h3>
+  @if (carregando()) {
+    <p class="ajj-suave">Carregando…</p>
+  } @else if (erro()) {
+    <div class="erro" role="alert">
+      <p>Não foi possível carregar as presenças.</p>
+      <ajj-botao variante="secundario" (clique)="carregar()">Tentar de novo</ajj-botao>
+    </div>
+  } @else {
+    @if (resumo(); as r) {
+      <p class="resumo">{{ r.titulo }}</p>
+      @if (r.faltam) {
+        <p class="faltam">{{ r.faltam }}</p>
+      }
+    }
+    @if (visiveis().length > 0) {
+      <ul class="lista">
+        @for (p of visiveis(); track p.chave) {
+          <li>
+            <span><strong>{{ p.dia }}</strong> · {{ p.aula }}</span>
+            <span class="ajj-suave origem">{{ p.origem }}</span>
+          </li>
+        }
+      </ul>
+      @if (temMais()) {
+        <ajj-botao variante="secundario" (clique)="verTodas()">Ver todas</ajj-botao>
+      }
+    } @else {
+      <p class="ajj-suave">Nenhuma presença contada desde a última graduação.</p>
+    }
+  }
+</section>

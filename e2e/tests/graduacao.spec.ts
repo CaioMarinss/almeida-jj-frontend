@@ -120,6 +120,24 @@ async function trocarDeConta(page: Page, conta: Conta): Promise<void> {
 }
 
 test.describe('Graduação', () => {
+  test('o painel do aluno mostra as presenças dele', async ({ page, request }) => {
+    const dono = await criarDono(request);
+    const aluno = await criarAluno(request);
+    const idAluno = await idDe(request, aluno);
+    const data = dataDaSemana(-1, 1);
+    inserirPresencaNaGrade(idAluno, 1, '18:00', data);
+
+    try {
+      await entrar(page, dono.email, dono.senha);
+      await expect(page).toHaveURL(/\/app\/inicio$/);
+      await abrirAluno(page, aluno);
+      const bloco = page.locator('app-registro-graduacao app-presencas-aluno');
+      await expect(bloco.locator('li').filter({ hasText: diaMes(data) })).toContainText('contada');
+    } finally {
+      descartarPresencasDoAluno(idAluno);
+    }
+  });
+
   test('o dono registra faixa e grau e o aluno acompanha a evolução no início', async ({ page, request }) => {
     const dono = await criarDono(request);
     const aluno = await criarAluno(request);

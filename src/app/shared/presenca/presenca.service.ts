@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Chamada, MinhasPresencas } from './presenca.model';
+import { Chamada, MinhasPresencas, PrazoChamada, Sumidos } from './presenca.model';
 
 @Injectable({ providedIn: 'root' })
 export class PresencaService {
@@ -19,6 +19,18 @@ export class PresencaService {
 
   minhas(): Observable<MinhasPresencas> {
     return this.http.get<MinhasPresencas>(`${this.base}/alunos/me/presencas`);
+  }
+
+  doAluno(idAluno: number): Observable<MinhasPresencas> {
+    return this.http.get<MinhasPresencas>(`${this.base}/graduacoes/alunos/${idAluno}/presencas`);
+  }
+
+  sumidos(): Observable<Sumidos> {
+    return this.http.get<Sumidos>(`${this.base}/presencas/sumidos`);
+  }
+
+  prazo(): Observable<PrazoChamada> {
+    return this.http.get<PrazoChamada>(`${this.base}/presencas/prazo`);
   }
 
   chamada(data: string, idAula: number): Observable<Chamada> {

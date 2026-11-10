@@ -1,0 +1,48 @@
+:host {
+  display: block;
+}
+
+.presencas-aluno {
+  display: grid;
+  gap: var(--ajj-espaco-2);
+}
+
+h3,
+p {
+  margin: 0;
+}
+
+.resumo {
+  font-weight: 600;
+}
+
+.faltam {
+  font-family: var(--ajj-fonte-titulo);
+  font-size: 16px;
+  letter-spacing: 0.04em;
+}
+
+.lista {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+
+  li {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--ajj-espaco-1) var(--ajj-espaco-3);
+    padding: var(--ajj-espaco-2) 0;
+    border-bottom: 1px solid var(--ajj-borda);
+  }
+}
+
+.origem {
+  font-size: 13px;
+}
+
+.erro {
+  display: grid;
+  gap: var(--ajj-espaco-2);
+}

@@ -61,17 +61,17 @@ describe('ShellComponent', () => {
     const itens = Array.from(fixture.nativeElement.querySelectorAll('ion-menu ion-item')).map(i =>
       (i as HTMLElement).textContent?.trim()
     );
-    expect(itens.slice(-5)).toEqual(['Professores', 'Agenda', 'Graduação', 'Perfil', 'Sair']);
+    expect(itens.slice(-6)).toEqual(['Professores', 'Agenda', 'Graduação', 'Alunos sumidos', 'Perfil', 'Sair']);
   });
 
   it('mostra o item Chamada para professor e dono, mas não para aluno', async () => {
     const itemChamada = () => fixture.nativeElement.querySelector('ion-menu [routerLink="/app/chamada"]');
-    expect(itemChamada()?.textContent).toContain('Chamada');
+    expect(itemChamada()?.textContent).toContain('Controle de presença');
 
     logar(sessao, 'Carla Dias', 'DONO');
     fixture.detectChanges();
     await fixture.whenStable();
-    expect(itemChamada()?.textContent).toContain('Chamada');
+    expect(itemChamada()?.textContent).toContain('Controle de presença');
 
     logar(sessao, 'Ana Souza', 'ALUNO');
     fixture.detectChanges();

@@ -42,13 +42,48 @@ describe('IncluirAlunoComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('Nenhum aluno encontrado');
   });
 
-  it('tocar numa pessoa emite escolher', () => {
-    const escolhidas: PessoaAcademia[] = [];
-    fixture.componentInstance.escolher.subscribe(p => escolhidas.push(p));
+  const confirmar = (): HTMLButtonElement => fixture.nativeElement.querySelector('button.confirmar');
 
-    fixture.nativeElement.querySelector('button.pessoa').click();
+  function tocar(indice: number): void {
+    fixture.nativeElement.querySelectorAll('button.pessoa')[indice].click();
+    fixture.detectChanges();
+  }
 
-    expect(escolhidas).toEqual([bia]);
+  it('tocar marca e desmarca a pessoa sem emitir', () => {
+    const emitidas: PessoaAcademia[][] = [];
+    fixture.componentInstance.escolher.subscribe(p => emitidas.push(p));
+    expect(confirmar().disabled).toBeTrue();
+    expect(confirmar().textContent?.trim()).toBe('Incluir');
+
+    tocar(0);
+    expect(fixture.nativeElement.querySelector('button.pessoa').getAttribute('aria-pressed')).toBe('true');
+    expect(confirmar().textContent?.trim()).toBe('Incluir 1 aluno');
+    tocar(0);
+    expect(fixture.nativeElement.querySelector('button.pessoa').getAttribute('aria-pressed')).toBe('false');
+
+    expect(emitidas).toEqual([]);
+  });
+
+  it('confirmar emite todas as marcadas, mesmo fora da busca atual', () => {
+    const emitidas: PessoaAcademia[][] = [];
+    fixture.componentInstance.escolher.subscribe(p => emitidas.push(p));
+
+    tocar(1);
+    digitar('bia');
+    tocar(0);
+    expect(confirmar().textContent?.trim()).toBe('Incluir 2 alunos');
+    confirmar().click();
+
+    expect(emitidas).toEqual([[bia, joao]]);
+  });
+
+  it('quem sai da lista deixa de contar como marcado', () => {
+    tocar(0);
+    fixture.componentRef.setInput('pessoas', [joao]);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.escolhidas()).toEqual([]);
+    expect(confirmar().disabled).toBeTrue();
   });
 
   it('desabilita as linhas enquanto salva', () => {
@@ -56,5 +91,6 @@ describe('IncluirAlunoComponent', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('button.pessoa').disabled).toBeTrue();
+    expect(confirmar().disabled).toBeTrue();
   });
 });

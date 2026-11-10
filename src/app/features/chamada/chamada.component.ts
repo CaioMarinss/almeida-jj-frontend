@@ -1,13 +1,13 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { IonContent, IonHeader, IonModal, IonSpinner, IonTitle, IonToolbar } from '@ionic/angular';
-import { LucideTriangleAlert, LucideUsers } from '@lucide/angular';
+import { LucideChevronLeft, LucideChevronRight, LucideTriangleAlert, LucideUsers } from '@lucide/angular';
 import { firstValueFrom } from 'rxjs';
 import { codigoDeErro } from '../../core/http/erro-api';
 import { SessionService } from '../../core/auth/session.service';
 import { Notificador } from '../../core/notificacao/notificador';
 import { AulaDoDia, CLASSE_CHIP_MODALIDADE, ROTULO_MODALIDADE } from '../../shared/agenda/agenda.model';
 import { AgendaService } from '../../shared/agenda/agenda.service';
-import { DIAS_SEMANA_CURTOS, formatarDiaMes, inicioDaSemana, somarDias } from '../../shared/agenda/datas';
+import { DIAS_SEMANA_CURTOS, diaSemanaIso, formatarDiaMes, inicioDaSemana, somarDias } from '../../shared/agenda/datas';
 import { hojeEmSaoPaulo } from '../../shared/graduacao/descrever';
 import { Chamada, PresencaDaAula, ROTULO_ORIGEM } from '../../shared/presenca/presenca.model';
 import { PresencaService } from '../../shared/presenca/presenca.service';
@@ -17,6 +17,7 @@ import { PessoaAcademia, ProfessoresService } from '../professores/professores.s
 import { IncluirAlunoComponent } from './incluir-aluno/incluir-aluno.component';
 
 const NOMES_DIAS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
+const SEMANAS_SEM_LIMITE = 12;
 
 @Component({
   selector: 'app-chamada',
@@ -27,6 +28,8 @@ const NOMES_DIAS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado',
     IonContent,
     IonModal,
     IonSpinner,
+    LucideChevronLeft,
+    LucideChevronRight,
     LucideTriangleAlert,
     LucideUsers,
     BotaoComponent,
@@ -50,15 +53,38 @@ export class ChamadaComponent {
 
   readonly hoje = signal(hojeEmSaoPaulo());
 
+  readonly ajustaDesde = signal<string | null | undefined>(undefined);
+  private readonly semanaAtual = computed(() => inicioDaSemana(this.hoje()));
+  private readonly primeiraSemana = computed(() => {
+    const anterior = somarDias(this.semanaAtual(), -7);
+    const desde = this.ajustaDesde();
+    if (desde === undefined) {
+      return anterior;
+    }
+    if (desde === null) {
+      return somarDias(this.semanaAtual(), -7 * SEMANAS_SEM_LIMITE);
+    }
+    const doPrazo = inicioDaSemana(desde);
+    return doPrazo < anterior ? doPrazo : anterior;
+  });
+
+  readonly semana = signal(this.semanaAtual());
+  readonly semanaAnteriorBloqueada = computed(() => this.salvando() || this.semana() <= this.primeiraSemana());
+  readonly proximaSemanaBloqueada = computed(() => this.salvando() || this.semana() >= this.semanaAtual());
+  readonly intervalo = computed(() =>
+    this.semana() === this.semanaAtual()
+      ? 'Esta semana'
+      : `${formatarDiaMes(this.semana())} a ${formatarDiaMes(somarDias(this.semana(), 6))}`
+  );
+
   readonly dias = computed(() =>
-    Array.from({ length: 14 }, (_, i) => {
-      const data = somarDias(inicioDaSemana(this.hoje()), i - 7);
-      const indice = i % 7;
+    Array.from({ length: 7 }, (_, i) => {
+      const data = somarDias(this.semana(), i);
       return {
         data,
-        curto: DIAS_SEMANA_CURTOS[indice],
+        curto: DIAS_SEMANA_CURTOS[i],
         numero: data.slice(8),
-        rotulo: `${NOMES_DIAS[indice]}, ${formatarDiaMes(data)}`,
+        rotulo: `${NOMES_DIAS[i]}, ${formatarDiaMes(data)}`,
         hoje: data === this.hoje()
       };
     })
@@ -95,10 +121,12 @@ export class ChamadaComponent {
   private requisicaoAulas = 0;
   private requisicaoChamada = 0;
   private requisicaoContagem = 0;
+  private requisicaoPrazo = 0;
   private primeiraEntrada = true;
 
   constructor() {
     void this.carregarAulas();
+    void this.carregarPrazo();
   }
 
   async ionViewWillEnter(): Promise<void> {
@@ -107,14 +135,25 @@ export class ChamadaComponent {
       return;
     }
     this.hoje.set(hojeEmSaoPaulo());
-    if (!this.dias().some(d => d.data === this.selecionado())) {
+    if (!this.salvando() && (this.semana() < this.primeiraSemana() || this.semana() > this.semanaAtual())) {
+      this.semana.set(this.semanaAtual());
       this.selecionado.set(this.hoje());
       this.idAula.set(null);
       this.chamada.set(null);
       this.requisicaoChamada++;
     }
     this.alunos.set(null);
-    await Promise.all([this.carregarAulas(), this.carregarChamada()]);
+    await Promise.all([this.carregarAulas(), this.carregarChamada(), this.carregarPrazo()]);
+  }
+
+  async mudarSemana(delta: number): Promise<void> {
+    const nova = somarDias(this.semana(), delta * 7);
+    if (this.salvando() || nova < this.primeiraSemana() || nova > this.semanaAtual()) {
+      return;
+    }
+    const diaDaSemana = diaSemanaIso(this.selecionado());
+    this.semana.set(nova);
+    await this.escolherDia(somarDias(nova, diaDaSemana - 1));
   }
 
   textoPresencas(aula: AulaDoDia): string {
@@ -168,6 +207,18 @@ export class ChamadaComponent {
     }
   }
 
+  async carregarPrazo(): Promise<void> {
+    const id = ++this.requisicaoPrazo;
+    try {
+      const prazo = await firstValueFrom(this.presenca.prazo());
+      if (id === this.requisicaoPrazo) {
+        this.ajustaDesde.set(prazo.ajustaDesde);
+      }
+    } catch {
+      return;
+    }
+  }
+
   async carregarChamada(): Promise<void> {
     const aula = this.idAula();
     if (aula === null) {
@@ -189,12 +240,13 @@ export class ChamadaComponent {
       }
       this.carregandoChamada.set(false);
       this.erroChamada.set(true);
-      await this.notificador.erroDaApi(erro, 'Não foi possível carregar a chamada.');
+      await this.notificador.erroDaApi(erro, 'Não foi possível carregar as presenças.');
     }
   }
 
   async tirar(presente: PresencaDaAula): Promise<void> {
     const aula = this.idAula();
+    const data = this.selecionado();
     if (aula === null || this.salvando()) {
       return;
     }
@@ -208,7 +260,7 @@ export class ChamadaComponent {
       if (!confirmado) {
         return;
       }
-      await firstValueFrom(this.presenca.tirar(this.selecionado(), aula, presente.idAluno), {
+      await firstValueFrom(this.presenca.tirar(data, aula, presente.idAluno), {
         defaultValue: undefined
       });
       await this.notificador.sucesso(`${presente.nome} saiu da chamada.`);
@@ -237,21 +289,38 @@ export class ChamadaComponent {
     this.incluindo.set(false);
   }
 
-  async incluir(pessoa: PessoaAcademia): Promise<void> {
+  async incluir(pessoas: PessoaAcademia[]): Promise<void> {
     const aula = this.idAula();
-    if (aula === null || this.salvando()) {
+    const data = this.selecionado();
+    if (aula === null || this.salvando() || pessoas.length === 0) {
       return;
     }
     this.salvando.set(true);
+    let incluidas = 0;
     try {
-      await firstValueFrom(this.presenca.incluir(this.selecionado(), aula, pessoa.id), {
-        defaultValue: undefined
-      });
+      for (const pessoa of pessoas) {
+        try {
+          await firstValueFrom(this.presenca.incluir(data, aula, pessoa.id), {
+            defaultValue: undefined
+          });
+        } catch (erro: unknown) {
+          if (codigoDeErro(erro) !== 'ERR027') {
+            throw erro;
+          }
+        }
+        incluidas++;
+      }
       this.fecharIncluir();
-      await this.notificador.sucesso(`${pessoa.nome} entrou na chamada.`);
+      await this.notificador.sucesso(
+        pessoas.length === 1 ? `${pessoas[0].nome} entrou na chamada.` : `${pessoas.length} alunos entraram na chamada.`
+      );
       await this.recarregar();
     } catch (erro: unknown) {
-      await this.notificador.erroDaApi(erro, 'Não foi possível incluir o aluno.');
+      const quem = pessoas[incluidas];
+      await this.notificador.erroDaApi(erro, `Não foi possível incluir ${quem.nome}.`);
+      if (incluidas > 0 && !this.ehDesatualizada(erro)) {
+        await this.recarregar();
+      }
       await this.recarregarSeDesatualizada(erro);
     } finally {
       this.salvando.set(false);
@@ -262,9 +331,13 @@ export class ChamadaComponent {
     await Promise.all([this.carregarChamada(), this.atualizarContagem()]);
   }
 
-  private async recarregarSeDesatualizada(erro: unknown): Promise<void> {
+  private ehDesatualizada(erro: unknown): boolean {
     const codigo = codigoDeErro(erro);
-    if (codigo === 'ERR027' || codigo === 'ERR028' || codigo === 'ERR029') {
+    return codigo === 'ERR027' || codigo === 'ERR028' || codigo === 'ERR029';
+  }
+
+  private async recarregarSeDesatualizada(erro: unknown): Promise<void> {
+    if (this.ehDesatualizada(erro)) {
       this.fecharIncluir();
       await this.recarregar();
     }

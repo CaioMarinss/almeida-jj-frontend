@@ -42,3 +42,19 @@ export interface Chamada {
   podeAjustar: boolean;
   ajustaAte: string | null;
 }
+
+export interface PrazoChamada {
+  ajustaDesde: string | null;
+}
+
+export interface Sumido {
+  id: number;
+  nome: string;
+  ultimaPresenca: string;
+  diasSemTreinar: number;
+}
+
+export interface Sumidos {
+  dias: number;
+  alunos: Sumido[];
+}

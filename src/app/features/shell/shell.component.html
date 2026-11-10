@@ -27,7 +27,7 @@
           </ion-item>
           @if (ehProfessor()) {
             <ion-item button detail="false" routerLink="/app/chamada" routerLinkActive="ativo">
-              <svg lucideClipboardCheck aria-hidden="true" slot="start"></svg><ion-label>Chamada</ion-label>
+              <svg lucideClipboardCheck aria-hidden="true" slot="start"></svg><ion-label>Controle de presença</ion-label>
             </ion-item>
           }
           @if (ehDono()) {
@@ -39,6 +39,9 @@
             </ion-item>
             <ion-item button detail="false" routerLink="/app/graduacao" routerLinkActive="ativo">
               <svg lucideAward aria-hidden="true" slot="start"></svg><ion-label>Graduação</ion-label>
+            </ion-item>
+            <ion-item button detail="false" routerLink="/app/sumidos" routerLinkActive="ativo">
+              <svg lucideUserX aria-hidden="true" slot="start"></svg><ion-label>Alunos sumidos</ion-label>
             </ion-item>
           }
         </ion-list>

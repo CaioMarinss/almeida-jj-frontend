@@ -18,9 +18,23 @@
     <ul class="lista">
       @for (pessoa of filtradas(); track pessoa.id) {
         <li>
-          <button type="button" class="pessoa" [disabled]="salvando()" (click)="escolher.emit(pessoa)">
-            <strong class="ajj-truncar">{{ pessoa.nome }}</strong>
-            <span class="ajj-suave ajj-truncar">{{ pessoa.email }}</span>
+          <button
+            type="button"
+            class="pessoa"
+            [class.marcada]="marcado(pessoa)"
+            [attr.aria-pressed]="marcado(pessoa)"
+            [disabled]="salvando()"
+            (click)="alternar(pessoa)"
+          >
+            <span class="dados">
+              <strong class="ajj-truncar">{{ pessoa.nome }}</strong>
+              <span class="ajj-suave ajj-truncar">{{ pessoa.email }}</span>
+            </span>
+            <span class="marca" aria-hidden="true">
+              @if (marcado(pessoa)) {
+                <svg lucideCheck></svg>
+              }
+            </span>
           </button>
         </li>
       }
@@ -29,5 +43,8 @@
     <p class="ajj-suave vazio" role="status">Nenhum aluno encontrado.</p>
   }
 
+  <button type="button" class="confirmar" [disabled]="escolhidas().length === 0 || salvando()" (click)="confirmar()">
+    {{ rotuloIncluir() }}
+  </button>
   <button type="button" class="cancelar" (click)="fechar.emit()">Cancelar</button>
 </div>

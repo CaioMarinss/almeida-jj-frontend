@@ -2,7 +2,7 @@
 
 Testam o sistema inteiro como um usuário: navegador real (Playwright) → front → API → Postgres. Os e-mails ficam presos no [Mailpit](https://mailpit.axllent.org/) e os testes leem deles os links de verificação e de redefinição.
 
-Não rodam no `npm test`. No GitHub, rodam a cada push ou PR para `dev` nos dois repositórios (veja [No GitHub](#no-github-actions)).
+Não rodam no `npm test`. No GitHub são **opcionais**: só rodam à mão (veja [No GitHub](#no-github-actions)).
 
 ## Pré-requisitos
 
@@ -121,6 +121,7 @@ Os alunos ganham um nome único (`UPDATE ... NOME` no banco) para a busca da tel
 | O dono chega em Graduação pelo perfil | desktop e celular | "Gerenciar graduações" abre a tela. |
 | O menu lateral do dono tem Graduação | só desktop | O item do menu abre a tela. |
 | Conta desativada antes de salvar | só desktop | Desativa a conta com a modal aberta; salvar mostra o alerta "Aluno não encontrado" e a tela continua usável. |
+| Painel do aluno mostra as presenças | desktop e celular | Presença da semana passada (SQL) aparece em `app-presencas-aluno` dentro do registro de graduação, como "contada". |
 | Agendar e cancelar a próxima graduação (botão "Alterar") | só desktop (serial) | Preenche os mínimos (`#minimo-grau`, `#minimo-faixa`); a linha mostra "Mínimo: 10 grau · 20 faixa"; aluno vê "Próxima graduação: DD/MM"; ao cancelar, "Sem data definida para a próxima graduação". |
 | Trocar a data agendada (botão "Alterar") | só desktop (serial) | A nova data (com os mínimos) substitui a anterior. |
 | A aba Presença mostra X de Y | só desktop (serial) | Evento daqui a 10 dias com mínimo de grau 5 e 2 presenças da semana passada (SQL): título "2 de 5 presenças até a graduação de DD/MM", "Faltam 3", barra `aria-valuenow=2`, 2 itens "contada". |
@@ -139,14 +140,18 @@ Os cenários de marcação usam aulas avulsas criadas pela API para o dia de hoj
 | Aluno marca Vou e desmarca | desktop e celular | Contador "1 vai" -> "2 vão" ao marcar (botão `aria-pressed`, "✓ Vou") e de volta a "1 vai" ao desmarcar; a API concorda. |
 | Início mostra a Próxima aula | desktop e celular | Card com o botão "Vou na aula das HH:mm". |
 | Presença contada | desktop e celular | Em aula já encerrada com presença: "Presença contada" na aba Aulas, sem botão; quem não marcou vê "Janela fechada"; a aba Presença lista o item "contada". |
-| Professor inclui e tira na Chamada | desktop e celular | "Professor pode ajustar até DD/MM", "+ Incluir aluno" com busca, origem "incluída pelo professor", contador "1 presença"; "Tirar" com confirmação volta a "Ninguém registrado nesta aula.". |
-| Semana passada: só leitura para o professor, editável para o dono | desktop e celular | Professor vê "Fora do prazo: esta chamada só pode ser consultada." sem Tirar nem Incluir; o dono vê os dois e tira o aluno. |
-| Dono inclui na semana passada | desktop e celular | Origem "incluída pelo dono" na Chamada e na aba Presença do aluno. |
+| Professor inclui e tira no Controle de presença | desktop e celular | "Professor pode ajustar até DD/MM", "+ Incluir aluno" com busca, marca a pessoa e confirma em "Incluir 1 aluno", origem "incluída pelo professor", contador "1 presença"; "Tirar" com confirmação volta a "Ninguém registrado nesta aula.". |
+| Semana passada: só leitura para o professor, editável para o dono | desktop e celular | Professor vê "Fora do prazo: estas presenças só podem ser consultadas." sem Tirar nem Incluir; o dono vê os dois e tira o aluno. |
+| Professor inclui dois de uma vez | desktop e celular | Marca duas pessoas no "+ Incluir aluno", "Incluir 2 alunos", toast "2 alunos entraram na chamada.", "2 presenças". |
+| Dono vê os alunos sumidos | desktop e celular | Botão "Sumidos" da Área do dono abre `/app/sumidos`; quem treinou só há 3 semanas aparece com "Último treino DD/MM · há N dias"; quem treinou na semana passada não aparece. |
+| Setas do Controle de presença | desktop e celular | Professor: "Esta semana", volta só uma semana ("DD/MM a DD/MM") e a seta trava; o dono volta até a semana de `ajustaDesde` (`GET /presencas/prazo`), ou 12 semanas sem graduação anterior, e a seta trava. |
+| Dono inclui na semana passada | desktop e celular | Origem "incluída pelo dono" no Controle de presença e na aba Presença do aluno. |
 | Dono cancela aula com marcação aberta | desktop e celular | O aluno vê "Cancelada · motivo", sem botão nem contador; pela API `euVou` falso e `vao` 0. |
-| Aluno não acessa a Chamada | desktop e celular | Sem item no menu nem atalho; `/app/chamada` leva para `/app/inicio`. |
-| Professor chega na Chamada pelo atalho | desktop e celular | O botão "Chamada" da Início abre `/app/chamada`. |
+| Aluno não acessa o Controle de presença | desktop e celular | Sem item no menu nem atalho; `/app/chamada` leva para `/app/inicio`. |
+| Professor chega no Controle de presença pelo atalho | desktop e celular | O botão "Controle de presença" da Início abre `/app/chamada`. |
 | API: cancelar o dia com janela fechada | só desktop | 422 `ERR030`. |
-| API: aluno nas rotas da chamada | só desktop | GET, POST e DELETE respondem 403. |
+| API: aluno nas rotas da chamada | só desktop | GET, POST e DELETE da chamada e `GET /presencas/prazo` respondem 403. |
+| API: professor nos sumidos e nas presenças de outro aluno | só desktop | `GET /presencas/sumidos` e `GET /graduacoes/alunos/{id}/presencas` respondem 403. |
 | API: professor nos aptos | só desktop | `GET /graduacoes/aptos` e `POST /graduacoes/aptos/{id}` respondem 403. |
 | API: marcar fora da semana atual | só desktop | Semana passada e semana que vem respondem 422 `ERR025`. |
 
@@ -156,7 +161,7 @@ Contas com nome único (`nomear`), porque a lista é paginada em memória e cont
 
 | Cenário | Onde roda | O que verifica |
 |---|---|---|
-| O dono vê o card na Início | desktop e celular | Card "Área do dono" com atalhos que abrem Professores e Graduação. |
+| O dono vê o card na Início | desktop e celular | Card "Área do dono" com atalhos que abrem Professores e Graduação (o atalho "Sumidos" é coberto em Presença). |
 | Aluno e professor não veem o card | desktop e celular | O card não existe na Início deles. |
 | Professores: busca sem acento | desktop e celular | "JOAO <ÚNICO>" acha "João <único>"; a linha mostra e-mail e cargo e o homônimo fica de fora. |
 | Professores: filtro por cargo | desktop e celular | Chips Professores, Alunos e Todos (`aria-pressed`). |
@@ -187,10 +192,9 @@ A agenda é global e os dois projetos rodam em paralelo, então cada projeto usa
 
 ## No GitHub (Actions)
 
-`.github/workflows/e2e.yml` roda a suíte a cada push ou PR para `dev`, usando a branch `dev` da API. Também dá para rodar à mão em **Actions → e2e → Run workflow**. O repositório da API tem o mesmo workflow, que usa a `dev` deste repositório.
+`.github/workflows/e2e.yml` é **opcional** desde 2026-11-09: não roda no push nem no PR, só à mão em **Actions → e2e → Run workflow**, usando a branch `dev` da API. O repositório da API tem o mesmo workflow, que usa a `dev` deste repositório.
 
-- O push **não é bloqueado**. Se algum teste falhar, o commit fica com ❌, o GitHub avisa por e-mail e o relatório HTML fica para baixar em **Actions → execução → Artifacts → `relatorio-e2e`**. Quando falha, o log da API também aparece na execução.
-- O workflow **não roda** quando o push ou PR só muda arquivos que não afetam o e2e: `*.md`, `docs/`, arquivos de IA (`.claude/`, `.agents/`, `.superpowers/`) e testes unitários (`src/**/*.spec.ts`). Basta um arquivo fora dessa lista para ele rodar. Mudanças em `e2e/` sempre disparam o workflow. A lista fica em `paths-ignore`, no `.github/workflows/e2e.yml`.
+- Se algum teste falhar, a execução fica com ❌ e o relatório HTML fica para baixar em **Actions → execução → Artifacts → `relatorio-e2e`**. Quando falha, o log da API também aparece na execução.
 - No CI, um teste que falha roda de novo uma vez. Se passar na segunda tentativa, ele aparece como "flaky".
 - A API é privada, então o workflow baixa ela com a deploy key (só leitura) guardada no secret `API_DEPLOY_KEY`.
 

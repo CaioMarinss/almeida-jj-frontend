@@ -70,6 +70,11 @@ export const routes: Routes = [
         canActivate: [donoGuard],
         loadComponent: () => import('./features/graduacao/graduacao.component').then(m => m.GraduacaoComponent)
       },
+      {
+        path: 'sumidos',
+        canActivate: [donoGuard],
+        loadComponent: () => import('./features/sumidos/sumidos.component').then(m => m.SumidosComponent)
+      },
       { path: '', pathMatch: 'full', redirectTo: 'inicio' }
     ]
   },

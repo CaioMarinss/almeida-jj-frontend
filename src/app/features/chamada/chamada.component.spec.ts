@@ -44,7 +44,8 @@ describe('ChamadaComponent', () => {
     agenda = jasmine.createSpy('agenda').and.callFake((inicio: string) =>
       of<DiaAgenda[]>([{ data: inicio, diaCancelado: null, aulas: [aula(), aula({ id: 8, inicio: '20:00', fim: '21:00', cancelada: true, vao: 0 })] }])
     );
-    presenca = jasmine.createSpyObj<PresencaService>('PresencaService', ['chamada', 'incluir', 'tirar']);
+    presenca = jasmine.createSpyObj<PresencaService>('PresencaService', ['chamada', 'incluir', 'tirar', 'prazo']);
+    presenca.prazo.and.returnValue(of({ ajustaDesde: '2026-11-02' }));
     presenca.chamada.and.returnValue(of(chamadaBase));
     presenca.incluir.and.returnValue(of(undefined));
     presenca.tirar.and.returnValue(of(undefined));
@@ -84,27 +85,85 @@ describe('ChamadaComponent', () => {
     fixture.detectChanges();
   }
 
-  it('mostra 14 dias, da semana anterior à atual, com hoje selecionado', async () => {
+  const seta = (rotulo: string): HTMLButtonElement => el().querySelector<HTMLButtonElement>(`button.seta[aria-label="${rotulo}"]`)!;
+
+  async function clicar(botao: HTMLButtonElement): Promise<void> {
+    botao.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  }
+
+  it('mostra a semana atual com hoje selecionado', async () => {
     await criar();
 
     const dias = Array.from(el().querySelectorAll<HTMLButtonElement>('button.dia'));
-    expect(dias.length).toBe(14);
-    expect(dias[0].getAttribute('aria-label')).toContain('26/10');
-    expect(dias[13].getAttribute('aria-label')).toContain('08/11');
+    expect(dias.length).toBe(7);
+    expect(dias[0].getAttribute('aria-label')).toContain('02/11');
+    expect(dias[6].getAttribute('aria-label')).toContain('08/11');
     const marcados = dias.filter(d => d.getAttribute('aria-pressed') === 'true');
     expect(marcados.length).toBe(1);
     expect(marcados[0].getAttribute('aria-label')).toContain('04/11');
+    expect(el().querySelector('.intervalo')?.textContent).toContain('Esta semana');
+    expect(seta('Próxima semana').disabled).toBeTrue();
     expect(agenda).toHaveBeenCalledWith('2026-11-04', '2026-11-04');
   });
 
   it('trocar o dia recarrega as aulas do dia', async () => {
     await criar();
 
-    el().querySelectorAll<HTMLButtonElement>('button.dia')[0].click();
-    fixture.detectChanges();
-    await fixture.whenStable();
+    await clicar(el().querySelectorAll<HTMLButtonElement>('button.dia')[0]);
 
-    expect(agenda).toHaveBeenCalledWith('2026-10-26', '2026-10-26');
+    expect(agenda).toHaveBeenCalledWith('2026-11-02', '2026-11-02');
+  });
+
+  it('professor volta uma semana só para consulta e não passa disso', async () => {
+    await criar();
+
+    await clicar(seta('Semana anterior'));
+
+    expect(el().querySelector('.intervalo')?.textContent).toContain('26/10 a 01/11');
+    expect(fixture.componentInstance.selecionado()).toBe('2026-10-28');
+    expect(agenda).toHaveBeenCalledWith('2026-10-28', '2026-10-28');
+    expect(seta('Semana anterior').disabled).toBeTrue();
+    expect(seta('Próxima semana').disabled).toBeFalse();
+
+    await clicar(seta('Próxima semana'));
+    expect(fixture.componentInstance.selecionado()).toBe('2026-11-04');
+  });
+
+  it('dono volta até a semana do dia seguinte à última graduação', async () => {
+    presenca.prazo.and.returnValue(of({ ajustaDesde: '2026-10-11' }));
+    await criar('DONO');
+
+    for (let i = 0; i < 4; i++) {
+      await clicar(seta('Semana anterior'));
+    }
+
+    expect(el().querySelector('.intervalo')?.textContent).toContain('05/10 a 11/10');
+    expect(seta('Semana anterior').disabled).toBeTrue();
+  });
+
+  it('dono sem graduação anterior volta até 12 semanas', async () => {
+    presenca.prazo.and.returnValue(of({ ajustaDesde: null }));
+    await criar('DONO');
+
+    for (let i = 0; i < 12; i++) {
+      await clicar(seta('Semana anterior'));
+    }
+
+    expect(fixture.componentInstance.semana()).toBe('2026-08-10');
+    expect(seta('Semana anterior').disabled).toBeTrue();
+  });
+
+  it('sem o prazo da API ainda permite voltar uma semana', async () => {
+    presenca.prazo.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+    await criar('DONO');
+
+    await clicar(seta('Semana anterior'));
+
+    expect(fixture.componentInstance.semana()).toBe('2026-10-26');
+    expect(seta('Semana anterior').disabled).toBeTrue();
   });
 
   it('lista as aulas do dia com a quantidade de presenças', async () => {
@@ -182,7 +241,7 @@ describe('ChamadaComponent', () => {
 
     expect(el().querySelectorAll('button.tirar').length).toBe(0);
     expect(el().querySelector('button.incluir')).toBeNull();
-    expect(texto()).toContain('Fora do prazo: esta chamada só pode ser consultada.');
+    expect(texto()).toContain('Fora do prazo: estas presenças só podem ser consultadas.');
     expect(el().querySelectorAll('li.presente').length).toBe(2);
   });
 
@@ -270,12 +329,57 @@ describe('ChamadaComponent', () => {
     await fixture.componentInstance.abrirIncluir();
     presenca.chamada.calls.reset();
 
-    await fixture.componentInstance.incluir(joao);
+    await fixture.componentInstance.incluir([joao]);
 
     expect(presenca.incluir).toHaveBeenCalledWith('2026-11-04', 7, 3);
     expect(notificador.sucesso).toHaveBeenCalled();
     expect(presenca.chamada).toHaveBeenCalledWith('2026-11-04', 7);
     expect(fixture.componentInstance.incluindo()).toBeFalse();
+  });
+
+  it('incluir vários chama a API para cada um e avisa uma vez', async () => {
+    const caio: PessoaAcademia = { id: 5, nome: 'Caio Lima', email: 'caio@x.com', perfil: 'ALUNO' };
+    await criar();
+    await escolherAula(7);
+    await fixture.componentInstance.abrirIncluir();
+
+    await fixture.componentInstance.incluir([joao, caio]);
+
+    expect(presenca.incluir.calls.allArgs()).toEqual([['2026-11-04', 7, 3], ['2026-11-04', 7, 5]]);
+    expect(notificador.sucesso).toHaveBeenCalledOnceWith('2 alunos entraram na chamada.');
+    expect(fixture.componentInstance.incluindo()).toBeFalse();
+  });
+
+  it('quem já estava na chamada (ERR027) não interrompe os outros', async () => {
+    const caio: PessoaAcademia = { id: 5, nome: 'Caio Lima', email: 'caio@x.com', perfil: 'ALUNO' };
+    await criar();
+    await escolherAula(7);
+    await fixture.componentInstance.abrirIncluir();
+    presenca.incluir.and.callFake((_d: string, _a: number, id: number) =>
+      id === 3 ? throwError(() => new HttpErrorResponse({ status: 409, error: { codigo: 'ERR027' } })) : of(undefined)
+    );
+
+    await fixture.componentInstance.incluir([joao, caio]);
+
+    expect(presenca.incluir).toHaveBeenCalledTimes(2);
+    expect(notificador.erroDaApi).not.toHaveBeenCalled();
+    expect(notificador.sucesso).toHaveBeenCalledOnceWith('2 alunos entraram na chamada.');
+  });
+
+  it('erro no meio para, avisa quem falhou e recarrega o que já entrou', async () => {
+    const caio: PessoaAcademia = { id: 5, nome: 'Caio Lima', email: 'caio@x.com', perfil: 'ALUNO' };
+    await criar();
+    await escolherAula(7);
+    await fixture.componentInstance.abrirIncluir();
+    presenca.incluir.and.callFake((_d: string, _a: number, id: number) => (id === 5 ? throwError(() => new Error('x')) : of(undefined)));
+    presenca.chamada.calls.reset();
+
+    await fixture.componentInstance.incluir([joao, caio]);
+
+    expect(notificador.erroDaApi).toHaveBeenCalledWith(jasmine.anything(), 'Não foi possível incluir Caio Lima.');
+    expect(notificador.sucesso).not.toHaveBeenCalled();
+    expect(presenca.chamada).toHaveBeenCalledWith('2026-11-04', 7);
+    expect(fixture.componentInstance.incluindo()).toBeTrue();
   });
 
   it('erro ao incluir mostra o erro da API e mantém o painel', async () => {
@@ -284,7 +388,7 @@ describe('ChamadaComponent', () => {
     await fixture.componentInstance.abrirIncluir();
     presenca.incluir.and.returnValue(throwError(() => new Error('x')));
 
-    await fixture.componentInstance.incluir(joao);
+    await fixture.componentInstance.incluir([joao]);
 
     expect(notificador.erroDaApi).toHaveBeenCalled();
     expect(fixture.componentInstance.incluindo()).toBeTrue();
@@ -305,7 +409,7 @@ describe('ChamadaComponent', () => {
     fixture.detectChanges();
     await escolherAula(7);
 
-    expect(texto()).toContain('A chamada abre no dia da aula.');
+    expect(texto()).toContain('O controle de presença abre no dia da aula.');
     expect(texto()).not.toContain('Fora do prazo');
   });
 
@@ -319,14 +423,15 @@ describe('ChamadaComponent', () => {
     await Promise.resolve();
     fixture.detectChanges();
     expect(el().querySelector<HTMLButtonElement>('button.dia')!.disabled).toBeTrue();
-    await fixture.componentInstance.escolherDia('2026-10-26');
+    expect(seta('Semana anterior').disabled).toBeTrue();
+    await fixture.componentInstance.escolherDia('2026-11-02');
     expect(fixture.componentInstance.selecionado()).toBe('2026-11-04');
 
     resposta.next();
     resposta.complete();
     await tirando;
     fixture.detectChanges();
-    await fixture.componentInstance.escolherDia('2026-10-26');
+    await fixture.componentInstance.escolherDia('2026-11-02');
     fixture.detectChanges();
     await fixture.whenStable();
 
@@ -347,7 +452,7 @@ describe('ChamadaComponent', () => {
     while (agenda.calls.count() === 0) {
       await Promise.resolve();
     }
-    fixture.componentInstance.selecionado.set('2026-10-26');
+    fixture.componentInstance.selecionado.set('2026-11-02');
     await fixture.componentInstance.carregarAulas();
     atrasada.next([{ data: '2026-11-04', diaCancelado: null, aulas: [] }]);
     atrasada.complete();
@@ -377,7 +482,7 @@ describe('ChamadaComponent', () => {
     presenca.incluir.and.returnValue(throwError(() => new HttpErrorResponse({ status: 422, error: { codigo: 'ERR029' } })));
     presenca.chamada.calls.reset();
 
-    await fixture.componentInstance.incluir(joao);
+    await fixture.componentInstance.incluir([joao]);
 
     expect(fixture.componentInstance.incluindo()).toBeFalse();
     expect(presenca.chamada).toHaveBeenCalledTimes(1);
@@ -399,10 +504,43 @@ describe('ChamadaComponent', () => {
 
     expect(fixture.componentInstance.hoje()).toBe('2026-11-10');
     expect(fixture.componentInstance.selecionado()).toBe('2026-11-04');
-    expect(fixture.componentInstance.dias()[13].data).toBe('2026-11-15');
+    expect(fixture.componentInstance.semana()).toBe('2026-11-02');
+    expect(fixture.componentInstance.intervalo()).toBe('02/11 a 08/11');
     expect(agenda).toHaveBeenCalledWith('2026-11-04', '2026-11-04');
     expect(presenca.chamada).toHaveBeenCalledWith('2026-11-04', 7);
     await fixture.componentInstance.abrirIncluir();
     expect(alunos.listar).toHaveBeenCalledTimes(1);
+  });
+
+  it('a resposta atrasada do prazo não sobrescreve a mais recente', async () => {
+    const atrasada = new Subject<{ ajustaDesde: string | null }>();
+    presenca.prazo.and.returnValues(atrasada, of({ ajustaDesde: '2026-10-11' }));
+    await criar('DONO');
+    await fixture.componentInstance.ionViewWillEnter();
+    await fixture.componentInstance.ionViewWillEnter();
+
+    atrasada.next({ ajustaDesde: null });
+    atrasada.complete();
+    await fixture.whenStable();
+
+    expect(fixture.componentInstance.ajustaDesde()).toBe('2026-10-11');
+  });
+
+  it('voltar para a tela no meio do incluir não troca o dia das próximas inclusões', async () => {
+    const caio: PessoaAcademia = { id: 5, nome: 'Caio Lima', email: 'caio@x.com', perfil: 'ALUNO' };
+    await criar();
+    await escolherAula(7);
+    await fixture.componentInstance.abrirIncluir();
+    const primeira = new Subject<void>();
+    presenca.incluir.and.returnValues(primeira, of(undefined));
+
+    const incluindo = fixture.componentInstance.incluir([joao, caio]);
+    await Promise.resolve();
+    fixture.componentInstance.selecionado.set('2026-11-03');
+    primeira.next();
+    primeira.complete();
+    await incluindo;
+
+    expect(presenca.incluir.calls.allArgs()).toEqual([['2026-11-04', 7, 3], ['2026-11-04', 7, 5]]);
   });
 });

@@ -1,3 +1,38 @@
+.semana {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--ajj-espaco-3);
+}
+
+.intervalo {
+  font-family: var(--ajj-fonte-titulo);
+  font-size: 18px;
+  letter-spacing: 0.04em;
+}
+
+.seta {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: var(--ajj-raio-p);
+  background: transparent;
+  color: var(--ajj-texto);
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ajj-primaria);
+    outline-offset: 2px;
+  }
+}
+
 .dias {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));

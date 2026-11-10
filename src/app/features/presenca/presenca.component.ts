@@ -1,64 +1,14 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { IonContent, IonHeader, IonSpinner, IonTitle, IonToolbar } from '@ionic/angular';
 import { LucideCircleCheck, LucideTriangleAlert } from '@lucide/angular';
-import { ROTULO_MODALIDADE } from '../../shared/agenda/agenda.model';
-import { DIAS_SEMANA_CURTOS, diaSemanaIso, formatarDiaMes } from '../../shared/agenda/datas';
-import { CicloPresenca, MinhasPresencas, PresencaContada, ROTULO_ORIGEM } from '../../shared/presenca/presenca.model';
+import { MinhasPresencas } from '../../shared/presenca/presenca.model';
+import { itemDePresenca, resumirCiclo, ResumoCiclo } from '../../shared/presenca/resumo';
 import { pluralPresencas } from '../../shared/presenca/plural';
 import { PresencaService } from '../../shared/presenca/presenca.service';
 import { BotaoComponent } from '../../shared/ui/botao/botao.component';
 import { EstadoVazioComponent } from '../../shared/ui/estado-vazio/estado-vazio.component';
 
 const LIMITE_INICIAL = 10;
-
-interface ItemPresenca {
-  chave: string;
-  dia: string;
-  aula: string;
-  origem: string;
-}
-
-interface ResumoCiclo {
-  titulo: string;
-  trilha: string;
-  desde: string;
-  faltam: string | null;
-  progresso: { atual: number; maximo: number; percentual: number } | null;
-}
-
-function capitalizar(texto: string): string {
-  return texto.charAt(0) + texto.slice(1).toLowerCase();
-}
-
-function resumir(ciclo: CicloPresenca): ResumoCiclo {
-  const desde = ciclo.desde ? `contando desde ${formatarDiaMes(ciclo.desde)}` : 'contando desde o início';
-  const trilha = ciclo.trilha === 'FAIXA' ? 'troca de faixa' : 'troca de grau';
-  const base = { trilha, desde, faltam: null, progresso: null };
-  if (!ciclo.ate) {
-    const quando = ciclo.desde ? `desde ${formatarDiaMes(ciclo.desde)}` : 'contadas';
-    return { ...base, titulo: `${pluralPresencas(ciclo.contadas)} ${quando}` };
-  }
-  if (ciclo.minimo === null) {
-    return { ...base, titulo: `${pluralPresencas(ciclo.contadas)} · mínimo não definido` };
-  }
-  const falta = Math.max(ciclo.minimo - ciclo.contadas, 0);
-  const percentual = ciclo.minimo > 0 ? Math.min(Math.round((ciclo.contadas / ciclo.minimo) * 100), 100) : 100;
-  return {
-    ...base,
-    titulo: `${ciclo.contadas} de ${ciclo.minimo} presenças até a graduação de ${formatarDiaMes(ciclo.ate)}`,
-    faltam: falta > 0 ? `Faltam ${falta}` : 'Você já atingiu o mínimo',
-    progresso: ciclo.minimo > 0 ? { atual: Math.min(ciclo.contadas, ciclo.minimo), maximo: ciclo.minimo, percentual } : { atual: 1, maximo: 1, percentual }
-  };
-}
-
-function itemDe(p: PresencaContada): ItemPresenca {
-  return {
-    chave: `${p.data}#${p.inicio}#${p.modalidade}`,
-    dia: `${capitalizar(DIAS_SEMANA_CURTOS[diaSemanaIso(p.data) - 1])} ${formatarDiaMes(p.data)}`,
-    aula: `${p.inicio} ${ROTULO_MODALIDADE[p.modalidade]}`,
-    origem: ROTULO_ORIGEM[p.origem]
-  };
-}
 
 @Component({
   selector: 'app-presenca',
@@ -91,12 +41,12 @@ export class PresencaComponent {
       return null;
     }
     if (dados.ciclo) {
-      return resumir(dados.ciclo);
+      return resumirCiclo(dados.ciclo);
     }
     return { titulo: `${pluralPresencas(dados.presencas.length)} contadas`, trilha: '', desde: '', faltam: null, progresso: null };
   });
 
-  private readonly itens = computed(() => (this.dados()?.presencas ?? []).map(itemDe));
+  private readonly itens = computed(() => (this.dados()?.presencas ?? []).map(itemDePresenca));
   readonly visiveis = computed(() => (this.expandido() ? this.itens() : this.itens().slice(0, LIMITE_INICIAL)));
   readonly temMais = computed(() => !this.expandido() && this.itens().length > LIMITE_INICIAL);
 

@@ -8,6 +8,19 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não lançado]
 
+## [0.2.7] - 2026-11-09
+
+### Adicionado
+- **Alunos sumidos** (`/app/sumidos`, só o dono, botão "Sumidos" na Área do dono e item no menu): quem já treinou e está há 14 dias ou mais sem presença, com o último treino e há quantos dias.
+- O painel de registro de graduação mostra as **presenças do aluno** no ciclo (quantas faltam para o mínimo e a lista, 5 primeiro e "Ver todas").
+- **Incluir vários alunos** de uma vez no Controle de presença: tocar marca a pessoa e o botão "Incluir N alunos" confirma; quem já estava na chamada não interrompe os outros.
+
+### Alterado
+- **Controle de presença** navega por semana com setas: o professor vê a semana atual e a anterior (só leitura); o dono volta até a semana do dia seguinte à última graduação (`GET /presencas/prazo`), ou 12 semanas se não houver graduação anterior. Substitui a faixa fixa de 14 dias.
+- `rimraf` (dependência do `@capacitor/cli`) atualizado para 6.1.4, que traz `minimatch` 11 e fecha o alerta do Dependabot (DoS em `minimatch` < 11.0.1, só em desenvolvimento).
+- A tela **Chamada** passa a se chamar **Controle de presença** (menu, atalho da Início e título); o endereço continua `/app/chamada`.
+- O e2e no GitHub Actions passa a ser opcional (só manual, em Actions → e2e → Run workflow).
+
 ## [0.2.6] - 2026-11-09
 
 ### Adicionado

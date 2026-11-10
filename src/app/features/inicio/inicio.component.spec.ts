@@ -134,9 +134,9 @@ describe('InicioComponent', () => {
   });
 
   it('professor e dono veem o atalho Chamada, aluno não', async () => {
-    expect((await renderizar('Pedro', 'PROFESSOR')).querySelector('ajj-botao.chamada')?.textContent?.trim()).toBe('Chamada');
+    expect((await renderizar('Pedro', 'PROFESSOR')).querySelector('ajj-botao.chamada')?.textContent?.trim()).toBe('Controle de presença');
     TestBed.resetTestingModule();
-    expect((await renderizar('Carla', 'DONO')).querySelector('ajj-botao.chamada')?.textContent?.trim()).toBe('Chamada');
+    expect((await renderizar('Carla', 'DONO')).querySelector('ajj-botao.chamada')?.textContent?.trim()).toBe('Controle de presença');
     TestBed.resetTestingModule();
     expect((await renderizar('Ana', 'ALUNO')).querySelector('ajj-botao.chamada')).toBeNull();
   });
