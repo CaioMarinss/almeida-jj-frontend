@@ -1,14 +1,17 @@
 <ion-header class="ion-no-border">
   <ion-toolbar>
-    <ion-title>Agenda</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/app/chamada" text="" aria-label="Voltar para as presenças"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Grade</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <div class="ajj-coluna">
-    <ion-segment [value]="aba()" aria-label="Seção da agenda" (ionChange)="aoMudarSegmento($event.detail.value)">
+    <ion-segment [value]="aba()" aria-label="Seção da grade" (ionChange)="aoMudarSegmento($event.detail.value)">
       <ion-segment-button value="grade"><ion-label>Grade semanal</ion-label></ion-segment-button>
-      <ion-segment-button value="excecoes"><ion-label>Exceções</ion-label></ion-segment-button>
+      <ion-segment-button value="excecoes"><ion-label>Cancelamentos e extras</ion-label></ion-segment-button>
     </ion-segment>
 
     @if (aba() === 'grade') {

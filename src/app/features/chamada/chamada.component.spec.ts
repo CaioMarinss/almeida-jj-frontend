@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NavController } from '@ionic/angular';
 import { of, Subject, throwError } from 'rxjs';
 import { SessionService } from '../../core/auth/session.service';
 import { Perfil } from '../../core/auth/usuario';
@@ -24,6 +25,8 @@ function presente(extra: Partial<PresencaDaAula>): PresencaDaAula {
 describe('ChamadaComponent', () => {
   const joao: PessoaAcademia = { id: 3, nome: 'João Alves', email: 'joao@x.com', perfil: 'ALUNO' };
   const bia: PessoaAcademia = { id: 2, nome: 'Bia Souza', email: 'bia@x.com', perfil: 'ALUNO' };
+  const caio: PessoaAcademia = { id: 4, nome: 'Caio Lima', email: 'caio@x.com', perfil: 'PROFESSOR' };
+  const agata: PessoaAcademia = { id: 6, nome: 'Ágata Dias', email: 'agata@x.com', perfil: 'ALUNO' };
   const chamadaBase: Chamada = {
     presencas: [presente({}), presente({ idAluno: 4, nome: 'Caio Lima', origem: 'PROFESSOR', registradoPor: 'Prof Ana' })],
     podeAjustar: true,
@@ -51,7 +54,7 @@ describe('ChamadaComponent', () => {
     presenca.incluir.and.returnValue(of(undefined));
     presenca.tirar.and.returnValue(of(undefined));
     alunos = jasmine.createSpyObj<AlunosService>('AlunosService', ['listar']);
-    alunos.listar.and.returnValue(of([bia, joao]));
+    alunos.listar.and.returnValue(of([bia, joao, caio, agata]));
   });
 
   afterEach(() => {
@@ -73,7 +76,14 @@ describe('ChamadaComponent', () => {
     fixture = TestBed.createComponent(ChamadaComponent);
     fixture.detectChanges();
     await fixture.whenStable();
+    await esvaziar();
     fixture.detectChanges();
+  }
+
+  async function esvaziar(): Promise<void> {
+    for (let i = 0; i < 20; i++) {
+      await Promise.resolve();
+    }
   }
 
   const el = (): HTMLElement => fixture.nativeElement;
@@ -83,6 +93,7 @@ describe('ChamadaComponent', () => {
     el().querySelector<HTMLButtonElement>(`button.aula[data-id="${id}"]`)?.click();
     fixture.detectChanges();
     await fixture.whenStable();
+    await esvaziar();
     fixture.detectChanges();
   }
 
@@ -92,6 +103,7 @@ describe('ChamadaComponent', () => {
     botao.click();
     fixture.detectChanges();
     await fixture.whenStable();
+    await esvaziar();
     fixture.detectChanges();
   }
 
@@ -172,7 +184,7 @@ describe('ChamadaComponent', () => {
 
     const primeira = el().querySelector('button.aula[data-id="7"]');
     expect(primeira?.textContent).toContain('19:00');
-    expect(primeira?.textContent).toContain('2 presenças');
+    expect(primeira?.textContent).toContain('2 pres.');
     expect(el().querySelector('button.aula[data-id="8"]')?.textContent).toContain('Cancelada');
   });
 
@@ -180,8 +192,7 @@ describe('ChamadaComponent', () => {
     agenda.and.returnValue(of([{ data: '2026-11-04', diaCancelado: null, aulas: [aula({ vao: 1 })] }]));
     await criar();
 
-    expect(el().querySelector('button.aula')?.textContent).toContain('1 presença');
-    expect(el().querySelector('button.aula')?.textContent).not.toContain('1 presenças');
+    expect(el().querySelector('button.aula')?.textContent).toContain('1 pres.');
   });
 
   it('dia sem aula mostra aviso', async () => {
@@ -191,208 +202,195 @@ describe('ChamadaComponent', () => {
     expect(texto()).toContain('Nenhuma aula neste dia');
   });
 
-  it('escolher a aula carrega a chamada com nome, origem e quem registrou', async () => {
-    await criar();
+  const linhas = (secao: string): HTMLButtonElement[] => Array.from(el().querySelectorAll<HTMLButtonElement>(`section.${secao} button.linha`));
+  const linha = (id: number): HTMLButtonElement => el().querySelector<HTMLButtonElement>(`button.linha[data-id="${id}"]`)!;
 
-    await escolherAula(7);
-
-    expect(presenca.chamada).toHaveBeenCalledWith('2026-11-04', 7);
-    const linhas = Array.from(el().querySelectorAll('li.presente'));
-    expect(linhas.length).toBe(2);
-    expect(linhas[0].textContent).toContain('Bia Souza');
-    expect(linhas[0].textContent).toContain('contada');
-    expect(linhas[0].textContent).not.toContain('por ');
-    expect(linhas[1].textContent).toContain('Caio Lima');
-    expect(linhas[1].textContent).toContain('incluída pelo professor');
-    expect(linhas[1].textContent).toContain('Prof Ana');
-  });
-
-  it('com podeAjustar mostra Tirar, + Incluir aluno e o prazo do professor', async () => {
-    await criar();
-
-    await escolherAula(7);
-
-    expect(el().querySelectorAll('button.tirar').length).toBe(2);
-    expect(el().querySelector('button.incluir')?.textContent).toContain('+ Incluir aluno');
-    expect(texto()).toContain('Professor pode ajustar até 08/11');
-  });
-
-  it('para o dono o prazo fala em dono', async () => {
+  it('abre na aula de agora e já carrega a chamada', async () => {
+    agenda.and.returnValue(
+      of([{ data: '2026-11-04', diaCancelado: null, aulas: [aula({ id: 5, inicio: '07:00', fim: '08:00' }), aula({ id: 6, inicio: '12:00', fim: '13:00' }), aula({ id: 7 })] }])
+    );
     await criar('DONO');
 
-    await escolherAula(7);
+    expect(fixture.componentInstance.idAula()).toBe(6);
+    expect(presenca.chamada).toHaveBeenCalledOnceWith('2026-11-04', 6);
+    expect(el().querySelector('button.aula[data-id="6"]')?.getAttribute('aria-pressed')).toBe('true');
+  });
 
-    expect(texto()).toContain('Dono pode ajustar até 08/11');
+  it('em outro dia abre na primeira aula', async () => {
+    await criar('DONO');
+    agenda.and.returnValue(
+      of([{ data: '2026-11-03', diaCancelado: null, aulas: [aula({ id: 5, inicio: '07:00', fim: '08:00' }), aula({ id: 6, inicio: '12:00', fim: '13:00' })] }])
+    );
+
+    await fixture.componentInstance.escolherDia('2026-11-03');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    await esvaziar();
+
+    expect(fixture.componentInstance.idAula()).toBe(5);
+    expect(presenca.chamada).toHaveBeenCalledWith('2026-11-03', 5);
+  });
+
+  it('lista Presentes com a origem e Outros alunos sem os presentes', async () => {
+    presenca.chamada.and.returnValue(
+      of({ ...chamadaBase, presencas: [...chamadaBase.presencas, presente({ idAluno: 3, nome: 'João Alves', origem: 'DONO', registradoPor: 'Dono' })] })
+    );
+    await criar('DONO');
+
+    expect(el().querySelector('section.presentes h2')?.textContent).toContain('Presentes · 3');
+    const presentes = linhas('presentes');
+    expect(presentes.map(l => l.querySelector('strong')?.textContent)).toEqual(['Bia Souza', 'Caio Lima', 'João Alves']);
+    expect(presentes[0].textContent).toContain('marcou Vou');
+    expect(presentes[1].textContent).toContain('incluída pelo professor');
+    expect(presentes[2].textContent).toContain('incluído por você');
+    expect(presentes.every(l => l.getAttribute('aria-pressed') === 'true')).toBeTrue();
+    expect(el().querySelector('section.outros h2')?.textContent).toContain('Outros alunos');
+    const outros = linhas('outros');
+    expect(outros.map(l => l.querySelector('strong')?.textContent)).toEqual(['Ágata Dias']);
+    expect(outros[0].getAttribute('aria-pressed')).toBe('false');
+  });
+
+  it('mostra o prazo como ajustável até', async () => {
+    await criar('DONO');
+
+    expect(texto()).toContain('ajustável até 08/11');
   });
 
   it('sem limite não mostra prazo', async () => {
     presenca.chamada.and.returnValue(of({ ...chamadaBase, ajustaAte: null }));
     await criar('DONO');
 
-    await escolherAula(7);
-
-    expect(texto()).not.toContain('pode ajustar até');
+    expect(texto()).not.toContain('ajustável até');
   });
 
-  it('fora do prazo é só leitura com aviso', async () => {
-    presenca.chamada.and.returnValue(of({ ...chamadaBase, podeAjustar: false }));
-    await criar();
-
-    await escolherAula(7);
-
-    expect(el().querySelectorAll('button.tirar').length).toBe(0);
-    expect(el().querySelector('button.incluir')).toBeNull();
-    expect(texto()).toContain('Fora do prazo: estas presenças só podem ser consultadas.');
-    expect(el().querySelectorAll('li.presente').length).toBe(2);
-  });
-
-  it('aula cancelada permite tirar mas não incluir', async () => {
-    await criar();
-
-    await escolherAula(8);
-
-    expect(el().querySelectorAll('button.tirar').length).toBe(2);
-    expect(el().querySelector('button.incluir')).toBeNull();
-  });
-
-  it('chamada vazia mostra aviso', async () => {
-    presenca.chamada.and.returnValue(of({ ...chamadaBase, presencas: [] }));
-    await criar();
-
-    await escolherAula(7);
-
-    expect(texto()).toContain('Ninguém registrado nesta aula');
-  });
-
-  it('tirar confirma, remove, avisa e recarrega a chamada e a contagem', async () => {
-    await criar();
-    await escolherAula(7);
+  it('marcar um aluno inclui na aula e recarrega a chamada e a contagem', async () => {
+    await criar('DONO');
     agenda.calls.reset();
     presenca.chamada.calls.reset();
 
-    await fixture.componentInstance.tirar(chamadaBase.presencas[0]);
+    await clicar(linha(3));
 
-    expect(notificador.confirmar).toHaveBeenCalledWith('Tirar presença', 'Tirar Bia Souza desta aula?', 'Tirar');
-    expect(presenca.tirar).toHaveBeenCalledWith('2026-11-04', 7, 2);
-    expect(notificador.sucesso).toHaveBeenCalled();
+    expect(presenca.incluir).toHaveBeenCalledOnceWith('2026-11-04', 7, 3);
     expect(presenca.chamada).toHaveBeenCalledWith('2026-11-04', 7);
     expect(agenda).toHaveBeenCalledWith('2026-11-04', '2026-11-04');
+    expect(notificador.confirmar).not.toHaveBeenCalled();
   });
 
-  it('tirar cancelado na confirmação não chama a API', async () => {
-    await criar();
-    await escolherAula(7);
+  it('desmarcar pede confirmação e tira a presença', async () => {
+    await criar('DONO');
+    presenca.chamada.calls.reset();
+
+    await clicar(linha(2));
+
+    expect(notificador.confirmar).toHaveBeenCalledWith('Tirar a presença', 'Tirar a presença de Bia Souza?', 'Tirar');
+    expect(presenca.tirar).toHaveBeenCalledOnceWith('2026-11-04', 7, 2);
+    expect(presenca.chamada).toHaveBeenCalledWith('2026-11-04', 7);
+  });
+
+  it('desmarcar cancelado na confirmação não chama a API', async () => {
+    await criar('DONO');
     notificador.confirmar.and.resolveTo(false);
 
-    await fixture.componentInstance.tirar(chamadaBase.presencas[0]);
+    await clicar(linha(2));
 
     expect(presenca.tirar).not.toHaveBeenCalled();
   });
 
-  it('erro ao tirar mostra o erro da API', async () => {
-    await criar();
-    await escolherAula(7);
-    presenca.tirar.and.returnValue(throwError(() => new Error('x')));
-
-    await fixture.componentInstance.tirar(chamadaBase.presencas[0]);
-
-    expect(notificador.erroDaApi).toHaveBeenCalled();
-  });
-
-  it('duplo toque em Tirar só chama a API uma vez', async () => {
-    await criar();
-    await escolherAula(7);
+  it('a linha tocada fica desabilitada enquanto salva e toque repetido chama a API uma vez', async () => {
+    await criar('DONO');
     const resposta = new Subject<void>();
-    presenca.tirar.and.returnValue(resposta);
+    presenca.incluir.and.returnValue(resposta);
+    const joaoLinha = fixture.componentInstance.outros()[1];
 
-    const primeira = fixture.componentInstance.tirar(chamadaBase.presencas[0]);
-    const segunda = fixture.componentInstance.tirar(chamadaBase.presencas[0]);
+    const primeira = fixture.componentInstance.alternar(joaoLinha);
+    const segunda = fixture.componentInstance.alternar(joaoLinha);
+    fixture.detectChanges();
+    expect(linha(3).disabled).toBeTrue();
     resposta.next();
     resposta.complete();
     await Promise.all([primeira, segunda]);
 
-    expect(presenca.tirar).toHaveBeenCalledTimes(1);
+    expect(presenca.incluir).toHaveBeenCalledTimes(1);
+    expect(fixture.componentInstance.salvando()).toBeFalse();
   });
 
-  it('abrir o incluir carrega as contas e deixa de fora quem já está presente', async () => {
-    await criar();
-    await escolherAula(7);
-
-    await fixture.componentInstance.abrirIncluir();
-
-    expect(alunos.listar).toHaveBeenCalledTimes(1);
-    expect(fixture.componentInstance.candidatos().map(p => p.nome)).toEqual(['João Alves']);
-  });
-
-  it('incluir chama a API, avisa e recarrega', async () => {
-    await criar();
-    await escolherAula(7);
-    await fixture.componentInstance.abrirIncluir();
-    presenca.chamada.calls.reset();
-
-    await fixture.componentInstance.incluir([joao]);
-
-    expect(presenca.incluir).toHaveBeenCalledWith('2026-11-04', 7, 3);
-    expect(notificador.sucesso).toHaveBeenCalled();
-    expect(presenca.chamada).toHaveBeenCalledWith('2026-11-04', 7);
-    expect(fixture.componentInstance.incluindo()).toBeFalse();
-  });
-
-  it('incluir vários chama a API para cada um e avisa uma vez', async () => {
-    const caio: PessoaAcademia = { id: 5, nome: 'Caio Lima', email: 'caio@x.com', perfil: 'ALUNO' };
-    await criar();
-    await escolherAula(7);
-    await fixture.componentInstance.abrirIncluir();
-
-    await fixture.componentInstance.incluir([joao, caio]);
-
-    expect(presenca.incluir.calls.allArgs()).toEqual([['2026-11-04', 7, 3], ['2026-11-04', 7, 5]]);
-    expect(notificador.sucesso).toHaveBeenCalledOnceWith('2 alunos entraram na chamada.');
-    expect(fixture.componentInstance.incluindo()).toBeFalse();
-  });
-
-  it('quem já estava na chamada (ERR027) não interrompe os outros', async () => {
-    const caio: PessoaAcademia = { id: 5, nome: 'Caio Lima', email: 'caio@x.com', perfil: 'ALUNO' };
-    await criar();
-    await escolherAula(7);
-    await fixture.componentInstance.abrirIncluir();
-    presenca.incluir.and.callFake((_d: string, _a: number, id: number) =>
-      id === 3 ? throwError(() => new HttpErrorResponse({ status: 409, error: { codigo: 'ERR027' } })) : of(undefined)
-    );
-
-    await fixture.componentInstance.incluir([joao, caio]);
-
-    expect(presenca.incluir).toHaveBeenCalledTimes(2);
-    expect(notificador.erroDaApi).not.toHaveBeenCalled();
-    expect(notificador.sucesso).toHaveBeenCalledOnceWith('2 alunos entraram na chamada.');
-  });
-
-  it('erro no meio para, avisa quem falhou e recarrega o que já entrou', async () => {
-    const caio: PessoaAcademia = { id: 5, nome: 'Caio Lima', email: 'caio@x.com', perfil: 'ALUNO' };
-    await criar();
-    await escolherAula(7);
-    await fixture.componentInstance.abrirIncluir();
-    presenca.incluir.and.callFake((_d: string, _a: number, id: number) => (id === 5 ? throwError(() => new Error('x')) : of(undefined)));
-    presenca.chamada.calls.reset();
-
-    await fixture.componentInstance.incluir([joao, caio]);
-
-    expect(notificador.erroDaApi).toHaveBeenCalledWith(jasmine.anything(), 'Não foi possível incluir Caio Lima.');
-    expect(notificador.sucesso).not.toHaveBeenCalled();
-    expect(presenca.chamada).toHaveBeenCalledWith('2026-11-04', 7);
-    expect(fixture.componentInstance.incluindo()).toBeTrue();
-  });
-
-  it('erro ao incluir mostra o erro da API e mantém o painel', async () => {
-    await criar();
-    await escolherAula(7);
-    await fixture.componentInstance.abrirIncluir();
+  it('erro ao marcar mostra o erro da API e recarrega a chamada', async () => {
+    await criar('DONO');
     presenca.incluir.and.returnValue(throwError(() => new Error('x')));
+    presenca.chamada.calls.reset();
 
-    await fixture.componentInstance.incluir([joao]);
+    await clicar(linha(3));
 
-    expect(notificador.erroDaApi).toHaveBeenCalled();
-    expect(fixture.componentInstance.incluindo()).toBeTrue();
+    expect(notificador.erroDaApi).toHaveBeenCalledWith(jasmine.anything(), 'Não foi possível incluir João Alves.');
+    expect(presenca.chamada).toHaveBeenCalledWith('2026-11-04', 7);
+  });
+
+  it('erro ao tirar mostra o erro da API e recarrega a chamada', async () => {
+    await criar('DONO');
+    presenca.tirar.and.returnValue(throwError(() => new Error('x')));
+    presenca.chamada.calls.reset();
+
+    await clicar(linha(2));
+
+    expect(notificador.erroDaApi).toHaveBeenCalledWith(jasmine.anything(), 'Não foi possível tirar a presença.');
+    expect(presenca.chamada).toHaveBeenCalledWith('2026-11-04', 7);
+  });
+
+  it('a busca filtra as duas seções sem considerar acento', async () => {
+    await criar('DONO');
+    const campo = el().querySelector<HTMLInputElement>('input[type="search"]')!;
+
+    campo.value = 'agata';
+    campo.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    expect(linhas('presentes').length).toBe(0);
+    expect(linhas('outros').map(l => l.querySelector('strong')?.textContent)).toEqual(['Ágata Dias']);
+
+    campo.value = 'BIA';
+    campo.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    expect(linhas('presentes').map(l => l.querySelector('strong')?.textContent)).toEqual(['Bia Souza']);
+    expect(linhas('outros').length).toBe(0);
+  });
+
+  it('fora do prazo é só leitura com aviso', async () => {
+    presenca.chamada.and.returnValue(of({ ...chamadaBase, podeAjustar: false }));
+    await criar('DONO');
+
+    expect(texto()).toContain('Fora do prazo: estas presenças só podem ser consultadas.');
+    expect(texto()).not.toContain('ajustável até');
+    const todas = [...linhas('presentes'), ...linhas('outros')];
+    expect(todas.length).toBe(4);
+    expect(todas.every(l => l.disabled)).toBeTrue();
+  });
+
+  it('aula cancelada permite tirar mas não incluir', async () => {
+    await criar('DONO');
+
+    await escolherAula(8);
+
+    expect(linhas('presentes').every(l => !l.disabled)).toBeTrue();
+    expect(linhas('outros').every(l => l.disabled)).toBeTrue();
+  });
+
+  it('chamada vazia mostra aviso', async () => {
+    presenca.chamada.and.returnValue(of({ ...chamadaBase, presencas: [] }));
+    await criar('DONO');
+
+    expect(texto()).toContain('Ninguém registrado nesta aula');
+    expect(linhas('outros').length).toBe(4);
+  });
+
+  it('Editar grade navega para a grade', async () => {
+    await criar('DONO');
+    const navegar = spyOn(TestBed.inject(NavController), 'navigateForward').and.resolveTo(true);
+
+    const botao = Array.from(el().querySelectorAll<HTMLButtonElement>('button')).find(b => b.textContent?.includes('Editar grade'))!;
+    botao.click();
+
+    expect(navegar).toHaveBeenCalledWith('/app/grade');
   });
 
   it('erro ao carregar as aulas mostra tentar de novo', async () => {
@@ -405,22 +403,23 @@ describe('ChamadaComponent', () => {
 
   it('chamada de dia futuro avisa que abre no dia da aula', async () => {
     presenca.chamada.and.returnValue(of({ ...chamadaBase, podeAjustar: false }));
-    await criar();
+    await criar('DONO');
     await fixture.componentInstance.escolherDia('2026-11-05');
     fixture.detectChanges();
-    await escolherAula(7);
+    await fixture.whenStable();
+    await esvaziar();
+    fixture.detectChanges();
 
     expect(texto()).toContain('O controle de presença abre no dia da aula.');
     expect(texto()).not.toContain('Fora do prazo');
   });
 
   it('trocar de dia fica bloqueado enquanto salva e as aulas não ficam travadas', async () => {
-    await criar();
-    await escolherAula(7);
+    await criar('DONO');
     const resposta = new Subject<void>();
     presenca.tirar.and.returnValue(resposta);
 
-    const tirando = fixture.componentInstance.tirar(chamadaBase.presencas[0]);
+    const tirando = fixture.componentInstance.alternar(fixture.componentInstance.presentes()[0]);
     await Promise.resolve();
     fixture.detectChanges();
     expect(el().querySelector<HTMLButtonElement>('button.dia')!.disabled).toBeTrue();
@@ -441,15 +440,14 @@ describe('ChamadaComponent', () => {
   });
 
   it('a contagem atrasada de outro dia não sobrescreve as aulas do dia atual', async () => {
-    await criar();
-    await escolherAula(7);
+    await criar('DONO');
     const atrasada = new Subject<DiaAgenda[]>();
     let chamadas = 0;
     agenda.calls.reset();
     agenda.and.callFake((inicio: string) =>
       ++chamadas === 1 ? atrasada : of<DiaAgenda[]>([{ data: inicio, diaCancelado: null, aulas: [aula({ id: 9 })] }])
     );
-    const tirando = fixture.componentInstance.tirar(chamadaBase.presencas[0]);
+    const tirando = fixture.componentInstance.alternar(fixture.componentInstance.presentes()[0]);
     while (agenda.calls.count() === 0) {
       await Promise.resolve();
     }
@@ -465,35 +463,28 @@ describe('ChamadaComponent', () => {
 
   for (const codigo of ['ERR027', 'ERR028', 'ERR029']) {
     it(`${codigo} ao tirar recarrega a chamada`, async () => {
-      await criar();
-      await escolherAula(7);
+      await criar('DONO');
       presenca.tirar.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409, error: { codigo } })));
       presenca.chamada.calls.reset();
 
-      await fixture.componentInstance.tirar(chamadaBase.presencas[0]);
+      await fixture.componentInstance.alternar(fixture.componentInstance.presentes()[0]);
 
       expect(presenca.chamada).toHaveBeenCalledWith('2026-11-04', 7);
     });
   }
 
-  it('ERR029 ao incluir fecha o painel e recarrega a chamada', async () => {
-    await criar();
-    await escolherAula(7);
-    await fixture.componentInstance.abrirIncluir();
-    presenca.incluir.and.returnValue(throwError(() => new HttpErrorResponse({ status: 422, error: { codigo: 'ERR029' } })));
+  it('ERR027 ao incluir recarrega a chamada', async () => {
+    await criar('DONO');
+    presenca.incluir.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409, error: { codigo: 'ERR027' } })));
     presenca.chamada.calls.reset();
 
-    await fixture.componentInstance.incluir([joao]);
+    await clicar(linha(3));
 
-    expect(fixture.componentInstance.incluindo()).toBeFalse();
-    expect(presenca.chamada).toHaveBeenCalledTimes(1);
+    expect(presenca.chamada).toHaveBeenCalledWith('2026-11-04', 7);
   });
 
   it('ao voltar para a tela recalcula hoje, recarrega aulas e chamada e renova os alunos', async () => {
-    await criar();
-    await escolherAula(7);
-    await fixture.componentInstance.abrirIncluir();
-    fixture.componentInstance.fecharIncluir();
+    await criar('DONO');
     await fixture.componentInstance.ionViewWillEnter();
     agenda.calls.reset();
     presenca.chamada.calls.reset();
@@ -509,7 +500,6 @@ describe('ChamadaComponent', () => {
     expect(fixture.componentInstance.intervalo()).toBe('02/11 a 08/11');
     expect(agenda).toHaveBeenCalledWith('2026-11-04', '2026-11-04');
     expect(presenca.chamada).toHaveBeenCalledWith('2026-11-04', 7);
-    await fixture.componentInstance.abrirIncluir();
     expect(alunos.listar).toHaveBeenCalledTimes(1);
   });
 
@@ -527,21 +517,18 @@ describe('ChamadaComponent', () => {
     expect(fixture.componentInstance.ajustaDesde()).toBe('2026-10-11');
   });
 
-  it('voltar para a tela no meio do incluir não troca o dia das próximas inclusões', async () => {
-    const caio: PessoaAcademia = { id: 5, nome: 'Caio Lima', email: 'caio@x.com', perfil: 'ALUNO' };
-    await criar();
-    await escolherAula(7);
-    await fixture.componentInstance.abrirIncluir();
-    const primeira = new Subject<void>();
-    presenca.incluir.and.returnValues(primeira, of(undefined));
+  it('voltar para a tela no meio do toque não troca o dia da inclusão', async () => {
+    await criar('DONO');
+    const resposta = new Subject<void>();
+    presenca.incluir.and.returnValue(resposta);
 
-    const incluindo = fixture.componentInstance.incluir([joao, caio]);
+    const incluindo = fixture.componentInstance.alternar(fixture.componentInstance.outros()[1]);
     await Promise.resolve();
     fixture.componentInstance.selecionado.set('2026-11-03');
-    primeira.next();
-    primeira.complete();
+    resposta.next();
+    resposta.complete();
     await incluindo;
 
-    expect(presenca.incluir.calls.allArgs()).toEqual([['2026-11-04', 7, 3], ['2026-11-04', 7, 5]]);
+    expect(presenca.incluir).toHaveBeenCalledOnceWith('2026-11-04', 7, 3);
   });
 });

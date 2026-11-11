@@ -1,24 +1,37 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { IonContent, IonHeader, IonModal, IonSpinner, IonTitle, IonToolbar } from '@ionic/angular';
-import { LucideChevronLeft, LucideChevronRight, LucideTriangleAlert, LucideUsers } from '@lucide/angular';
+import { IonButtons, IonContent, IonHeader, IonSpinner, IonTitle, IonToolbar, NavController } from '@ionic/angular';
+import { LucideCheck, LucideChevronLeft, LucideChevronRight, LucideTriangleAlert, LucideUsers } from '@lucide/angular';
 import { firstValueFrom } from 'rxjs';
-import { codigoDeErro } from '../../core/http/erro-api';
-import { SessionService } from '../../core/auth/session.service';
 import { Notificador } from '../../core/notificacao/notificador';
 import { AulaDoDia, CLASSE_CHIP_MODALIDADE, ROTULO_MODALIDADE } from '../../shared/agenda/agenda.model';
 import { AgendaService } from '../../shared/agenda/agenda.service';
 import { DIAS_SEMANA_CURTOS, diaSemanaIso, formatarDiaMes, inicioDaSemana, somarDias } from '../../shared/agenda/datas';
 import { hojeEmSaoPaulo } from '../../shared/graduacao/descrever';
-import { Chamada, PresencaDaAula, ROTULO_ORIGEM } from '../../shared/presenca/presenca.model';
+import { Chamada, OrigemPresenca } from '../../shared/presenca/presenca.model';
 import { PresencaService } from '../../shared/presenca/presenca.service';
 import { BotaoComponent } from '../../shared/ui/botao/botao.component';
 import { EstadoVazioComponent } from '../../shared/ui/estado-vazio/estado-vazio.component';
 import { PessoaAcademia } from '../../shared/alunos/alunos.model';
+import { compararNomes, contemNome } from '../../shared/utils/texto.util';
 import { AlunosService } from '../../shared/alunos/alunos.service';
-import { IncluirAlunoComponent } from './incluir-aluno/incluir-aluno.component';
+import { agoraEmSaoPaulo, aulaInicial } from './aula-inicial';
 
 const NOMES_DIAS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
 const SEMANAS_SEM_LIMITE = 12;
+
+const ROTULO_ORIGEM_CHAMADA: Record<OrigemPresenca, string> = {
+  ALUNO: 'marcou Vou',
+  DONO: 'incluído por você',
+  PROFESSOR: 'incluída pelo professor',
+  IA: 'registrada pela IA'
+};
+
+export interface LinhaChamada {
+  id: number;
+  nome: string;
+  presente: boolean;
+  origem: string | null;
+}
 
 @Component({
   selector: 'app-chamada',
@@ -27,15 +40,15 @@ const SEMANAS_SEM_LIMITE = 12;
     IonToolbar,
     IonTitle,
     IonContent,
-    IonModal,
+    IonButtons,
     IonSpinner,
+    LucideCheck,
     LucideChevronLeft,
     LucideChevronRight,
     LucideTriangleAlert,
     LucideUsers,
     BotaoComponent,
-    EstadoVazioComponent,
-    IncluirAlunoComponent
+    EstadoVazioComponent
   ],
   templateUrl: './chamada.component.html',
   styleUrl: './chamada.component.scss',
@@ -45,12 +58,11 @@ export class ChamadaComponent {
   private readonly agenda = inject(AgendaService);
   private readonly presenca = inject(PresencaService);
   private readonly pessoas = inject(AlunosService);
-  private readonly sessao = inject(SessionService);
+  private readonly nav = inject(NavController);
   private readonly notificador = inject(Notificador);
 
   readonly rotulo = ROTULO_MODALIDADE;
   readonly classeChip = CLASSE_CHIP_MODALIDADE;
-  readonly rotuloOrigem = ROTULO_ORIGEM;
 
   readonly hoje = signal(hojeEmSaoPaulo());
 
@@ -99,24 +111,32 @@ export class ChamadaComponent {
   readonly erroAulas = signal(false);
   readonly carregandoChamada = signal(false);
   readonly erroChamada = signal(false);
-  readonly salvando = signal(false);
-  readonly incluindo = signal(false);
+  readonly pendentes = signal<ReadonlySet<number>>(new Set());
+  readonly salvando = computed(() => this.pendentes().size > 0);
   readonly alunos = signal<PessoaAcademia[] | null>(null);
+  readonly erroAlunos = signal(false);
+  readonly busca = signal('');
 
   readonly aindaNaoAbriu = computed(() => this.selecionado() > this.hoje());
   readonly aula = computed(() => this.aulas().find(a => a.id === this.idAula()) ?? null);
   readonly podeIncluir = computed(() => (this.chamada()?.podeAjustar ?? false) && !(this.aula()?.cancelada ?? true));
-  readonly candidatos = computed(() => {
-    const presentes = new Set((this.chamada()?.presencas ?? []).map(p => p.idAluno));
-    return (this.alunos() ?? []).filter(p => !presentes.has(p.id));
+  readonly totalPresentes = computed(() => this.chamada()?.presencas.length ?? 0);
+  readonly presentes = computed<LinhaChamada[]>(() =>
+    (this.chamada()?.presencas ?? [])
+      .map(p => ({ id: p.idAluno, nome: p.nome, presente: true, origem: ROTULO_ORIGEM_CHAMADA[p.origem] }))
+      .filter(l => contemNome(l.nome, this.busca()))
+      .sort(compararNomes)
+  );
+  readonly outros = computed<LinhaChamada[]>(() => {
+    const ids = new Set((this.chamada()?.presencas ?? []).map(p => p.idAluno));
+    return (this.alunos() ?? [])
+      .filter(p => !ids.has(p.id) && contemNome(p.nome, this.busca()))
+      .map(p => ({ id: p.id, nome: p.nome, presente: false, origem: null }))
+      .sort(compararNomes);
   });
   readonly prazo = computed(() => {
     const ate = this.chamada()?.ajustaAte;
-    if (!ate) {
-      return null;
-    }
-    const quem = this.sessao.usuario()?.perfil === 'DONO' ? 'Dono' : 'Professor';
-    return `${quem} pode ajustar até ${formatarDiaMes(ate)}`;
+    return ate ? `ajustável até ${formatarDiaMes(ate)}` : null;
   });
 
   private requisicaoAulas = 0;
@@ -128,6 +148,7 @@ export class ChamadaComponent {
   constructor() {
     void this.carregarAulas();
     void this.carregarPrazo();
+    void this.carregarAlunos();
   }
 
   async ionViewWillEnter(): Promise<void> {
@@ -139,12 +160,13 @@ export class ChamadaComponent {
     if (!this.salvando() && (this.semana() < this.primeiraSemana() || this.semana() > this.semanaAtual())) {
       this.semana.set(this.semanaAtual());
       this.selecionado.set(this.hoje());
-      this.idAula.set(null);
       this.chamada.set(null);
       this.requisicaoChamada++;
     }
-    this.alunos.set(null);
-    await Promise.all([this.carregarAulas(), this.carregarChamada(), this.carregarPrazo()]);
+    if (this.selecionado() === this.hoje()) {
+      this.idAula.set(null);
+    }
+    await Promise.all([this.carregarAulas(), this.carregarChamada(), this.carregarPrazo(), this.carregarAlunos()]);
   }
 
   async mudarSemana(delta: number): Promise<void> {
@@ -157,12 +179,8 @@ export class ChamadaComponent {
     await this.escolherDia(somarDias(nova, diaDaSemana - 1));
   }
 
-  textoPresencas(aula: AulaDoDia): string {
-    return aula.vao === 1 ? '1 presença' : `${aula.vao} presenças`;
-  }
-
-  quemRegistrou(p: PresencaDaAula): string | null {
-    return p.origem === 'ALUNO' ? null : p.registradoPor;
+  editarGrade(): Promise<boolean> {
+    return this.nav.navigateForward('/app/grade');
   }
 
   async escolherDia(data: string): Promise<void> {
@@ -195,8 +213,10 @@ export class ChamadaComponent {
       if (id !== this.requisicaoAulas) {
         return;
       }
-      this.aulas.set(dias.find(d => d.data === data)?.aulas ?? []);
+      const doDia = dias.find(d => d.data === data)?.aulas ?? [];
+      this.aulas.set(doDia);
       this.carregandoAulas.set(false);
+      await this.abrirAulaInicial(doDia, data);
     } catch (erro: unknown) {
       if (id !== this.requisicaoAulas) {
         return;
@@ -205,6 +225,27 @@ export class ChamadaComponent {
       this.carregandoAulas.set(false);
       this.erroAulas.set(true);
       await this.notificador.erroDaApi(erro, 'Não foi possível carregar as aulas.');
+    }
+  }
+
+  private async abrirAulaInicial(doDia: AulaDoDia[], data: string): Promise<void> {
+    const atual = this.idAula();
+    if (atual !== null && doDia.some(a => a.id === atual)) {
+      return;
+    }
+    const inicial = data === this.hoje() ? aulaInicial(doDia, agoraEmSaoPaulo()) : (doDia[0] ?? null);
+    this.idAula.set(inicial?.id ?? null);
+    this.chamada.set(null);
+    await this.carregarChamada();
+  }
+
+  async carregarAlunos(): Promise<void> {
+    this.erroAlunos.set(false);
+    try {
+      this.alunos.set(await firstValueFrom(this.pessoas.listar()));
+    } catch (erro: unknown) {
+      this.erroAlunos.set(true);
+      await this.notificador.erroDaApi(erro, 'Não foi possível carregar os alunos.');
     }
   }
 
@@ -245,103 +286,48 @@ export class ChamadaComponent {
     }
   }
 
-  async tirar(presente: PresencaDaAula): Promise<void> {
+  async alternar(linha: LinhaChamada): Promise<void> {
     const aula = this.idAula();
     const data = this.selecionado();
-    if (aula === null || this.salvando()) {
+    if (aula === null || this.pendentes().has(linha.id)) {
       return;
     }
-    this.salvando.set(true);
+    this.pendentes.update(atual => new Set(atual).add(linha.id));
     try {
-      const confirmado = await this.notificador.confirmar(
-        'Tirar presença',
-        `Tirar ${presente.nome} desta aula?`,
-        'Tirar'
-      );
-      if (!confirmado) {
-        return;
-      }
-      await firstValueFrom(this.presenca.tirar(data, aula, presente.idAluno), {
-        defaultValue: undefined
-      });
-      await this.notificador.sucesso(`${presente.nome} saiu da chamada.`);
-      await this.recarregar();
-    } catch (erro: unknown) {
-      await this.notificador.erroDaApi(erro, 'Não foi possível tirar a presença.');
-      await this.recarregarSeDesatualizada(erro);
-    } finally {
-      this.salvando.set(false);
-    }
-  }
-
-  async abrirIncluir(): Promise<void> {
-    if (this.alunos() === null) {
-      try {
-        this.alunos.set(await firstValueFrom(this.pessoas.listar()));
-      } catch (erro: unknown) {
-        await this.notificador.erroDaApi(erro, 'Não foi possível carregar os alunos.');
-        return;
-      }
-    }
-    this.incluindo.set(true);
-  }
-
-  fecharIncluir(): void {
-    this.incluindo.set(false);
-  }
-
-  async incluir(pessoas: PessoaAcademia[]): Promise<void> {
-    const aula = this.idAula();
-    const data = this.selecionado();
-    if (aula === null || this.salvando() || pessoas.length === 0) {
-      return;
-    }
-    this.salvando.set(true);
-    let incluidas = 0;
-    try {
-      for (const pessoa of pessoas) {
-        try {
-          await firstValueFrom(this.presenca.incluir(data, aula, pessoa.id), {
-            defaultValue: undefined
-          });
-        } catch (erro: unknown) {
-          if (codigoDeErro(erro) !== 'ERR027') {
-            throw erro;
-          }
+      if (linha.presente) {
+        const confirmado = await this.notificador.confirmar(
+          'Tirar a presença',
+          `Tirar a presença de ${linha.nome}?`,
+          'Tirar'
+        );
+        if (!confirmado) {
+          return;
         }
-        incluidas++;
+        await firstValueFrom(this.presenca.tirar(data, aula, linha.id), { defaultValue: undefined });
+      } else {
+        await firstValueFrom(this.presenca.incluir(data, aula, linha.id), { defaultValue: undefined });
       }
-      this.fecharIncluir();
-      await this.notificador.sucesso(
-        pessoas.length === 1 ? `${pessoas[0].nome} entrou na chamada.` : `${pessoas.length} alunos entraram na chamada.`
-      );
-      await this.recarregar();
+      await this.recarregar(data, aula);
     } catch (erro: unknown) {
-      const quem = pessoas[incluidas];
-      await this.notificador.erroDaApi(erro, `Não foi possível incluir ${quem.nome}.`);
-      if (incluidas > 0 && !this.ehDesatualizada(erro)) {
-        await this.recarregar();
-      }
-      await this.recarregarSeDesatualizada(erro);
+      await this.notificador.erroDaApi(
+        erro,
+        linha.presente ? 'Não foi possível tirar a presença.' : `Não foi possível incluir ${linha.nome}.`
+      );
+      await this.recarregar(data, aula);
     } finally {
-      this.salvando.set(false);
+      this.pendentes.update(atual => {
+        const novo = new Set(atual);
+        novo.delete(linha.id);
+        return novo;
+      });
     }
   }
 
-  private async recarregar(): Promise<void> {
+  private async recarregar(data: string, aula: number): Promise<void> {
+    if (data !== this.selecionado() || aula !== this.idAula()) {
+      return;
+    }
     await Promise.all([this.carregarChamada(), this.atualizarContagem()]);
-  }
-
-  private ehDesatualizada(erro: unknown): boolean {
-    const codigo = codigoDeErro(erro);
-    return codigo === 'ERR027' || codigo === 'ERR028' || codigo === 'ERR029';
-  }
-
-  private async recarregarSeDesatualizada(erro: unknown): Promise<void> {
-    if (this.ehDesatualizada(erro)) {
-      this.fecharIncluir();
-      await this.recarregar();
-    }
   }
 
   private async atualizarContagem(): Promise<void> {

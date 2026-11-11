@@ -20,16 +20,16 @@ describe('AgendaComponent', () => {
     return fixture;
   }
 
-  it('mostra as abas Grade semanal e Exceções, com a grade por padrão', async () => {
+  it('mostra as abas Grade semanal e Cancelamentos e extras, com a grade por padrão', async () => {
     const fixture = await montar();
     const tela: HTMLElement = fixture.nativeElement;
 
     const abas = Array.from(tela.querySelectorAll('ion-segment-button')).map(a => a.textContent?.trim());
-    expect(abas).toEqual(['Grade semanal', 'Exceções']);
+    expect(abas).toEqual(['Grade semanal', 'Cancelamentos e extras']);
     expect(tela.querySelector('app-grade-semanal')).not.toBeNull();
   });
 
-  it('a aba Exceções mostra a lista de exceções no lugar da grade', async () => {
+  it('a aba Cancelamentos e extras mostra a lista de exceções no lugar da grade', async () => {
     const fixture = await montar();
 
     fixture.componentInstance.mudarAba('excecoes');
@@ -39,5 +39,18 @@ describe('AgendaComponent', () => {
     const tela: HTMLElement = fixture.nativeElement;
     expect(tela.querySelector('app-grade-semanal')).toBeNull();
     expect(tela.querySelector('app-excecoes')).not.toBeNull();
+  });
+
+  it('o título é Grade', async () => {
+    const fixture = await montar();
+
+    expect(fixture.nativeElement.querySelector('ion-title')?.textContent?.trim()).toBe('Grade');
+  });
+
+  it('voltar leva para a chamada', async () => {
+    const fixture = await montar();
+
+    const voltar = fixture.nativeElement.querySelector('ion-back-button') as HTMLElement & { defaultHref?: string };
+    expect(voltar.getAttribute('default-href') ?? voltar.defaultHref).toBe('/app/chamada');
   });
 });

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { IonContent, IonHeader, IonLabel, IonSegment, IonSegmentButton, IonTitle, IonToolbar } from '@ionic/angular';
+import { IonBackButton, IonButtons, IonContent, IonHeader, IonLabel, IonSegment, IonSegmentButton, IonTitle, IonToolbar } from '@ionic/angular';
 import { ExcecoesComponent } from './excecoes/excecoes.component';
 import { GradeSemanalComponent } from './grade-semanal/grade-semanal.component';
 
@@ -7,7 +7,7 @@ export type AbaAgenda = 'grade' | 'excecoes';
 
 @Component({
   selector: 'app-agenda',
-  imports: [IonHeader, IonToolbar, IonTitle, IonContent, IonLabel, IonSegment, IonSegmentButton, GradeSemanalComponent, ExcecoesComponent],
+  imports: [IonBackButton, IonButtons, IonHeader, IonToolbar, IonTitle, IonContent, IonLabel, IonSegment, IonSegmentButton, GradeSemanalComponent, ExcecoesComponent],
   templateUrl: './agenda.component.html',
   styleUrl: './agenda.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
