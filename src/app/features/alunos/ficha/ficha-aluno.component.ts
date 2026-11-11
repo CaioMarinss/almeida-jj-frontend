@@ -97,7 +97,11 @@ export class FichaAlunoComponent {
   });
   readonly ultimoExame = computed(() => {
     const primeiro = this.erroExames() ? undefined : this.exames()[0];
-    return primeiro ? formatarNota(primeiro.nota) : '—';
+    return primeiro ? `${primeiro.aprovado ? 'Aprovado' : 'Reprovado'} · ${formatarNota(primeiro.nota)}` : '—';
+  });
+  readonly ultimoExameReprovado = computed(() => {
+    const primeiro = this.erroExames() ? undefined : this.exames()[0];
+    return !!primeiro && !primeiro.aprovado;
   });
 
   constructor() {

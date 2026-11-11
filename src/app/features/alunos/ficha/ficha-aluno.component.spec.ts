@@ -125,7 +125,7 @@ describe('FichaAlunoComponent', () => {
     await abrir([aluno(2, 'Bia')], [exame(1, '2026-10-20', true, 8.5, null), exame(2, '2026-04-02', false, 4, null)]);
 
     const lidos = numeros();
-    expect(lidos).toEqual(['Presenças no ciclo 12/30', 'Último treino hoje', 'Último exame 8,5']);
+    expect(lidos).toEqual(['Presenças no ciclo 12/30', 'Último treino hoje', 'Último exame Aprovado · 8,5']);
     expect(texto()).toContain('Bia');
     expect(texto()).toContain('Azul · 1 grau');
   });
@@ -140,6 +140,14 @@ describe('FichaAlunoComponent', () => {
     configurar('2');
     await abrir([aluno(2, 'Bia', { diasSemTreinar: 12, ultimaPresenca: '2026-10-30' })]);
     expect(el().querySelectorAll('.numero')[1].textContent).toContain('30/10');
+  });
+
+  it('último exame reprovado mostra Reprovado e a nota com vírgula, com a classe reprovado', async () => {
+    configurar('2');
+    await abrir([aluno(2, 'Bia')], [exame(1, '2026-10-20', false, 4, null)]);
+
+    expect(numeros()[2]).toBe('Último exame Reprovado · 4,0');
+    expect(el().querySelector('dd.exame')!.classList.contains('reprovado')).toBeTrue();
   });
 
   it('sem exame nem presença mostra traços', async () => {
@@ -293,7 +301,7 @@ describe('FichaAlunoComponent', () => {
     http.expectOne(`${api}/alunos/2/exames`).flush([exame(1, '2026-10-20', true, 7, null)]);
     await estabilizar();
 
-    expect(numeros()[2]).toBe('Último exame 7,0');
+    expect(numeros()[2]).toBe('Último exame Aprovado · 7,0');
     expect(texto()).toContain('Aprovado · nota 7,0');
   });
 

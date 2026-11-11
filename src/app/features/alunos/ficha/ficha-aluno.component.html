@@ -54,7 +54,7 @@
         </div>
         <div class="numero">
           <dt class="ajj-rotulo">Último exame</dt>
-          <dd class="ajj-numero">{{ ultimoExame() }}</dd>
+          <dd class="ajj-numero exame" [class.reprovado]="ultimoExameReprovado()">{{ ultimoExame() }}</dd>
         </div>
       </dl>
 
