@@ -8,6 +8,26 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não lançado]
 
+### Adicionado
+- **Navegação própria do dono**: abas "Presenças", "Financeiro", "Graduação" (com o número de aptos), "Alunos" (com o número de sumidos) e "Perfil". O dono entra direto em `/app/chamada` e não vê mais Início, Aulas nem Presença; aluno e professor continuam com as abas de antes.
+- **Alunos** (`/app/alunos`, só o dono): lista de todas as contas com busca sem acento, filtro por faixa, chips "Todos", "Sumidos · N" e "Professores", "treinou hoje"/"há N dias"/"sumido · N dias" e paginação de 7 em 7. Substitui as telas Professores e Sumidos.
+- **Ficha do aluno** (`/app/alunos/:id`): faixa, cargo, "Tornar professor"/"Voltar a aluno", "Presenças no ciclo", "Último treino", "Último exame" e as abas Presenças, Graduações (registro e remoção, antes na tela Graduação) e Exames.
+- **Exame de graduação**: na tela Graduação, "Exame" abre a folha com Aprovado/Reprovado, nota de 0 a 10, observação e "Já registrar a graduação"; "Ver" reabre, edita ou remove. O "Graduou" só vale com exame aprovado, e o aluno que já graduou no evento aparece como "Graduado".
+- **Trocar senha** em tela própria (`/app/perfil/senha`), aberta pelo Perfil.
+- Cancelar a próxima graduação com exame registrado mostra o erro `ERR037` e mantém a data.
+- Testes e2e novos em `e2e/tests/alunos.spec.ts`; os de presença, graduação, cargos, perfil e agenda foram reescritos para as telas novas (ainda não rodados).
+
+### Alterado
+- **Presenças** (antes "Controle de presença") é só do dono: lista com "Presentes · N" e "Outros alunos"; tocar em um aluno o inclui, tocar em um presente pede "Tirar a presença de NOME?". Abre na aula do momento e tem o botão "Editar grade". O professor perde o acesso à chamada (`/app/chamada` leva para a Início) e a lista de alunos.
+- **Graduação** reorganizada: cartão do evento com os mínimos, resumo "N aptos · N exames feitos · N graduados" e lista em linha com "Troca de grau · N" e "Troca de faixa · N" (sem a lista de alunos com busca nem o modal "Ver aptos").
+- A agenda do dono passou a se chamar **Grade** (`/app/grade`), com as abas "Grade semanal" e "Cancelamentos e extras"; `/app/agenda` redireciona.
+- A troca de cargo passou para a ficha do aluno.
+
+### Removido
+- Card "Área do dono" da Início, atalho "Controle de presença" da Início e botões "Gerenciar…" do Perfil.
+- Telas Professores, Sumidos e o painel "Incluir aluno"; `/app/professores` e `/app/sumidos` redirecionam para `/app/alunos`.
+- `professorGuard`.
+
 ## [0.2.7] - 2026-11-09
 
 ### Adicionado
