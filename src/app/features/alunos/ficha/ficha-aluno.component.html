@@ -1,0 +1,85 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/app/alunos" text="" aria-label="Voltar para os alunos"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Aluno</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="ajj-coluna">
+    @if (carregando()) {
+      <div class="carregando"><ion-spinner name="crescent" aria-label="Carregando aluno" /></div>
+    } @else if (erroCarga()) {
+      <ajj-estado-vazio titulo="Não foi possível carregar o aluno" texto="Confira sua conexão e tente de novo.">
+        <svg lucideUserX icone aria-hidden="true"></svg>
+        <ajj-botao variante="secundario" (clique)="carregar()">Tentar de novo</ajj-botao>
+      </ajj-estado-vazio>
+    } @else if (aluno(); as aluno) {
+      <header class="cabeca ajj-card">
+        <div class="identidade">
+          <h1 class="ajj-titulo ajj-truncar">{{ aluno.nome }}</h1>
+          <span class="cargo ajj-chip">{{ rotulo[aluno.perfil] }}</span>
+        </div>
+        <div class="faixa">
+          @if (aluno.atual; as atual) {
+            <ajj-barra-faixa [faixa]="atual.faixa" [grau]="atual.grau" />
+            <span class="ajj-suave">{{ descrever(atual.faixa, atual.grau) }}</span>
+          } @else {
+            <span class="ajj-suave">Sem graduação</span>
+          }
+        </div>
+        @if (aluno.perfil !== 'DONO') {
+          <div class="cargo-acao">
+            <ajj-botao
+              [variante]="aluno.perfil === 'ALUNO' ? 'primario' : 'secundario'"
+              [carregando]="alterando()"
+              (clique)="alterarCargo()"
+            >
+              {{ aluno.perfil === 'ALUNO' ? 'Tornar professor' : 'Voltar a aluno' }}
+            </ajj-botao>
+          </div>
+        }
+      </header>
+
+      <dl class="numeros">
+        <div class="numero">
+          <dt class="ajj-rotulo">Presenças no ciclo</dt>
+          <dd class="ajj-numero">{{ presencasNoCiclo() }}</dd>
+        </div>
+        <div class="numero">
+          <dt class="ajj-rotulo">Último treino</dt>
+          <dd class="ajj-numero">{{ ultimoTreino() }}</dd>
+        </div>
+        <div class="numero">
+          <dt class="ajj-rotulo">Último exame</dt>
+          <dd class="ajj-numero">{{ ultimoExame() }}</dd>
+        </div>
+      </dl>
+
+      <ion-segment [value]="aba()" aria-label="Seção da ficha" (ionChange)="aoMudarSegmento($event.detail.value)">
+        <ion-segment-button value="presencas"><ion-label>Presenças</ion-label></ion-segment-button>
+        <ion-segment-button value="graduacoes"><ion-label>Graduações</ion-label></ion-segment-button>
+        <ion-segment-button value="exames"><ion-label>Exames</ion-label></ion-segment-button>
+      </ion-segment>
+
+      @switch (aba()) {
+        @case ('presencas') {
+          <app-presencas-aluno [idAluno]="aluno.id" (carregado)="presencas.set($event)" />
+        }
+        @case ('graduacoes') {
+          <app-registro-graduacao [aluno]="aluno" />
+        }
+        @case ('exames') {
+          <app-exames-aluno [exames]="exames()" />
+        }
+      }
+    } @else {
+      <ajj-estado-vazio titulo="Aluno não encontrado" texto="Ele pode ter sido removido ou estar inativo.">
+        <svg lucideUserX icone aria-hidden="true"></svg>
+        <a class="voltar" routerLink="/app/alunos">Voltar para alunos</a>
+      </ajj-estado-vazio>
+    }
+  </div>
+</ion-content>

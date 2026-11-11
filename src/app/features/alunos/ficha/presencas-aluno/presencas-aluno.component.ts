@@ -1,9 +1,9 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit, signal } from '@angular/core';
-import { MinhasPresencas } from '../../../shared/presenca/presenca.model';
-import { pluralPresencas } from '../../../shared/presenca/plural';
-import { PresencaService } from '../../../shared/presenca/presenca.service';
-import { itemDePresenca, resumirCiclo } from '../../../shared/presenca/resumo';
-import { BotaoComponent } from '../../../shared/ui/botao/botao.component';
+import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit, output, signal } from '@angular/core';
+import { MinhasPresencas } from '../../../../shared/presenca/presenca.model';
+import { pluralPresencas } from '../../../../shared/presenca/plural';
+import { PresencaService } from '../../../../shared/presenca/presenca.service';
+import { itemDePresenca, resumirCiclo } from '../../../../shared/presenca/resumo';
+import { BotaoComponent } from '../../../../shared/ui/botao/botao.component';
 
 const LIMITE_INICIAL = 5;
 
@@ -18,6 +18,7 @@ export class PresencasAlunoComponent implements OnInit {
   private readonly service = inject(PresencaService);
 
   readonly idAluno = input.required<number>();
+  readonly carregado = output<MinhasPresencas>();
 
   readonly dados = signal<MinhasPresencas | null>(null);
   readonly carregando = signal(true);
@@ -52,6 +53,7 @@ export class PresencasAlunoComponent implements OnInit {
       next: dados => {
         this.dados.set(dados);
         this.carregando.set(false);
+        this.carregado.emit(dados);
       },
       error: () => {
         this.carregando.set(false);

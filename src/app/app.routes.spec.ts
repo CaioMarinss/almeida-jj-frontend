@@ -14,11 +14,12 @@ describe('rotas', () => {
 
   it('a área logada fica em /app e exige autenticação', () => {
     expect(rota('app')?.canActivate?.length).toBe(1);
-    expect(filhos().map(r => r.path)).toEqual(['inicio', 'aulas', 'presenca', 'financeiro', 'perfil', 'perfil/senha', 'professores', 'alunos', 'chamada', 'grade', 'agenda', 'graduacao', 'sumidos', '']);
+    expect(filhos().map(r => r.path)).toEqual(['inicio', 'aulas', 'presenca', 'financeiro', 'perfil', 'perfil/senha', 'alunos', 'alunos/:id', 'professores', 'chamada', 'grade', 'agenda', 'graduacao', 'sumidos', '']);
   });
 
-  it('professores só abre para o dono', () => {
-    expect(filhos().find(r => r.path === 'professores')?.canActivate).toEqual([donoGuard]);
+  it('professores e sumidos redirecionam para alunos', () => {
+    expect(filhos().find(r => r.path === 'professores')?.redirectTo).toBe('alunos');
+    expect(filhos().find(r => r.path === 'sumidos')?.redirectTo).toBe('alunos');
   });
 
   it('chamada só abre para o dono', () => {
@@ -36,16 +37,13 @@ describe('rotas', () => {
     expect(filhos().find(r => r.path === 'agenda')?.redirectTo).toBe('grade');
   });
 
-  it('alunos leva por ora à lista de professores, que só abre para o dono', () => {
-    expect(filhos().find(r => r.path === 'alunos')?.redirectTo).toBe('professores');
+  it('alunos e a ficha do aluno só abrem para o dono', () => {
+    expect(filhos().find(r => r.path === 'alunos')?.canActivate).toEqual([donoGuard]);
+    expect(filhos().find(r => r.path === 'alunos/:id')?.canActivate).toEqual([donoGuard]);
   });
 
   it('perfil/senha é a tela Trocar senha', () => {
     expect(filhos().find(r => r.path === 'perfil/senha')?.loadComponent).toBeDefined();
-  });
-
-  it('sumidos só abre para o dono', () => {
-    expect(filhos().find(r => r.path === 'sumidos')?.canActivate).toEqual([donoGuard]);
   });
 
   it('graduacao só abre para o dono', () => {

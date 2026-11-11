@@ -57,11 +57,17 @@ export const routes: Routes = [
           import('./features/perfil/trocar-senha/trocar-senha.component').then(m => m.TrocarSenhaComponent)
       },
       {
-        path: 'professores',
+        path: 'alunos',
         canActivate: [donoGuard],
-        loadComponent: () => import('./features/professores/professores.component').then(m => m.ProfessoresComponent)
+        loadComponent: () => import('./features/alunos/alunos.component').then(m => m.AlunosComponent)
       },
-      { path: 'alunos', redirectTo: 'professores' },
+      {
+        path: 'alunos/:id',
+        canActivate: [donoGuard],
+        loadComponent: () =>
+          import('./features/alunos/ficha/ficha-aluno.component').then(m => m.FichaAlunoComponent)
+      },
+      { path: 'professores', redirectTo: 'alunos' },
       {
         path: 'chamada',
         canActivate: [donoGuard],
@@ -78,11 +84,7 @@ export const routes: Routes = [
         canActivate: [donoGuard],
         loadComponent: () => import('./features/graduacao/graduacao.component').then(m => m.GraduacaoComponent)
       },
-      {
-        path: 'sumidos',
-        canActivate: [donoGuard],
-        loadComponent: () => import('./features/sumidos/sumidos.component').then(m => m.SumidosComponent)
-      },
+      { path: 'sumidos', redirectTo: 'alunos' },
       { path: '', pathMatch: 'full', redirectTo: 'inicio' }
     ]
   },

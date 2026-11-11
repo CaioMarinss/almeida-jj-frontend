@@ -1,15 +1,4 @@
-<section class="registro" aria-labelledby="registro-titulo">
-  <h2 id="registro-titulo">{{ aluno().nome }}</h2>
-  <p class="ajj-suave atual">
-    @if (aluno().atual; as atual) {
-      {{ descrever(atual.faixa, atual.grau) }}
-    } @else {
-      Sem graduação
-    }
-  </p>
-
-  <app-presencas-aluno [idAluno]="aluno().id" />
-
+<section class="registro" aria-label="Graduações">
   @if (erroFaixas()) {
     <div class="erro" role="alert">
       <p>Não foi possível carregar as faixas.</p>

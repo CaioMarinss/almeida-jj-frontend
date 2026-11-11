@@ -1,0 +1,21 @@
+<section aria-label="Exames">
+  @if (exames().length === 0) {
+    <p class="ajj-suave">Nenhum exame registrado.</p>
+  } @else {
+    <ul class="lista">
+      @for (e of exames(); track e.id) {
+        <li>
+          <div class="linha">
+            <strong>{{ data(e.evento.data) }}</strong>
+            <span class="resultado" [class.reprovado]="!e.aprovado">
+              {{ e.aprovado ? 'Aprovado' : 'Reprovado' }} · nota {{ nota(e.nota) }}
+            </span>
+          </div>
+          @if (e.observacao) {
+            <p class="observacao ajj-suave">{{ e.observacao }}</p>
+          }
+        </li>
+      }
+    </ul>
+  }
+</section>

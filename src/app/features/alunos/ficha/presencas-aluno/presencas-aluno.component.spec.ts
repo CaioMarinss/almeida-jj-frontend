@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
-import { MinhasPresencas, PresencaContada } from '../../../shared/presenca/presenca.model';
-import { PresencaService } from '../../../shared/presenca/presenca.service';
-import { provedoresApp } from '../../testes-app';
+import { MinhasPresencas, PresencaContada } from '../../../../shared/presenca/presenca.model';
+import { PresencaService } from '../../../../shared/presenca/presenca.service';
+import { provedoresApp } from '../../../testes-app';
 import { PresencasAlunoComponent } from './presencas-aluno.component';
 
 function presenca(dia: number): PresencaContada {

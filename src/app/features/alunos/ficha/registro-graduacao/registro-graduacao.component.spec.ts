@@ -1,11 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
 import { of, Subject, throwError } from 'rxjs';
-import { AlunoGraduacao, Categoria, Faixa, GraduacaoAtual, RegistroGraduacao } from '../../../shared/graduacao/graduacao.model';
-import { GraduacaoService, RegistroCriado } from '../../../shared/graduacao/graduacao.service';
-import { PresencaService } from '../../../shared/presenca/presenca.service';
-import { criarNotificador } from '../../auth/testes-auth';
-import { provedoresApp } from '../../testes-app';
+import { AlunoGraduacao, Categoria, Faixa, GraduacaoAtual, RegistroGraduacao } from '../../../../shared/graduacao/graduacao.model';
+import { GraduacaoService, RegistroCriado } from '../../../../shared/graduacao/graduacao.service';
+import { criarNotificador } from '../../../auth/testes-auth';
+import { provedoresApp } from '../../../testes-app';
 import { RegistroGraduacaoComponent } from './registro-graduacao.component';
 
 function faixa(id: number, categoria: Categoria, descricao: string, grauMin: number, grauMax: number): Faixa {
@@ -69,8 +68,7 @@ describe('RegistroGraduacaoComponent', () => {
       imports: [RegistroGraduacaoComponent],
       providers: [
         ...provedoresApp(notificador),
-        { provide: GraduacaoService, useValue: service },
-        { provide: PresencaService, useValue: { doAluno: () => of({ ciclo: null, presencas: [] }) } }
+        { provide: GraduacaoService, useValue: service }
       ]
     });
   });
@@ -407,10 +405,5 @@ describe('RegistroGraduacaoComponent', () => {
       salvar();
       expect(service.registrar).not.toHaveBeenCalled();
     });
-  });
-  it('mostra o bloco de presenças do aluno', () => {
-    criar();
-
-    expect(el().querySelector('app-presencas-aluno')?.textContent).toContain('0 presenças desde a última graduação');
   });
 });

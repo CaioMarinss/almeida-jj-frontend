@@ -1,16 +1,15 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit, signal } from '@angular/core';
 import { LucideTrash2 } from '@lucide/angular';
-import { codigoDeErro } from '../../../core/http/erro-api';
-import { Notificador } from '../../../core/notificacao/notificador';
-import { descreverGraduacao, formatarMesAno, hojeEmSaoPaulo } from '../../../shared/graduacao/descrever';
-import { AlunoGraduacao, Faixa, RegistroGraduacao } from '../../../shared/graduacao/graduacao.model';
-import { GraduacaoService } from '../../../shared/graduacao/graduacao.service';
-import { BotaoComponent } from '../../../shared/ui/botao/botao.component';
-import { PresencasAlunoComponent } from '../presencas-aluno/presencas-aluno.component';
+import { codigoDeErro } from '../../../../core/http/erro-api';
+import { Notificador } from '../../../../core/notificacao/notificador';
+import { descreverGraduacao, formatarMesAno, hojeEmSaoPaulo } from '../../../../shared/graduacao/descrever';
+import { AlunoGraduacao, Faixa, RegistroGraduacao } from '../../../../shared/graduacao/graduacao.model';
+import { GraduacaoService } from '../../../../shared/graduacao/graduacao.service';
+import { BotaoComponent } from '../../../../shared/ui/botao/botao.component';
 
 @Component({
   selector: 'app-registro-graduacao',
-  imports: [BotaoComponent, LucideTrash2, PresencasAlunoComponent],
+  imports: [BotaoComponent, LucideTrash2],
   templateUrl: './registro-graduacao.component.html',
   styleUrl: './registro-graduacao.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

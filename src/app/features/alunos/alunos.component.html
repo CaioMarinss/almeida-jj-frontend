@@ -1,0 +1,97 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>Alunos</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="ajj-coluna">
+    <div class="filtros">
+      <div class="campo busca">
+        <label for="busca-aluno" class="ajj-rotulo">Buscar aluno</label>
+        <input
+          id="busca-aluno"
+          #campo
+          type="search"
+          autocomplete="off"
+          placeholder="Nome do aluno"
+          [value]="busca()"
+          (input)="aoDigitar(campo.value)"
+        />
+      </div>
+      <div class="campo faixa">
+        <label for="filtro-faixa" class="ajj-rotulo">Faixa</label>
+        <select id="filtro-faixa" #filtro [value]="'' + faixa()" (change)="aoFiltrarFaixa(filtro.value)">
+          <option value="todas">Todas</option>
+          <option value="sem">Sem graduação</option>
+          <optgroup label="Infantil">
+            @for (f of infantis(); track f.id) {
+              <option [value]="f.id">{{ f.descricao }}</option>
+            }
+          </optgroup>
+          <optgroup label="Adulto">
+            @for (f of adultas(); track f.id) {
+              <option [value]="f.id">{{ f.descricao }}</option>
+            }
+          </optgroup>
+          <optgroup label="Mestres">
+            @for (f of mestres(); track f.id) {
+              <option [value]="f.id">{{ f.descricao }}</option>
+            }
+          </optgroup>
+        </select>
+      </div>
+      <div class="chips" role="group" aria-label="Filtrar alunos">
+        @for (f of filtros(); track f.valor) {
+          <button
+            type="button"
+            class="filtro"
+            [class.ativo]="situacao() === f.valor"
+            [attr.aria-pressed]="situacao() === f.valor"
+            (click)="aoMudarSituacao(f.valor)"
+          >
+            {{ f.rotulo }}
+          </button>
+        }
+      </div>
+    </div>
+
+    @if (carregando()) {
+      <div class="carregando"><ion-spinner name="crescent" aria-label="Carregando alunos" /></div>
+    } @else if (erroCarga()) {
+      <ajj-estado-vazio titulo="Não foi possível carregar os alunos" texto="Confira sua conexão e tente de novo.">
+        <svg lucideUsers icone aria-hidden="true"></svg>
+        <ajj-botao variante="secundario" (clique)="carregar()">Tentar de novo</ajj-botao>
+      </ajj-estado-vazio>
+    } @else {
+      <p class="contador ajj-suave" aria-live="polite">{{ contador() }}</p>
+      @if (visiveis().length === 0) {
+        <ajj-estado-vazio titulo="Nenhum aluno encontrado" texto="Ajuste a busca ou os filtros.">
+          <svg lucideUsers icone aria-hidden="true"></svg>
+        </ajj-estado-vazio>
+      } @else {
+        <ul class="lista">
+          @for (aluno of visiveis(); track aluno.id) {
+            <li class="ajj-card aluno" [attr.data-email]="aluno.email">
+              <a class="linha" [routerLink]="['/app/alunos', aluno.id]">
+                <strong class="nome ajj-truncar">{{ aluno.nome }}</strong>
+                @if (situacaoDe(aluno); as texto) {
+                  <span class="situacao ajj-suave" [class.sumido]="aluno.sumido && aluno.perfil === 'ALUNO'">{{ texto }}</span>
+                }
+                <span class="faixa-linha">
+                  @if (aluno.atual; as atual) {
+                    <ajj-barra-faixa [faixa]="atual.faixa" [grau]="atual.grau" />
+                    <span class="ajj-suave">{{ descrever(atual.faixa, atual.grau) }}</span>
+                  } @else {
+                    <span class="ajj-suave">Sem graduação</span>
+                  }
+                </span>
+              </a>
+            </li>
+          }
+        </ul>
+        <ajj-paginacao [pagina]="paginaExibida()" [totalPaginas]="totalPaginas()" (paginaChange)="irParaPagina($event)" />
+      }
+    }
+  </div>
+</ion-content>

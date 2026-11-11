@@ -5,17 +5,11 @@
 .registro {
   display: grid;
   gap: var(--ajj-espaco-3);
-  padding: var(--ajj-espaco-4);
 }
 
-h2,
 h3,
 p {
   margin: 0;
-}
-
-h2 {
-  font-size: 24px;
 }
 
 form {

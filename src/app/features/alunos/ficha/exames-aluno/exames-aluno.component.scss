@@ -1,0 +1,47 @@
+:host {
+  display: block;
+}
+
+p {
+  margin: 0;
+}
+
+.lista {
+  display: grid;
+  gap: var(--ajj-espaco-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: grid;
+    gap: var(--ajj-espaco-1, 4px);
+    padding-bottom: var(--ajj-espaco-3);
+    border-bottom: 1px solid var(--ajj-borda);
+
+    &:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+  }
+}
+
+.linha {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ajj-espaco-2);
+}
+
+.resultado {
+  font-weight: 600;
+
+  &.reprovado {
+    color: var(--ajj-perigo);
+  }
+}
+
+.observacao {
+  font-size: 14px;
+}
