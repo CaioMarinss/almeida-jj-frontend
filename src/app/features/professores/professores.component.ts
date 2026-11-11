@@ -9,7 +9,8 @@ import { EstadoVazioComponent } from '../../shared/ui/estado-vazio/estado-vazio.
 import { PaginacaoComponent } from '../../shared/ui/paginacao/paginacao.component';
 import { criarListaFixada } from '../../shared/utils/lista-fixada';
 import { compararNomes, contemNome } from '../../shared/utils/texto.util';
-import { PessoaAcademia, ProfessoresService } from './professores.service';
+import { PessoaAcademia } from '../../shared/alunos/alunos.model';
+import { AlunosService } from '../../shared/alunos/alunos.service';
 
 type FiltroCargo = 'todos' | 'PROFESSOR' | 'ALUNO';
 
@@ -32,7 +33,7 @@ type FiltroCargo = 'todos' | 'PROFESSOR' | 'ALUNO';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProfessoresComponent {
-  private readonly service = inject(ProfessoresService);
+  private readonly service = inject(AlunosService);
   private readonly notificador = inject(Notificador);
 
   readonly rotulo = ROTULO_PERFIL;

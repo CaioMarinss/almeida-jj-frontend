@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import { LucideCheck } from '@lucide/angular';
 import { compararNomes, contemNome } from '../../../shared/utils/texto.util';
-import { PessoaAcademia } from '../../professores/professores.service';
+import { PessoaAcademia } from '../../../shared/alunos/alunos.model';
 
 @Component({
   selector: 'app-incluir-aluno',

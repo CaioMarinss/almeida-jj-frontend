@@ -8,7 +8,8 @@ import { AgendaService } from '../../shared/agenda/agenda.service';
 import { Chamada, PresencaDaAula } from '../../shared/presenca/presenca.model';
 import { PresencaService } from '../../shared/presenca/presenca.service';
 import { criarNotificador } from '../auth/testes-auth';
-import { PessoaAcademia, ProfessoresService } from '../professores/professores.service';
+import { PessoaAcademia } from '../../shared/alunos/alunos.model';
+import { AlunosService } from '../../shared/alunos/alunos.service';
 import { logar, provedoresApp } from '../testes-app';
 import { ChamadaComponent } from './chamada.component';
 
@@ -31,7 +32,7 @@ describe('ChamadaComponent', () => {
 
   let agenda: jasmine.Spy<AgendaService['agenda']>;
   let presenca: jasmine.SpyObj<PresencaService>;
-  let alunos: jasmine.SpyObj<ProfessoresService>;
+  let alunos: jasmine.SpyObj<AlunosService>;
   let notificador: ReturnType<typeof criarNotificador>;
   let fixture: ComponentFixture<ChamadaComponent>;
 
@@ -49,7 +50,7 @@ describe('ChamadaComponent', () => {
     presenca.chamada.and.returnValue(of(chamadaBase));
     presenca.incluir.and.returnValue(of(undefined));
     presenca.tirar.and.returnValue(of(undefined));
-    alunos = jasmine.createSpyObj<ProfessoresService>('ProfessoresService', ['listar']);
+    alunos = jasmine.createSpyObj<AlunosService>('AlunosService', ['listar']);
     alunos.listar.and.returnValue(of([bia, joao]));
   });
 
@@ -65,7 +66,7 @@ describe('ChamadaComponent', () => {
         ...provedoresApp(notificador),
         { provide: AgendaService, useValue: { agenda } },
         { provide: PresencaService, useValue: presenca },
-        { provide: ProfessoresService, useValue: alunos }
+        { provide: AlunosService, useValue: alunos }
       ]
     });
     logar(TestBed.inject(SessionService), 'Prof Ana', perfil);

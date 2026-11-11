@@ -4,6 +4,7 @@ import { map, Observable, Subject, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   AlunoGraduacao,
+  Exame,
   Faixa,
   GraduacaoAtual,
   ListaAptos,
@@ -34,6 +35,18 @@ interface RegistroRemovido {
 export interface EscolhaGraduacao {
   idGraduacao: number;
   grau: number;
+}
+
+export interface ExameRequest {
+  aprovado: boolean;
+  nota: number;
+  observacao?: string | null;
+  graduar?: EscolhaGraduacao | null;
+}
+
+export interface ExameRegistrado {
+  exame: Exame;
+  graduacao: RegistroCriado | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -97,5 +110,23 @@ export class GraduacaoService {
     return this.http
       .post<RegistroCriado>(`${this.base}/graduacoes/aptos/${idAluno}`, escolha ?? {})
       .pipe(tap((r) => this.alteracoes.next({ idAluno, atual: r.atual })));
+  }
+
+  registrarExame(idAluno: number, req: ExameRequest): Observable<ExameRegistrado> {
+    return this.http.put<ExameRegistrado>(`${this.base}/graduacoes/aptos/${idAluno}/exame`, req).pipe(
+      tap((r) => {
+        if (r.graduacao) {
+          this.alteracoes.next({ idAluno, atual: r.graduacao.atual });
+        }
+      })
+    );
+  }
+
+  removerExame(idAluno: number): Observable<void> {
+    return this.http.delete<void>(`${this.base}/graduacoes/aptos/${idAluno}/exame`);
+  }
+
+  exames(idAluno: number): Observable<Exame[]> {
+    return this.http.get<Exame[]>(`${this.base}/alunos/${idAluno}/exames`);
   }
 }

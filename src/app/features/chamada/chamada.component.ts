@@ -13,7 +13,8 @@ import { Chamada, PresencaDaAula, ROTULO_ORIGEM } from '../../shared/presenca/pr
 import { PresencaService } from '../../shared/presenca/presenca.service';
 import { BotaoComponent } from '../../shared/ui/botao/botao.component';
 import { EstadoVazioComponent } from '../../shared/ui/estado-vazio/estado-vazio.component';
-import { PessoaAcademia, ProfessoresService } from '../professores/professores.service';
+import { PessoaAcademia } from '../../shared/alunos/alunos.model';
+import { AlunosService } from '../../shared/alunos/alunos.service';
 import { IncluirAlunoComponent } from './incluir-aluno/incluir-aluno.component';
 
 const NOMES_DIAS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
@@ -43,7 +44,7 @@ const SEMANAS_SEM_LIMITE = 12;
 export class ChamadaComponent {
   private readonly agenda = inject(AgendaService);
   private readonly presenca = inject(PresencaService);
-  private readonly pessoas = inject(ProfessoresService);
+  private readonly pessoas = inject(AlunosService);
   private readonly sessao = inject(SessionService);
   private readonly notificador = inject(Notificador);
 

@@ -3,7 +3,8 @@ import { of, Subject, throwError } from 'rxjs';
 import { criarNotificador } from '../auth/testes-auth';
 import { provedoresApp } from '../testes-app';
 import { ProfessoresComponent } from './professores.component';
-import { PessoaAcademia, ProfessoresService } from './professores.service';
+import { PessoaAcademia } from '../../shared/alunos/alunos.model';
+import { AlunosService } from '../../shared/alunos/alunos.service';
 
 describe('ProfessoresComponent', () => {
   const bia: PessoaAcademia = { id: 2, nome: 'Bia Souza', email: 'bia@x.com', perfil: 'ALUNO' };
@@ -11,7 +12,7 @@ describe('ProfessoresComponent', () => {
   const dora: PessoaAcademia = { id: 1, nome: 'Dora Reis', email: 'dora@x.com', perfil: 'DONO' };
 
   let notificador: ReturnType<typeof criarNotificador>;
-  let service: jasmine.SpyObj<ProfessoresService>;
+  let service: jasmine.SpyObj<AlunosService>;
   let fixture: ComponentFixture<ProfessoresComponent>;
 
   async function criar(): Promise<void> {
@@ -29,12 +30,12 @@ describe('ProfessoresComponent', () => {
   beforeEach(() => {
     notificador = criarNotificador();
     notificador.confirmar.and.resolveTo(true);
-    service = jasmine.createSpyObj<ProfessoresService>('ProfessoresService', ['listar', 'alterarPerfil']);
+    service = jasmine.createSpyObj<AlunosService>('AlunosService', ['listar', 'alterarPerfil']);
     service.listar.and.returnValue(of([dora, bia, caio]));
     service.alterarPerfil.and.returnValue(of(undefined));
     TestBed.configureTestingModule({
       imports: [ProfessoresComponent],
-      providers: [...provedoresApp(notificador), { provide: ProfessoresService, useValue: service }]
+      providers: [...provedoresApp(notificador), { provide: AlunosService, useValue: service }]
     });
   });
 

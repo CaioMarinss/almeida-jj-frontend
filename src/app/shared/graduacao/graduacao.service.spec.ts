@@ -128,4 +128,37 @@ describe('GraduacaoService', () => {
     expect(req.request.body).toEqual({ idGraduacao: 2, grau: 1 });
     req.flush({ id: 1, atual: null });
   });
+
+  it('registra exame com PUT', () => {
+    let resposta: unknown;
+    service.registrarExame(7, { aprovado: true, nota: 8.5, observacao: null }).subscribe((v) => (resposta = v));
+    const req = http.expectOne(`${api}/graduacoes/aptos/7/exame`);
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toEqual({ aprovado: true, nota: 8.5, observacao: null });
+    const corpo = { exame: { id: 1, evento: { id: 2, data: '2026-12-14' }, aprovado: true, nota: 8.5, observacao: null }, graduacao: null };
+    req.flush(corpo);
+    expect(resposta).toEqual(corpo);
+  });
+
+  it('remove exame com DELETE', () => {
+    service.removerExame(7).subscribe();
+    const req = http.expectOne(`${api}/graduacoes/aptos/7/exame`);
+    expect(req.request.method).toBe('DELETE');
+    req.flush(null);
+  });
+
+  it('lista exames do aluno', () => {
+    service.exames(7).subscribe();
+    const req = http.expectOne(`${api}/alunos/7/exames`);
+    expect(req.request.method).toBe('GET');
+    req.flush([]);
+  });
+
+  it('emite atualAlterada quando o exame já registra a graduação', () => {
+    const emitidas: unknown[] = [];
+    service.atualAlterada$.subscribe((v) => emitidas.push(v));
+    service.registrarExame(7, { aprovado: true, nota: 9 }).subscribe();
+    http.expectOne(`${api}/graduacoes/aptos/7/exame`).flush({ exame: {}, graduacao: { id: 1, atual: null } });
+    expect(emitidas).toEqual([{ idAluno: 7, atual: null }]);
+  });
 });

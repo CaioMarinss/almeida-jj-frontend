@@ -25,6 +25,8 @@ function apto(id: number, nome: string, extra: Partial<Apto> = {}): Apto {
     minimo: 30,
     apto: true,
     sugestao: { faixa: BRANCA, grau: 3 },
+    exame: null,
+    graduado: false,
     ...extra
   };
 }

@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { PessoaAcademia } from '../../professores/professores.service';
+import { PessoaAcademia } from '../../../shared/alunos/alunos.model';
 import { provedoresApp } from '../../testes-app';
 import { IncluirAlunoComponent } from './incluir-aluno.component';
 
