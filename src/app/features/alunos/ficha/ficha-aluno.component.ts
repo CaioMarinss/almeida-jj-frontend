@@ -14,6 +14,7 @@ import {
 } from '@ionic/angular';
 import { LucideUserX } from '@lucide/angular';
 import { firstValueFrom } from 'rxjs';
+import { codigoDeErro } from '../../../core/http/erro-api';
 import { ROTULO_PERFIL } from '../../../core/auth/usuario';
 import { ContadoresDonoService } from '../../../core/dono/contadores-dono.service';
 import { Notificador } from '../../../core/notificacao/notificador';
@@ -74,6 +75,7 @@ export class FichaAlunoComponent {
   readonly erroCarga = signal(false);
   readonly alterando = signal(false);
   readonly exames = signal<Exame[]>([]);
+  readonly erroExames = signal(false);
   readonly presencas = signal<MinhasPresencas | null>(null);
 
   readonly aluno = computed(() => this.alunos.painelEmCache()?.find((a) => a.id === this.id) ?? null);
@@ -94,7 +96,7 @@ export class FichaAlunoComponent {
     return aluno ? dataDoUltimoTreino(aluno) : '—';
   });
   readonly ultimoExame = computed(() => {
-    const primeiro = this.exames()[0];
+    const primeiro = this.erroExames() ? undefined : this.exames()[0];
     return primeiro ? formatarNota(primeiro.nota) : '—';
   });
 
@@ -108,6 +110,8 @@ export class FichaAlunoComponent {
     try {
       if (this.alunos.painelEmCache() === null) {
         await firstValueFrom(this.alunos.painel());
+      } else {
+        void firstValueFrom(this.alunos.painel()).catch(() => undefined);
       }
       this.carregando.set(false);
       if (this.aluno()) {
@@ -132,7 +136,6 @@ export class FichaAlunoComponent {
       return;
     }
     const promover = aluno.perfil === 'ALUNO';
-    this.alterando.set(true);
     try {
       const confirmado = promover
         ? await this.notificador.confirmar('Tornar professor', `Tornar ${aluno.nome} professor?`, 'Tornar professor')
@@ -144,6 +147,7 @@ export class FichaAlunoComponent {
       if (!confirmado) {
         return;
       }
+      this.alterando.set(true);
       const novo = promover ? 'PROFESSOR' : 'ALUNO';
       await firstValueFrom(this.alunos.alterarPerfil(aluno.id, novo), { defaultValue: undefined });
       this.alunos.alterarEmCache(aluno.id, { perfil: novo });
@@ -153,6 +157,9 @@ export class FichaAlunoComponent {
       await this.atualizarPainel();
     } catch (erro: unknown) {
       await this.notificador.erroDaApi(erro, 'Não foi possível alterar o cargo.');
+      if (codigoDeErro(erro) === 'ERR009') {
+        await this.atualizarPainel();
+      }
     } finally {
       this.alterando.set(false);
     }
@@ -162,10 +169,11 @@ export class FichaAlunoComponent {
     await Promise.all([firstValueFrom(this.alunos.painel()).catch(() => undefined), this.contadores.atualizar()]);
   }
 
-  private carregarExames(): void {
+  carregarExames(): void {
+    this.erroExames.set(false);
     this.graduacao.exames(this.id).subscribe({
       next: (lista) => this.exames.set(lista),
-      error: () => this.exames.set([])
+      error: () => this.erroExames.set(true)
     });
   }
 }

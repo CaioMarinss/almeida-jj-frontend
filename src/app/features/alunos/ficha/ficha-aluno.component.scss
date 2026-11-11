@@ -70,3 +70,15 @@ ion-segment {
     outline-offset: 2px;
   }
 }
+
+.erro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ajj-espaco-3);
+
+  p {
+    margin: 0;
+  }
+}

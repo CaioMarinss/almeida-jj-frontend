@@ -72,7 +72,14 @@
           <app-registro-graduacao [aluno]="aluno" />
         }
         @case ('exames') {
-          <app-exames-aluno [exames]="exames()" />
+          @if (erroExames()) {
+            <div class="erro" role="alert">
+              <p>Não foi possível carregar os exames</p>
+              <ajj-botao variante="secundario" (clique)="carregarExames()">Tentar de novo</ajj-botao>
+            </div>
+          } @else {
+            <app-exames-aluno [exames]="exames()" />
+          }
         }
       }
     } @else {

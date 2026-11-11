@@ -207,6 +207,19 @@ describe('AlunosComponent', () => {
     expect(nomes()).toEqual(['Aluno H', 'Aluno I']);
   });
 
+  it('ao voltar para a aba busca o painel de novo sem mostrar o spinner', async () => {
+    await criar(lista());
+
+    fixture.componentInstance.ionViewWillEnter();
+    fixture.detectChanges();
+    expect(el().querySelector('ion-spinner')).toBeNull();
+    http.expectOne(urlPainel).flush([aluno(1, 'Ana Souza', { sumido: true, diasSemTreinar: 30 })]);
+    await estabilizar();
+
+    expect(nomes()).toEqual(['Ana Souza']);
+    expect(chip('Sumidos').textContent?.trim()).toBe('Sumidos · 1');
+  });
+
   it('mostra estado vazio sem resultado', async () => {
     await criar(lista());
 

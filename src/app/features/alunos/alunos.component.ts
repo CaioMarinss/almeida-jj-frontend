@@ -46,6 +46,8 @@ export class AlunosComponent {
   readonly descrever = descreverGraduacao;
   readonly situacaoDe = textoDoUltimoTreino;
 
+  private iniciado = false;
+
   readonly carregando = signal(true);
   readonly erroCarga = signal(false);
   readonly busca = signal('');
@@ -90,14 +92,24 @@ export class AlunosComponent {
     this.carregar();
   }
 
+  ionViewWillEnter(): void {
+    if (this.iniciado) {
+      this.carregar();
+    }
+  }
+
   carregar(): void {
-    this.carregando.set(true);
+    this.iniciado = true;
+    const semCache = this.service.painelEmCache() === null;
+    this.carregando.set(semCache);
     this.erroCarga.set(false);
     this.service.painel().subscribe({
       next: () => this.carregando.set(false),
       error: (erro: unknown) => {
         this.carregando.set(false);
-        this.erroCarga.set(true);
+        if (semCache) {
+          this.erroCarga.set(true);
+        }
         void this.notificador.erroDaApi(erro, 'Não foi possível carregar os alunos.');
       }
     });

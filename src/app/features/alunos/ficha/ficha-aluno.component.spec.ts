@@ -264,11 +264,37 @@ describe('FichaAlunoComponent', () => {
 
     fixture = TestBed.createComponent(FichaAlunoComponent);
     await estabilizar();
+    expect(texto()).toContain('Bia');
     http.expectOne(`${api}/alunos/2/exames`).flush([]);
+    http.expectOne(`${api}/graduacoes/alunos/2/presencas`).flush(presencas);
+    http.expectOne(`${api}/alunos/painel`).flush([aluno(2, 'Bia', { diasSemTreinar: 1, ultimaPresenca: '2026-11-10' })]);
+    await estabilizar();
+
+    expect(el().querySelectorAll('.numero')[1].textContent).toContain('ontem');
+  });
+
+  it('erro ao carregar exames não mostra dados falsos e permite tentar de novo', async () => {
+    configurar('2');
+    fixture = TestBed.createComponent(FichaAlunoComponent);
+    fixture.detectChanges();
+    http.expectOne(`${api}/alunos/painel`).flush([aluno(2, 'Bia')]);
+    await estabilizar();
+    http.expectOne(`${api}/alunos/2/exames`).flush(null, { status: 500, statusText: 'Erro' });
     http.expectOne(`${api}/graduacoes/alunos/2/presencas`).flush(presencas);
     await estabilizar();
 
-    expect(texto()).toContain('Bia');
+    expect(numeros()[2]).toBe('Último exame —');
+    botaoSegmento('Exames');
+    await estabilizar();
+    expect(texto()).toContain('Não foi possível carregar os exames');
+    expect(texto()).not.toContain('Nenhum exame registrado.');
+
+    el().querySelector<HTMLElement>('.erro ion-button')!.click();
+    http.expectOne(`${api}/alunos/2/exames`).flush([exame(1, '2026-10-20', true, 7, null)]);
+    await estabilizar();
+
+    expect(numeros()[2]).toBe('Último exame 7,0');
+    expect(texto()).toContain('Aprovado · nota 7,0');
   });
 
   it('atualiza a faixa do cabeçalho quando uma graduação é registrada', async () => {
