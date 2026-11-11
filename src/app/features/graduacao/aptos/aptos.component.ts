@@ -46,9 +46,11 @@ export class AptosComponent implements OnInit {
   readonly adultas = computed(() => this.faixas().filter((f) => f.categoria === 'ADULTO'));
   readonly mestres = computed(() => this.faixas().filter((f) => f.categoria === 'MESTRE'));
 
+  private readonly hoje = signal(hojeEmSaoPaulo());
+
   readonly liberado = computed(() => {
     const evento = this.dados()?.evento;
-    return !!evento && hojeEmSaoPaulo() >= evento.data;
+    return !!evento && this.hoje() >= evento.data;
   });
   readonly resumo = computed(() => {
     const dados = this.dados();
@@ -88,8 +90,15 @@ export class AptosComponent implements OnInit {
     this.carregarFaixas();
   }
 
-  carregar(): void {
-    this.estado.set('carregando');
+  atualizar(): void {
+    this.carregar(true);
+  }
+
+  carregar(silencioso = false): void {
+    if (!silencioso || this.dados() === null) {
+      this.estado.set('carregando');
+    }
+    this.hoje.set(hojeEmSaoPaulo());
     this.service.aptos().subscribe({
       next: (lista) => {
         this.dados.set(lista);
@@ -99,6 +108,9 @@ export class AptosComponent implements OnInit {
         if (codigoDeErro(erro) === 'ERR033') {
           this.dados.set(null);
           this.estado.set('semEvento');
+          return;
+        }
+        if (silencioso && this.dados() !== null) {
           return;
         }
         this.estado.set('erro');

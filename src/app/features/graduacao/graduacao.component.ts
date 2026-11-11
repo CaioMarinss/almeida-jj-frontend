@@ -15,6 +15,17 @@ export class GraduacaoComponent {
   private readonly proxima = viewChild.required(ProximaGraduacaoComponent);
   private readonly aptos = viewChild.required(AptosComponent);
 
+  private primeiraEntrada = true;
+
+  ionViewWillEnter(): void {
+    if (this.primeiraEntrada) {
+      this.primeiraEntrada = false;
+      return;
+    }
+    this.proxima().atualizar();
+    this.aptos().atualizar();
+  }
+
   abrirAlterar(): void {
     this.proxima().abrir();
   }

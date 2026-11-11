@@ -108,4 +108,36 @@ describe('GraduacaoComponent', () => {
     expect(service.aptos).toHaveBeenCalledTimes(2);
     expect(contadores.atualizar).toHaveBeenCalledTimes(1);
   });
+
+  it('ao voltar para a aba recarrega os aptos e a próxima graduação, menos na primeira entrada', () => {
+    criar();
+    fixture.componentInstance.ionViewWillEnter();
+    expect(service.aptos).toHaveBeenCalledTimes(1);
+    expect(service.proxima).toHaveBeenCalledTimes(1);
+
+    service.aptos.and.returnValue(of({ ...LISTA, grau: [apto(2, 'Bia'), apto(3, 'Caio')] }));
+    fixture.componentInstance.ionViewWillEnter();
+    fixture.detectChanges();
+
+    expect(service.aptos).toHaveBeenCalledTimes(2);
+    expect(service.proxima).toHaveBeenCalledTimes(2);
+    expect(el().querySelectorAll('li.linha').length).toBe(2);
+  });
+
+  it('ao voltar em outro dia libera o Graduou na data do evento', () => {
+    service.aptos.and.returnValue(of({ ...LISTA, grau: [{ ...apto(2, 'Bia'), exame: { aprovado: true, nota: 9, observacao: null } }] }));
+    jasmine.clock().mockDate(new Date('2026-12-13T15:00:00Z'));
+    criar();
+    const ion = (): HTMLElement & { disabled: boolean } => botao('Graduou')!.querySelector<HTMLElement & { disabled: boolean }>('ion-button')!;
+    expect(ion().disabled).toBeTrue();
+
+    jasmine.clock().mockDate(new Date('2026-12-14T15:00:00Z'));
+    fixture.componentInstance.ionViewWillEnter();
+    fixture.detectChanges();
+    fixture.componentInstance.ionViewWillEnter();
+    fixture.detectChanges();
+
+    expect(ion().disabled).toBeFalse();
+    expect(el().textContent).not.toContain('Disponível em');
+  });
 });

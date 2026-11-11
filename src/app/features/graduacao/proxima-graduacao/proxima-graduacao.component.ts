@@ -39,15 +39,25 @@ export class ProximaGraduacaoComponent implements OnInit {
     this.carregar();
   }
 
-  carregar(): void {
-    this.carregando.set(true);
-    this.erro.set(false);
+  atualizar(): void {
+    this.carregar(true);
+  }
+
+  carregar(silencioso = false): void {
+    const semDados = !silencioso || this.erro() || this.carregando();
+    if (semDados) {
+      this.carregando.set(true);
+      this.erro.set(false);
+    }
     this.service.proxima().subscribe({
       next: (proxima) => {
         this.aplicar(proxima);
         this.carregando.set(false);
       },
       error: (erro: unknown) => {
+        if (!semDados) {
+          return;
+        }
         this.carregando.set(false);
         this.erro.set(true);
         void this.notificador.erroDaApi(erro, 'Não foi possível carregar a próxima graduação.');
