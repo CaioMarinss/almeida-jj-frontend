@@ -60,6 +60,22 @@ export interface Apto {
   minimo: number | null;
   apto: boolean;
   sugestao: Sugestao | null;
+  exame: ExameApto | null;
+  graduado: boolean;
+}
+
+export interface ExameApto {
+  aprovado: boolean;
+  nota: number;
+  observacao: string | null;
+}
+
+export interface Exame {
+  id: number;
+  evento: { id: number; data: string };
+  aprovado: boolean;
+  nota: number;
+  observacao: string | null;
 }
 
 export interface ListaAptos {

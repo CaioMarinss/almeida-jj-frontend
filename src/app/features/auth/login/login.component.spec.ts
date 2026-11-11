@@ -38,6 +38,14 @@ describe('LoginComponent', () => {
     expect(navegarRaiz).toHaveBeenCalledWith('/app/inicio');
   });
 
+  it('loginDoDonoVaiParaChamada', () => {
+    auth.login.and.returnValue(of({ id: 1, nome: 'Carla', email: 'carla@example.com', perfil: 'DONO' }));
+
+    componente.submit();
+
+    expect(navegarRaiz).toHaveBeenCalledWith('/app/chamada');
+  });
+
   it('conta não verificada avisa e leva ao reenvio com o e-mail', async () => {
     auth.login.and.returnValue(
       throwError(

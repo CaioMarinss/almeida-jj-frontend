@@ -1,6 +1,10 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { NavController } from '@ionic/angular';
 import { SessionService } from '../../core/auth/session.service';
+import { Perfil } from '../../core/auth/usuario';
+import { ContadoresDonoService } from '../../core/dono/contadores-dono.service';
 import { criarNotificador } from '../auth/testes-auth';
 import { logar, provedoresApp } from '../testes-app';
 import { ShellComponent } from './shell.component';
@@ -9,11 +13,24 @@ describe('ShellComponent', () => {
   const notificador = criarNotificador();
   let fixture: ComponentFixture<ShellComponent>;
   let sessao: SessionService;
+  const aptos = signal(0);
+  const sumidos = signal(0);
+  const atualizar = jasmine.createSpy('atualizar');
 
   beforeEach(async () => {
     sessionStorage.clear();
     notificador.confirmar.and.resolveTo(true);
-    TestBed.configureTestingModule({ imports: [ShellComponent], providers: provedoresApp(notificador) });
+    aptos.set(0);
+    sumidos.set(0);
+    atualizar.calls.reset();
+    atualizar.and.resolveTo();
+    TestBed.configureTestingModule({
+      imports: [ShellComponent],
+      providers: [
+        ...provedoresApp(notificador),
+        { provide: ContadoresDonoService, useValue: { aptos, sumidos, atualizar } }
+      ]
+    });
     sessao = TestBed.inject(SessionService);
     logar(sessao, 'Bruno Lima', 'PROFESSOR');
     fixture = TestBed.createComponent(ShellComponent);
@@ -38,65 +55,67 @@ describe('ShellComponent', () => {
     expect(fixture.nativeElement.querySelector('ion-menu').textContent).toContain('Dono');
   });
 
-  it('mostra o item Professores só para o dono', async () => {
-    const itemProfessores = () => fixture.nativeElement.querySelector('ion-menu [routerLink="/app/professores"]');
-    expect(itemProfessores()).toBeNull();
-
-    logar(sessao, 'Carla Dias', 'DONO');
+  const rotulosMenu = (): string[] =>
+    Array.from(fixture.nativeElement.querySelectorAll('ion-menu ion-item')).map(i => (i as HTMLElement).textContent?.trim() ?? '');
+  const rotulosAbas = (): string[] =>
+    Array.from(fixture.nativeElement.querySelectorAll('ion-tab-button')).map(i => (i as HTMLElement).textContent?.trim() ?? '');
+  const entrarComo = async (perfil: Perfil) => {
+    logar(sessao, 'Carla Dias', perfil);
     fixture.detectChanges();
     await fixture.whenStable();
+  };
 
-    expect(itemProfessores()?.textContent).toContain('Professores');
+  it('donoVeAbasDeGestao', async () => {
+    await entrarComo('DONO');
+
+    expect(rotulosAbas()).toEqual(['Presenças', 'Financeiro', 'Graduação', 'Alunos', 'Perfil']);
+    expect(Array.from(fixture.nativeElement.querySelectorAll('ion-tab-button')).map(a => (a as HTMLElement & { tab: string }).tab)).toEqual(['chamada', 'financeiro', 'graduacao', 'alunos', 'perfil']);
+    expect(rotulosMenu()).toEqual(['Presenças', 'Financeiro', 'Graduação', 'Alunos', 'Perfil', 'Sair']);
   });
 
-  it('mostra o item Agenda só para o dono, entre Professores e Graduação', async () => {
-    const itemAgenda = () => fixture.nativeElement.querySelector('ion-menu [routerLink="/app/agenda"]');
-    expect(itemAgenda()).toBeNull();
+  it('alunoEProfessorVeemAbasAtuais', async () => {
+    for (const perfil of ['ALUNO', 'PROFESSOR'] as const) {
+      await entrarComo(perfil);
 
-    logar(sessao, 'Carla Dias', 'DONO');
-    fixture.detectChanges();
-    await fixture.whenStable();
-
-    expect(itemAgenda()?.textContent).toContain('Agenda');
-    const itens = Array.from(fixture.nativeElement.querySelectorAll('ion-menu ion-item')).map(i =>
-      (i as HTMLElement).textContent?.trim()
-    );
-    expect(itens.slice(-6)).toEqual(['Professores', 'Agenda', 'Graduação', 'Alunos sumidos', 'Perfil', 'Sair']);
+      expect(rotulosAbas()).toEqual(['Início', 'Aulas', 'Presença', 'Financeiro', 'Perfil']);
+      expect(rotulosMenu()).toEqual(['Início', 'Aulas', 'Presença', 'Financeiro', 'Perfil', 'Sair']);
+      expect(Array.from(fixture.nativeElement.querySelectorAll('ion-tab-button')).map(a => (a as HTMLElement & { tab: string }).tab)).toEqual(['inicio', 'aulas', 'presenca', 'financeiro', 'perfil']);
+    }
   });
 
-  it('mostra o item Chamada para professor e dono, mas não para aluno', async () => {
-    const itemChamada = () => fixture.nativeElement.querySelector('ion-menu [routerLink="/app/chamada"]');
-    expect(itemChamada()?.textContent).toContain('Controle de presença');
+  it('badgeSoAparecesComContadorMaiorQueZero', async () => {
+    await entrarComo('DONO');
+    expect(fixture.nativeElement.querySelector('ion-badge')).toBeNull();
 
-    logar(sessao, 'Carla Dias', 'DONO');
+    aptos.set(3);
+    sumidos.set(1);
     fixture.detectChanges();
     await fixture.whenStable();
-    expect(itemChamada()?.textContent).toContain('Controle de presença');
 
-    logar(sessao, 'Ana Souza', 'ALUNO');
+    const badges = Array.from(fixture.nativeElement.querySelectorAll('ion-tab-button ion-badge')) as HTMLElement[];
+    expect(badges.map(b => b.textContent?.trim())).toEqual(['3', '1']);
+    expect(badges.map(b => b.getAttribute('aria-label'))).toEqual(['3 aptos', '1 sumidos']);
+
+    aptos.set(0);
     fixture.detectChanges();
-    await fixture.whenStable();
-    expect(itemChamada()).toBeNull();
+    expect(fixture.nativeElement.querySelectorAll('ion-tab-button ion-badge').length).toBe(1);
   });
 
-  it('no menu lateral, Perfil fica logo acima de Sair, no fim', async () => {
-    logar(sessao, 'Carla Dias', 'DONO');
-    fixture.detectChanges();
-    await fixture.whenStable();
+  it('dono atualiza os contadores ao entrar e ao trocar de aba', async () => {
+    await entrarComo('DONO');
+    const chamadasAoEntrar = atualizar.calls.count();
 
-    const itens = Array.from(fixture.nativeElement.querySelectorAll('ion-menu ion-item')).map(i =>
-      (i as HTMLElement).textContent?.trim()
-    );
+    expect(chamadasAoEntrar).toBeGreaterThan(0);
+    fixture.debugElement.query(By.css('ion-tabs')).triggerEventHandler('ionTabsDidChange', { tab: 'alunos' });
 
-    expect(itens.slice(-2)).toEqual(['Perfil', 'Sair']);
+    expect(atualizar.calls.count()).toBe(chamadasAoEntrar + 1);
   });
 
-  it('tem cinco abas', () => {
-    const abas = Array.from(fixture.nativeElement.querySelectorAll('ion-tab-button')).map(
-      a => (a as HTMLElement).getAttribute('tab')
-    );
+  it('professor não atualiza os contadores do dono', async () => {
+    await entrarComo('PROFESSOR');
+    fixture.debugElement.query(By.css('ion-tabs')).triggerEventHandler('ionTabsDidChange', { tab: 'aulas' });
 
-    expect(abas).toEqual(['inicio', 'aulas', 'presenca', 'financeiro', 'perfil']);
+    expect(atualizar).not.toHaveBeenCalled();
   });
 
   it('sair confirmado encerra a sessão e navega para o login', async () => {

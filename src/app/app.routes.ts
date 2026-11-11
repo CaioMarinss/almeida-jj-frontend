@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
+import { alunoGuard } from './core/auth/aluno.guard';
 import { authGuard } from './core/auth/auth.guard';
 import { donoGuard } from './core/auth/dono.guard';
-import { professorGuard } from './core/auth/professor.guard';
 import { visitanteGuard } from './core/auth/visitante.guard';
 
 const login = () => import('./features/auth/login/login.component').then(m => m.LoginComponent);
@@ -39,10 +39,11 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () => import('./features/shell/shell.component').then(m => m.ShellComponent),
     children: [
-      { path: 'inicio', loadComponent: () => import('./features/inicio/inicio.component').then(m => m.InicioComponent) },
-      { path: 'aulas', loadComponent: () => import('./features/aulas/aulas.component').then(m => m.AulasComponent) },
+      { path: 'inicio', canActivate: [alunoGuard], loadComponent: () => import('./features/inicio/inicio.component').then(m => m.InicioComponent) },
+      { path: 'aulas', canActivate: [alunoGuard], loadComponent: () => import('./features/aulas/aulas.component').then(m => m.AulasComponent) },
       {
         path: 'presenca',
+        canActivate: [alunoGuard],
         loadComponent: () => import('./features/presenca/presenca.component').then(m => m.PresencaComponent)
       },
       {
@@ -51,30 +52,39 @@ export const routes: Routes = [
       },
       { path: 'perfil', loadComponent: () => import('./features/perfil/perfil.component').then(m => m.PerfilComponent) },
       {
-        path: 'professores',
-        canActivate: [donoGuard],
-        loadComponent: () => import('./features/professores/professores.component').then(m => m.ProfessoresComponent)
+        path: 'perfil/senha',
+        loadComponent: () =>
+          import('./features/perfil/trocar-senha/trocar-senha.component').then(m => m.TrocarSenhaComponent)
       },
       {
+        path: 'alunos',
+        canActivate: [donoGuard],
+        loadComponent: () => import('./features/alunos/alunos.component').then(m => m.AlunosComponent)
+      },
+      {
+        path: 'alunos/:id',
+        canActivate: [donoGuard],
+        loadComponent: () =>
+          import('./features/alunos/ficha/ficha-aluno.component').then(m => m.FichaAlunoComponent)
+      },
+      { path: 'professores', redirectTo: 'alunos' },
+      {
         path: 'chamada',
-        canActivate: [professorGuard],
+        canActivate: [donoGuard],
         loadComponent: () => import('./features/chamada/chamada.component').then(m => m.ChamadaComponent)
       },
       {
-        path: 'agenda',
+        path: 'grade',
         canActivate: [donoGuard],
         loadComponent: () => import('./features/agenda/agenda.component').then(m => m.AgendaComponent)
       },
+      { path: 'agenda', redirectTo: 'grade' },
       {
         path: 'graduacao',
         canActivate: [donoGuard],
         loadComponent: () => import('./features/graduacao/graduacao.component').then(m => m.GraduacaoComponent)
       },
-      {
-        path: 'sumidos',
-        canActivate: [donoGuard],
-        loadComponent: () => import('./features/sumidos/sumidos.component').then(m => m.SumidosComponent)
-      },
+      { path: 'sumidos', redirectTo: 'alunos' },
       { path: '', pathMatch: 'full', redirectTo: 'inicio' }
     ]
   },

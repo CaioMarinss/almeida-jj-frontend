@@ -1,0 +1,139 @@
+.filtros {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--ajj-espaco-3);
+  margin-bottom: var(--ajj-espaco-3);
+
+  @media (min-width: 600px) {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+
+    .chips {
+      grid-column: 1 / -1;
+    }
+  }
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ajj-espaco-1, 4px);
+
+  input,
+  select {
+    min-height: 44px;
+    padding: 0 var(--ajj-espaco-3);
+    border: 1px solid var(--ajj-borda);
+    border-radius: var(--ajj-raio-m);
+    background: var(--ajj-superficie);
+    color: var(--ajj-texto);
+    font: inherit;
+
+    &:focus-visible {
+      outline: 2px solid var(--ajj-primaria);
+      outline-offset: 2px;
+    }
+  }
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ajj-espaco-2);
+}
+
+.filtro {
+  min-height: 44px;
+  padding: 0 var(--ajj-espaco-4);
+  border: 1px solid var(--ajj-borda);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ajj-texto);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+
+  &.ativo {
+    border-color: var(--ajj-primaria);
+    background: var(--ajj-primaria);
+    color: var(--ajj-sobre-primaria);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ajj-primaria);
+    outline-offset: 2px;
+  }
+}
+
+.carregando {
+  display: grid;
+  place-items: center;
+  padding: var(--ajj-espaco-8) 0;
+}
+
+ajj-estado-vazio {
+  margin-top: var(--ajj-espaco-4);
+}
+
+.contador {
+  margin: 0 0 var(--ajj-espaco-3);
+}
+
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ajj-espaco-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.aluno {
+  padding: 0;
+}
+
+.linha {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--ajj-espaco-2) var(--ajj-espaco-3);
+  min-height: 44px;
+  padding: var(--ajj-espaco-4);
+  border-radius: var(--ajj-raio-m);
+  color: inherit;
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: color-mix(in srgb, var(--ajj-primaria) 6%, transparent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ajj-primaria);
+    outline-offset: -2px;
+  }
+}
+
+.situacao {
+  font-size: 14px;
+  text-align: right;
+
+  &.sumido {
+    color: var(--ajj-perigo);
+    font-weight: 600;
+  }
+}
+
+.faixa-linha {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ajj-espaco-1, 4px);
+  grid-column: 1 / -1;
+}
+
+ajj-paginacao {
+  display: block;
+  margin-top: var(--ajj-espaco-4);
+}

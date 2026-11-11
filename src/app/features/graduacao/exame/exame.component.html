@@ -1,0 +1,77 @@
+<form class="painel" novalidate (submit)="$event.preventDefault(); salvar()">
+  <div class="cabeca">
+    <strong id="exame-titulo" class="ajj-titulo">Exame · {{ apto().nome }}</strong>
+    <span class="ajj-suave">
+      @if (apto().atual; as atual) {
+        {{ descrever(atual.faixa, atual.grau) }}
+      } @else {
+        Sem graduação
+      }
+      @if (sugestao(); as s) {
+        → {{ descrever(s.faixa, s.grau) }}
+      }
+    </span>
+    @if (apto().minimo !== null) {
+      <span class="ajj-suave ajj-numero">{{ apto().contadas }}/{{ apto().minimo }} presenças</span>
+    }
+  </div>
+
+  <div class="campo">
+    <span id="rotulo-resultado" class="ajj-rotulo">Resultado</span>
+    <div class="opcoes" role="group" aria-labelledby="rotulo-resultado">
+      <button type="button" class="opcao aprovado" [attr.aria-pressed]="aprovado() === true" (click)="aprovado.set(true)">
+        Aprovado
+      </button>
+      <button type="button" class="opcao reprovado" [attr.aria-pressed]="aprovado() === false" (click)="aprovado.set(false)">
+        Reprovado
+      </button>
+    </div>
+  </div>
+
+  <div class="campo">
+    <label for="exame-nota" class="ajj-rotulo">Nota (0 a 10)</label>
+    <input
+      id="exame-nota"
+      #entradaNota
+      type="text"
+      inputmode="decimal"
+      autocomplete="off"
+      placeholder="8,5"
+      [value]="nota()"
+      [attr.aria-invalid]="mostrarErroNota() ? 'true' : null"
+      [attr.aria-describedby]="mostrarErroNota() ? 'exame-nota-erro' : null"
+      (input)="nota.set(entradaNota.value)"
+      (blur)="tocouNota.set(true)"
+    />
+    @if (mostrarErroNota()) {
+      <small id="exame-nota-erro" class="erro" role="alert">Informe uma nota de 0 a 10, com no máximo uma casa decimal.</small>
+    }
+  </div>
+
+  <div class="campo">
+    <label for="exame-observacao" class="ajj-rotulo">Observação (opcional)</label>
+    <textarea
+      id="exame-observacao"
+      #entradaObs
+      rows="2"
+      maxlength="200"
+      [value]="observacao()"
+      (input)="observacao.set(entradaObs.value)"
+    ></textarea>
+  </div>
+
+  @if (mostrarGraduar()) {
+    <label class="graduar">
+      <input type="checkbox" [checked]="graduar()" (change)="graduar.set(!graduar())" />
+      <span>{{ rotuloGraduar() }}</span>
+    </label>
+  }
+
+  <div class="acoes">
+    <ajj-botao tipo="submit" [carregando]="salvando()" [desabilitado]="!podeSalvar()">Salvar exame</ajj-botao>
+    @if (apto().exame) {
+      <ajj-botao variante="texto" [desabilitado]="salvando()" (clique)="remover()">Remover exame</ajj-botao>
+    }
+    <ajj-botao variante="texto" [desabilitado]="salvando()" (clique)="fechar.emit()">Cancelar</ajj-botao>
+  </div>
+</form>

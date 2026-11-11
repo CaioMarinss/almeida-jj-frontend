@@ -1,0 +1,25 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/app/perfil" text="" aria-label="Voltar para o perfil"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Trocar senha</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="ajj-coluna">
+    <section class="ajj-card bloco" aria-label="Nova senha">
+      <form [formGroup]="senhaForm" (keyup.enter)="trocarSenha()">
+        <app-campo [formGroup]="senhaForm" formControlName="senhaAtual" controlName="senhaAtual" inputName="senhaAtual"
+          type="password" label="Senha atual" autocomplete="current-password" />
+        <app-campo [formGroup]="senhaForm" formControlName="novaSenha" controlName="novaSenha" inputName="novaSenha"
+          type="password" label="Nova senha" placeholder="Crie uma senha forte" autocomplete="new-password" />
+        <ajj-regras-senha [senha]="novaSenha()" />
+        <app-campo [formGroup]="senhaForm" formControlName="passwordConfirm" controlName="passwordConfirm"
+          inputName="passwordConfirm" type="password" label="Confirme a nova senha" autocomplete="new-password" />
+        <ajj-botao [carregando]="trocandoSenha()" (clique)="trocarSenha()">Trocar senha</ajj-botao>
+      </form>
+    </section>
+  </div>
+</ion-content>

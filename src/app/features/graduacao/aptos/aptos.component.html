@@ -1,6 +1,4 @@
-<section class="aptos" aria-labelledby="aptos-titulo">
-  <h2 id="aptos-titulo">Aptos</h2>
-
+<section class="aptos" aria-label="Aptos e exames">
   @switch (estado()) {
     @case ('carregando') {
       <p class="ajj-suave">Carregando…</p>
@@ -9,6 +7,7 @@
       <div class="vazio">
         <strong>Nenhuma graduação agendada</strong>
         <p class="ajj-suave">Agende a data da próxima graduação para ver quem está apto.</p>
+        <ajj-botao variante="secundario" (clique)="agendar.emit()">Alterar</ajj-botao>
       </div>
     }
     @case ('erro') {
@@ -81,19 +80,24 @@
           </div>
         </form>
       } @else if (dados(); as lista) {
-        <p class="evento ajj-suave">
-          Graduação em <strong class="ajj-numero">{{ formatar(lista.evento.data) }}</strong>
-        </p>
+        <p class="resumo ajj-suave" role="status">{{ resumo() }}</p>
 
-        @for (trilha of trilhas(); track trilha.id) {
-          <section class="trilha" [attr.aria-labelledby]="trilha.id">
-            <h3 [id]="trilha.id" class="ajj-rotulo">{{ trilha.titulo }}</h3>
-            @if (trilha.alunos.length === 0) {
-              <p class="ajj-suave">Ninguém nesta troca.</p>
-            } @else {
+        <ion-segment [value]="trilhaAtiva()" aria-label="Tipo de troca" (ionChange)="trocarTrilha($event.detail.value)">
+          <ion-segment-button value="grau"><ion-label>Troca de grau · {{ contagemGrau() }}</ion-label></ion-segment-button>
+          <ion-segment-button value="faixa"><ion-label>Troca de faixa · {{ contagemFaixa() }}</ion-label></ion-segment-button>
+        </ion-segment>
+
+        @if (contagemAtiva() === 0) {
+          <p class="ajj-suave">Ninguém nesta troca.</p>
+        } @else {
+          @for (secao of secoes(); track secao.id) {
+            <section class="grupo" [attr.aria-labelledby]="secao.titulo ? secao.id : null">
+              @if (secao.titulo) {
+                <h3 [id]="secao.id" class="ajj-rotulo">{{ secao.titulo }}</h3>
+              }
               <ul class="lista">
-                @for (a of trilha.alunos; track a.id) {
-                  <li class="ajj-card linha" [class.apto]="a.apto">
+                @for (a of secao.alunos; track a.id) {
+                  <li class="ajj-card linha" [class.apto]="a.apto && !a.graduado">
                     <div class="quem">
                       <strong class="ajj-truncar">{{ a.nome }}</strong>
                       @if (a.atual; as atual) {
@@ -103,27 +107,59 @@
                       }
                     </div>
                     <div class="situacao">
-                      @if (a.minimo === null) {
-                        <span class="ajj-suave">mínimo não definido</span>
-                      } @else if (a.apto) {
-                        <span class="contagem ajj-numero">{{ a.contadas }}/{{ a.minimo }}</span>
-                      } @else {
-                        <span class="ajj-suave">faltam {{ faltam(a) }}</span>
-                      }
-                      @if (a.apto) {
-                        <ajj-botao [desabilitado]="!liberado()" (clique)="abrir(a)">Graduou</ajj-botao>
-                        @if (!liberado()) {
-                          <span class="dica ajj-suave">Disponível em {{ formatar(lista.evento.data) }}</span>
+                      @if (a.graduado) {
+                        <span class="selo graduado">Graduado</span>
+                      } @else if (a.exame; as exame) {
+                        <span class="selo" [class.reprovado]="!exame.aprovado">
+                          {{ exame.aprovado ? 'Aprovado' : 'Reprovado' }} · nota {{ nota(exame.nota) }}
+                        </span>
+                        @if (exame.aprovado && a.apto) {
+                          <ajj-botao variante="texto" (clique)="abrirExame(a)">Ver</ajj-botao>
+                          <ajj-botao [desabilitado]="!liberado()" (clique)="abrir(a)">Graduou</ajj-botao>
+                          @if (!liberado()) {
+                            <span class="dica ajj-suave">Disponível em {{ formatar(lista.evento.data) }}</span>
+                          }
+                        } @else {
+                          <ajj-botao variante="secundario" (clique)="abrirExame(a)">Ver</ajj-botao>
                         }
+                      } @else {
+                        @if (a.minimo === null) {
+                          <span class="ajj-suave">mínimo não definido</span>
+                        } @else if (a.apto) {
+                          <span class="contagem ajj-numero">{{ a.contadas }}/{{ a.minimo }} · apto</span>
+                        } @else {
+                          <span class="ajj-suave">faltam {{ faltam(a) }}</span>
+                        }
+                        <ajj-botao variante="secundario" (clique)="abrirExame(a)">Exame</ajj-botao>
                       }
                     </div>
                   </li>
                 }
               </ul>
-            }
-          </section>
+            </section>
+          }
         }
       }
     }
   }
 </section>
+
+<ion-modal
+  [isOpen]="exameDe() !== null"
+  [breakpoints]="[0, 0.9]"
+  [initialBreakpoint]="0.9"
+  aria-labelledby="exame-titulo"
+  (didDismiss)="fecharExame()"
+>
+  <ng-template>
+    @if (exameDe(); as apto) {
+      <app-exame
+        [apto]="apto"
+        [liberadoGraduar]="liberado()"
+        (salvo)="aoSalvarExame($event)"
+        (removido)="aoRemoverExame()"
+        (fechar)="fecharExame()"
+      />
+    }
+  </ng-template>
+</ion-modal>

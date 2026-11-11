@@ -52,12 +52,12 @@ e2e/
     ├── contas.ts        cria conta verificada (criarContaAtiva), dono (criarDono), nome único (nomear), token e id pela API
     ├── dados.ts         senhas de teste, e-mail e CPF válidos aleatórios
     ├── mailpit.ts       busca e-mail e extrai o link
-    └── telas.ts         helpers de tela (campo, botão, toast, alerta, login)
+    └── telas.ts         helpers de tela (campo, botão, toast, alerta, login, login do dono, troca de aba)
 ```
 
 ## Cenários
 
-São 63 testes; a última rodada completa teve 102 execuções passando e 26 puladas (testes só de desktop no celular), 0 falhas.
+São 79 testes. A área do dono foi reformulada (abas Presenças, Financeiro, Graduação, Alunos e Perfil) e os cenários correspondentes ainda não foram rodados nesta versão; a última rodada completa, antes da reformulação, passou sem falhas.
 
 ### Cadastro (`tests/cadastro.spec.ts`), desktop e celular
 
@@ -79,7 +79,8 @@ São 63 testes; a última rodada completa teve 102 execuções passando e 26 pul
 
 | Cenário | O que verifica |
 |---|---|
-| Bloqueia senha fraca, mostra o erro da API e troca com senha forte | Senha fraca não chama a API. Senha atual errada mostra "Senha atual incorreta.". Com os dados certos, troca a senha, desloga e entra com a nova. |
+| Bloqueia senha fraca, mostra o erro da API e troca com senha forte | Perfil → "Trocar senha" abre `/app/perfil/senha`. Senha fraca não chama a API. Senha atual errada mostra "Senha atual incorreta.". Com os dados certos, troca a senha, desloga e entra com a nova. |
+| O dono abre Trocar senha pelo Perfil e volta pela seta | desktop e celular | O dono entra em `/app/chamada`; Perfil mostra "Sair da conta" e "Trocar senha"; a tela `/app/perfil/senha` tem a seta "Voltar para o perfil". |
 | Perfil fica logo acima de Sair no menu lateral (só desktop) | Os dois últimos itens do menu são Perfil e Sair; clicar em Perfil abre `/app/perfil`. |
 
 ### API recusa senha fraca sem passar pelo front (`tests/api-regras-senha.spec.ts`), só desktop
@@ -99,10 +100,11 @@ A conta de dono é criada pelo próprio teste (`criarDono`: cadastro pela API + 
 
 | Cenário | Onde roda | O que verifica |
 |---|---|---|
-| O dono vê o cargo e chega em Professores pelo perfil | desktop e celular | Chip "Dono" no Perfil; "Gerenciar professores" abre `/app/professores`, e a busca pelo nome acha o dono. |
-| O dono promove e rebaixa um aluno | desktop e celular | Busca pelo nome, toque na linha abre o painel; "Tornar professor" com confirmação e toast; o aluno entra e vê "Professor". "Remover professor" volta para "Aluno", e o aluno confirma ao entrar. |
-| Aluno e professor não acessam Professores | desktop e celular | Nenhum dos dois vê "Gerenciar professores", e abrir `/app/professores` leva para `/app/inicio`. |
-| O menu lateral do dono tem Professores | só desktop | O item do menu abre a tela. |
+| O dono vê o cargo e chega em Alunos pela aba | desktop e celular | Chip "Dono" no Perfil, sem "Gerenciar professores"; a aba Alunos abre `/app/alunos` e a ficha do próprio dono não tem botão de cargo. |
+| O dono promove e rebaixa um aluno pela ficha | desktop e celular | Busca em Alunos, toque na linha abre a ficha; "Tornar professor" com confirmação e toast; o aluno entra e vê "Professor". "Voltar a aluno" confirma em "Remover" e o aluno volta a "Aluno". |
+| O filtro Professores da lista de alunos | desktop e celular | O professor promovido por API aparece com o chip "Professores" e a linha mostra "Professor". |
+| Aluno e professor não acessam Alunos | desktop e celular | Nenhum dos dois vê "Gerenciar professores", e abrir `/app/alunos` leva para `/app/inicio`. |
+| O menu lateral do dono tem Alunos | só desktop | O item do menu abre `/app/alunos`. |
 | API: professor e aluno não alteram cargo | só desktop | `PUT /alunos/{id}/perfil` responde 403 para os dois. |
 | API: o cargo de outro dono não muda pelo app | só desktop | 422 com `codigo` `ERR010`. |
 | API: ninguém vira dono pelo app | só desktop | `{"perfil":"DONO"}` responde 400. |
@@ -117,16 +119,21 @@ Os alunos ganham um nome único (`UPDATE ... NOME` no banco) para a busca da tel
 | Registro com data anterior à faixa atual | desktop e celular | Aviso "Data anterior à faixa atual: entra só no histórico.", histórico ganha item e a faixa atual (Azul, 2 graus) não muda. |
 | Registro com data passada mais recente que a atual | desktop e celular | Sem aviso; a faixa registrada vira a atual. |
 | Busca por nome e filtro por faixa | desktop e celular | Busca sem diferenciar maiúsculas, filtro Azul acha, Roxa não acha, "Sem graduação" acha quem não tem. |
-| Aluno e professor não veem Graduação | desktop e celular | Sem item no menu nem "Gerenciar graduações"; `/app/graduacao` leva para `/app/inicio`. |
-| O dono chega em Graduação pelo perfil | desktop e celular | "Gerenciar graduações" abre a tela. |
+| Aluno e professor não veem Graduação | desktop e celular | Sem item no menu; `/app/graduacao` leva para `/app/inicio`. |
+| O dono chega em Graduação pela aba | desktop e celular | A aba abre a tela com o evento (`app-proxima-graduacao`) e a lista de aptos. |
+| O dono abre a ficha pela lista e volta pela seta | desktop e celular | Alunos → toque na linha → ficha; "Voltar para os alunos" volta para a lista. |
 | O menu lateral do dono tem Graduação | só desktop | O item do menu abre a tela. |
-| Conta desativada antes de salvar | só desktop | Desativa a conta com a modal aberta; salvar mostra o alerta "Aluno não encontrado" e a tela continua usável. |
-| Painel do aluno mostra as presenças | desktop e celular | Presença da semana passada (SQL) aparece em `app-presencas-aluno` dentro do registro de graduação, como "contada". |
-| Agendar e cancelar a próxima graduação (botão "Alterar") | só desktop (serial) | Preenche os mínimos (`#minimo-grau`, `#minimo-faixa`); a linha mostra "Mínimo: 10 grau · 20 faixa"; aluno vê "Próxima graduação: DD/MM"; ao cancelar, "Sem data definida para a próxima graduação". |
+| Conta desativada antes de salvar | só desktop | Desativa a conta com a ficha aberta na aba Graduações; salvar mostra o alerta "Aluno não encontrado" e a tela continua usável. |
+| A ficha do aluno mostra as presenças | desktop e celular | Presença da semana passada (SQL) aparece em `app-presencas-aluno` na aba Presenças da ficha, como "contada". |
+| Agendar e cancelar a próxima graduação (botão "Alterar") | só desktop (serial) | Preenche os mínimos (`#minimo-grau`, `#minimo-faixa`); a linha mostra "Mínimo p/ grau" 10 e "Mínimo p/ faixa" 20; aluno vê "Próxima graduação: DD/MM"; ao cancelar, "Sem data definida para a próxima graduação". |
 | Trocar a data agendada (botão "Alterar") | só desktop (serial) | A nova data (com os mínimos) substitui a anterior. |
 | A aba Presença mostra X de Y | só desktop (serial) | Evento daqui a 10 dias com mínimo de grau 5 e 2 presenças da semana passada (SQL): título "2 de 5 presenças até a graduação de DD/MM", "Faltam 3", barra `aria-valuenow=2`, 2 itens "contada". |
-| Antes da data o Graduou fica desabilitado | só desktop (serial) | "Ver aptos" lista o aluno com "2/2" e "Disponível em DD/MM" com o botão Graduou desabilitado; quem tem 1 de 2 mostra "faltam 1" e não tem o botão. |
-| Mínimos, apto e Graduou | só desktop (serial) | Salvar fica desabilitado até os dois mínimos; evento para hoje; o aluno aparece em "Troca de grau" com "2/2"; Graduou abre a confirmação preenchida (Faixa Branca, 1º grau); depois do toast "<nome> graduou." o aluno mostra "faltam 2" sem o botão e a API tem a Faixa Branca 1 grau. |
+| Antes da data o apto faz o exame e o Graduou fica desabilitado | só desktop (serial) | Aba Graduação lista o aluno com "2/2 · apto" e o botão Exame (sem Graduou); quem tem 1 de 2 mostra "faltam 1". Exame aprovado sem a opção "Já registrar a graduação" (evento ainda no futuro) mostra "Aprovado · nota 8,5", "Ver", Graduou desabilitado e "Disponível em DD/MM". |
+| Mínimos, exame aprovado com a graduação e "Graduado" | só desktop (serial) | Salvar fica desabilitado até os dois mínimos; evento para hoje; o resumo mostra "1 apto"; a folha de exame (Aprovado, "Nota (0 a 10)", "Observação (opcional)") traz "Já registrar a graduação (Faixa Branca · 1 grau)" marcada; "Salvar exame" mostra o toast "<nome> graduou.", o aluno vira "Graduado", o resumo "0 aptos · 1 exame feito · 1 graduado" e a API tem a Faixa Branca 1 grau. |
+| Exame aprovado sem graduar libera o Graduou; reprovado não | só desktop (serial) | Aprovado com nota 10 e a opção desmarcada: "Aprovado · nota 10,0" e Graduou habilitado, que abre a confirmação e termina em "Graduado". Reprovado com nota 4: "Reprovado · nota 4,0" sem o botão Graduou. |
+| Exame de aluno ainda não apto | só desktop (serial) | Aluno com "faltam 4" na seção "Ainda não aptos" salva exame reprovado com observação; a aba Exames da ficha mostra a data do evento, "Reprovado · nota 4,0" e a observação. |
+| Editar e remover o exame | só desktop (serial) | "Ver" reabre a folha: trocar para Aprovado 7,5 e salvar atualiza a linha; "Remover exame" confirma, mostra "Exame removido." e a linha volta ao botão Exame. |
+| Cancelar a graduação com exame | só desktop (serial) | "Cancelar data" mostra o alerta "Esta graduação tem exames registrados e não pode ser cancelada." (`ERR037`) e a data continua; a API responde 422. |
 | API: professor e aluno não registram nem agendam | só desktop | 403 em registrar, agendar, cancelar e listar alunos. |
 | API: grau 5 na Faixa Azul | só desktop | 422 com `codigo` `ERR012`. |
 | API: data futura no registro | só desktop | 400 com `codigo` `ERR013`. |
@@ -140,37 +147,35 @@ Os cenários de marcação usam aulas avulsas criadas pela API para o dia de hoj
 | Aluno marca Vou e desmarca | desktop e celular | Contador "1 vai" -> "2 vão" ao marcar (botão `aria-pressed`, "✓ Vou") e de volta a "1 vai" ao desmarcar; a API concorda. |
 | Início mostra a Próxima aula | desktop e celular | Card com o botão "Vou na aula das HH:mm". |
 | Presença contada | desktop e celular | Em aula já encerrada com presença: "Presença contada" na aba Aulas, sem botão; quem não marcou vê "Janela fechada"; a aba Presença lista o item "contada". |
-| Professor inclui e tira no Controle de presença | desktop e celular | "Professor pode ajustar até DD/MM", "+ Incluir aluno" com busca, marca a pessoa e confirma em "Incluir 1 aluno", origem "incluída pelo professor", contador "1 presença"; "Tirar" com confirmação volta a "Ninguém registrado nesta aula.". |
-| Semana passada: só leitura para o professor, editável para o dono | desktop e celular | Professor vê "Fora do prazo: estas presenças só podem ser consultadas." sem Tirar nem Incluir; o dono vê os dois e tira o aluno. |
-| Professor inclui dois de uma vez | desktop e celular | Marca duas pessoas no "+ Incluir aluno", "Incluir 2 alunos", toast "2 alunos entraram na chamada.", "2 presenças". |
-| Dono vê os alunos sumidos | desktop e celular | Botão "Sumidos" da Área do dono abre `/app/sumidos`; quem treinou só há 3 semanas aparece com "Último treino DD/MM · há N dias"; quem treinou na semana passada não aparece. |
-| Setas do Controle de presença | desktop e celular | Professor: "Esta semana", volta só uma semana ("DD/MM a DD/MM") e a seta trava; o dono volta até a semana de `ajustaDesde` (`GET /presencas/prazo`), ou 12 semanas sem graduação anterior, e a seta trava. |
-| Dono inclui na semana passada | desktop e celular | Origem "incluída pelo dono" no Controle de presença e na aba Presença do aluno. |
+| Dono marca e desmarca na chamada em lista | desktop e celular | `/app/chamada` com a busca (`#busca-chamada`): tocar em um aluno de "Outros alunos" leva para "Presentes · 1" com "incluído por você" e o contador da aula "1 pres."; tocar no presente pede "Tirar a presença de NOME?" e, confirmado, volta a "Presentes · 0" e "0 pres.". |
+| Dono inclui dois alunos em seguida | desktop e celular | Dois toques seguidos: "Presentes · 2" e "2 pres.". |
+| Semana passada: dono edita a chamada | desktop e celular | O aluno com presença da semana passada aparece em Presentes com "marcou Vou", sem aviso de "Fora do prazo"; o dono tira a presença depois de confirmar e o aluno volta para "Outros alunos". |
+| Setas da Presenças | desktop e celular | O dono volta até a semana de `ajustaDesde` (`GET /presencas/prazo`), ou 12 semanas sem graduação anterior, e a seta trava; "Esta semana" bloqueia a seta para frente. |
+| Dono inclui na semana passada | desktop e celular | Origem "incluído por você" na chamada e "incluída pelo dono" na aba Presença do aluno. |
 | Dono cancela aula com marcação aberta | desktop e celular | O aluno vê "Cancelada · motivo", sem botão nem contador; pela API `euVou` falso e `vao` 0. |
-| Aluno não acessa o Controle de presença | desktop e celular | Sem item no menu nem atalho; `/app/chamada` leva para `/app/inicio`. |
-| Professor chega no Controle de presença pelo atalho | desktop e celular | O botão "Controle de presença" da Início abre `/app/chamada`. |
+| Aluno e professor sem a Presenças de gestão | desktop e celular | Nem menu nem aba "Presenças" (a do aluno é "Presença"), sem atalho na Início; `/app/chamada` leva para `/app/inicio`, sem "Editar grade". |
+| Dono entra direto na Presenças | desktop e celular | O login do dono cai em `/app/chamada`; "Editar grade" abre `/app/grade`. |
 | API: cancelar o dia com janela fechada | só desktop | 422 `ERR030`. |
 | API: aluno nas rotas da chamada | só desktop | GET, POST e DELETE da chamada e `GET /presencas/prazo` respondem 403. |
+| API: professor na chamada e na lista de alunos | só desktop | `GET`/`POST`/`DELETE` da chamada, `GET /presencas/prazo`, `GET /alunos` e `GET /alunos/painel` respondem 403. |
 | API: professor nos sumidos e nas presenças de outro aluno | só desktop | `GET /presencas/sumidos` e `GET /graduacoes/alunos/{id}/presencas` respondem 403. |
 | API: professor nos aptos | só desktop | `GET /graduacoes/aptos` e `POST /graduacoes/aptos/{id}` respondem 403. |
 | API: marcar fora da semana atual | só desktop | Semana passada e semana que vem respondem 422 `ERR025`. |
 
-### Área do dono (`tests/area-dono.spec.ts`)
+### Alunos (`tests/alunos.spec.ts`)
 
-Contas com nome único (`nomear`), porque a lista é paginada em memória e contas de outros testes podem empurrar a sua para outra página: sempre busca pelo nome antes.
+Contas com nome único (`nomear`), porque a lista é paginada em memória e contas de outros testes podem empurrar a sua para outra página: sempre busca pelo nome antes. A ficha do aluno com exame fica no bloco serial de `graduacao.spec.ts`, pelo evento de graduação global.
 
 | Cenário | Onde roda | O que verifica |
 |---|---|---|
-| O dono vê o card na Início | desktop e celular | Card "Área do dono" com atalhos que abrem Professores e Graduação (o atalho "Sumidos" é coberto em Presença). |
-| Aluno e professor não veem o card | desktop e celular | O card não existe na Início deles. |
-| Professores: busca sem acento | desktop e celular | "JOAO <ÚNICO>" acha "João <único>"; a linha mostra e-mail e cargo e o homônimo fica de fora. |
-| Professores: filtro por cargo | desktop e celular | Chips Professores, Alunos e Todos (`aria-pressed`). |
-| Professores: paginação | desktop e celular | 8 contas: "8 pessoas", 7 na página 1, "Página 1 de 2", Próxima e Anterior. |
-| Professores: promover pelo painel | desktop e celular | Cancelar no painel não muda nada; "Tornar professor" confirma e atualiza o chip. |
-| Graduação: busca sem acento e paginação | desktop e celular | "ANGELA ..." acha "Ângela ..."; 8 alunos: "8 alunos", 7 por página. |
-| Graduação: remover registro antigo e o atual | desktop e celular | Mensagens de confirmação, toast "Registro removido.", faixa do painel e card do aluno voltam para a anterior; o último remove deixa "Sem graduação". |
+| Busca sem acento e paginação | desktop e celular | "ANGELA ..." acha "Ângela ..."; 8 alunos: "8 alunos", 7 na página 1, "Página 1 de 2", Próxima e Anterior. |
+| Filtro Sumidos e ficha | desktop e celular | O chip "Sumidos · N" lista quem treinou só há 3 semanas com "sumido · N dias" e esconde quem treinou na semana passada; a linha abre a ficha (Presenças no ciclo, Último treino, Último exame) e a aba Exames mostra "Nenhum exame registrado.". |
+| Remover registro de graduação na ficha | desktop e celular | Aba Graduações: mensagens de confirmação, toast "Registro removido." e a faixa do aluno acompanha no card do Início. |
+| Links antigos | desktop e celular | Para o dono: `/app/inicio`, `/app/aulas` e `/app/presenca` vão para `/app/chamada`; `/app/professores` e `/app/sumidos` para `/app/alunos`; `/app/agenda` para `/app/grade`. |
+| Telas do dono barradas para aluno e professor | desktop e celular | `/app/chamada`, `/app/alunos`, `/app/graduacao` e `/app/grade` levam para `/app/inicio`. |
 | API: remoção de registro | só desktop | 403 para professor e aluno; 404 `ERR015` para registro de outro aluno ou já removido; dono remove (200, `atual` nulo). |
-| API: lista de alunos da graduação | só desktop | `GET /graduacoes/alunos` devolve o array inteiro, sem paginação. |
+| API: listas inteiras | só desktop | `GET /graduacoes/alunos` e `GET /alunos/painel` devolvem o array inteiro, sem paginação. |
+| API: painel e exames só do dono | só desktop | `GET /alunos/painel`, `GET /alunos` e `GET /alunos/{id}/exames` respondem 403 para professor e aluno; o dono recebe a lista de exames vazia. |
 
 ### Agenda de aulas (`tests/agenda.spec.ts`)
 
@@ -185,8 +190,8 @@ A agenda é global e os dois projetos rodam em paralelo, então cada projeto usa
 | Adicionar, editar e tirar da grade uma aula | desktop e celular | Dono adiciona aula no domingo, aluno vê; a edição troca o horário (vale a partir de amanhã, então o aluno da semana que vem só vê o novo); tirar a versão editada da grade funciona e deixa o domingo limpo. |
 | Aluno vê cancelamento sem novo login | desktop e celular | Aluno já está na aba Aulas (sexta), o dono cancela o dia por API, o aluno troca para Perfil e volta a Aulas e vê as aulas "Cancelada" (a aba recarrega ao reentrar). |
 | Tirar uma aula da grade | desktop e celular | Aula recém-adicionada sai da grade com confirmação e o card dela some para o aluno. |
-| Aluno e professor não veem a Agenda | desktop e celular | Sem item no menu, sem card/atalho nem "Gerenciar agenda"; `/app/agenda` leva para `/app/inicio`. |
-| O dono chega na Agenda pelo atalho e pelo Perfil | desktop e celular | O card "Área do dono" e "Gerenciar agenda" abrem `/app/agenda`. |
+| Aluno e professor não chegam na Grade | desktop e celular | Sem "Editar grade"; `/app/grade` e `/app/agenda` levam para `/app/inicio`. |
+| O dono chega na Grade por Editar grade | desktop e celular | O botão da Presenças abre `/app/grade` com "Grade semanal" e "Cancelamentos e extras"; `/app/agenda` redireciona para ela. |
 | API: aluno e professor não alteram grade nem cancelam | só desktop | 403 em `POST /aulas/grade` e `POST /agenda/cancelamentos`. |
 | API: cancelamento com data passada | só desktop | 400 com `codigo` `ERR018`. |
 

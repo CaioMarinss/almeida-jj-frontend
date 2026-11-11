@@ -1,6 +1,9 @@
 <ion-header class="ion-no-border">
   <ion-toolbar>
-    <ion-title>Controle de presença</ion-title>
+    <ion-title>Presenças</ion-title>
+    <ion-buttons slot="end">
+      <button type="button" class="editar-grade" (click)="editarGrade()">Editar grade</button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -50,7 +53,7 @@
           <li>
             <button
               type="button"
-              class="aula ajj-card"
+              class="aula"
               [class.escolhida]="a.id === idAula()"
               [class.cancelada]="a.cancelada"
               [attr.data-id]="a.id"
@@ -59,8 +62,7 @@
               (click)="escolherAula(a)"
             >
               <strong class="hora">{{ a.inicio }}</strong>
-              <span class="ajj-chip-modalidade" [class]="classeChip[a.modalidade]">{{ rotulo[a.modalidade] }}</span>
-              <span class="quantidade">{{ a.cancelada ? 'Cancelada' : textoPresencas(a) }}</span>
+              <span class="quantidade">{{ a.cancelada ? 'Cancelada' : a.vao + ' pres.' }}</span>
             </button>
           </li>
         }
@@ -68,9 +70,7 @@
     }
 
     @if (idAula() !== null) {
-      <section class="chamada" aria-labelledby="chamada-titulo">
-        <h2 id="chamada-titulo" class="ajj-rotulo">Presenças da aula</h2>
-
+      <section class="chamada" aria-label="Chamada da aula">
         @if (carregandoChamada() && !chamada()) {
           <div class="carregando"><ion-spinner name="crescent" aria-label="Carregando presenças" /></div>
         } @else if (erroChamada() && !chamada()) {
@@ -89,45 +89,81 @@
             <p class="aviso" role="status">Fora do prazo: estas presenças só podem ser consultadas.</p>
           }
 
-          @if (c.presencas.length > 0) {
-            <ul class="presentes">
-              @for (p of c.presencas; track p.idAluno) {
-                <li class="presente ajj-card">
-                  <span class="dados">
-                    <strong class="ajj-truncar">{{ p.nome }}</strong>
-                    <span class="ajj-suave origem">
-                      {{ rotuloOrigem[p.origem] }}@if (quemRegistrou(p); as quem) { · por {{ quem }}}
-                    </span>
-                  </span>
-                  @if (c.podeAjustar) {
-                    <button type="button" class="tirar" [disabled]="salvando()" [attr.aria-label]="'Tirar ' + p.nome" (click)="tirar(p)">
-                      Tirar
-                    </button>
-                  }
-                </li>
-              }
-            </ul>
-          } @else {
-            <p class="ajj-suave vazio" role="status">Ninguém registrado nesta aula.</p>
-          }
+          <div class="campo-busca">
+            <label for="busca-chamada" class="ajj-rotulo">Buscar aluno</label>
+            <input
+              id="busca-chamada"
+              #campo
+              type="search"
+              autocomplete="off"
+              placeholder="Nome do aluno"
+              [value]="busca()"
+              (input)="busca.set(campo.value)"
+            />
+          </div>
 
-          @if (podeIncluir()) {
-            <button type="button" class="incluir" [disabled]="salvando()" (click)="abrirIncluir()">+ Incluir aluno</button>
-          }
+          <section class="presentes" aria-labelledby="titulo-presentes">
+            <h2 id="titulo-presentes" class="ajj-rotulo">Presentes · {{ totalPresentes() }}</h2>
+            @if (presentes().length > 0) {
+              <ul class="linhas">
+                @for (l of presentes(); track l.id) {
+                  <li>
+                    <button
+                      type="button"
+                      class="linha marcada"
+                      [attr.data-id]="l.id"
+                      aria-pressed="true"
+                      [disabled]="!c.podeAjustar || pendentes().has(l.id)"
+                      (click)="alternar(l)"
+                    >
+                      <span class="dados">
+                        <strong class="ajj-truncar">{{ l.nome }}</strong>
+                        <span class="ajj-suave origem">{{ l.origem }}</span>
+                      </span>
+                      <span class="marca" aria-hidden="true"><svg lucideCheck></svg></span>
+                    </button>
+                  </li>
+                }
+              </ul>
+            } @else if (totalPresentes() === 0) {
+              <p class="ajj-suave vazio" role="status">Ninguém registrado nesta aula.</p>
+            }
+          </section>
+
+          <section class="outros" aria-labelledby="titulo-outros">
+            <h2 id="titulo-outros" class="ajj-rotulo">Outros alunos</h2>
+            @if (alunos() === null) {
+              @if (erroAlunos()) {
+                <ajj-botao variante="secundario" (clique)="carregarAlunos()">Tentar de novo</ajj-botao>
+              } @else {
+                <div class="carregando"><ion-spinner name="crescent" aria-label="Carregando alunos" /></div>
+              }
+            } @else if (outros().length > 0) {
+              <ul class="linhas">
+                @for (l of outros(); track l.id) {
+                  <li>
+                    <button
+                      type="button"
+                      class="linha"
+                      [attr.data-id]="l.id"
+                      aria-pressed="false"
+                      [disabled]="!podeIncluir() || pendentes().has(l.id)"
+                      (click)="alternar(l)"
+                    >
+                      <span class="dados"><strong class="ajj-truncar">{{ l.nome }}</strong></span>
+                      <span class="marca" aria-hidden="true"></span>
+                    </button>
+                  </li>
+                }
+              </ul>
+            } @else if (busca() === '' && totalPresentes() > 0) {
+              <p class="ajj-suave vazio" role="status">Todos os alunos estão presentes.</p>
+            } @else {
+              <p class="ajj-suave vazio" role="status">Nenhum aluno encontrado.</p>
+            }
+          </section>
         }
       </section>
     }
   </div>
 </ion-content>
-
-<ion-modal
-  [isOpen]="incluindo()"
-  [breakpoints]="[0, 0.7, 1]"
-  [initialBreakpoint]="0.7"
-  aria-labelledby="painel-incluir-titulo"
-  (didDismiss)="fecharIncluir()"
->
-  <ng-template>
-    <app-incluir-aluno [pessoas]="candidatos()" [salvando]="salvando()" (escolher)="incluir($event)" (fechar)="fecharIncluir()" />
-  </ng-template>
-</ion-modal>

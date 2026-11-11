@@ -1,3 +1,16 @@
+<ng-template #icone let-nome>
+  @switch (nome) {
+    @case ('presencas') { <svg lucideClipboardCheck aria-hidden="true"></svg> }
+    @case ('financeiro') { <svg lucideWallet aria-hidden="true"></svg> }
+    @case ('graduacao') { <svg lucideAward aria-hidden="true"></svg> }
+    @case ('alunos') { <svg lucideUsers aria-hidden="true"></svg> }
+    @case ('perfil') { <svg lucideUser aria-hidden="true"></svg> }
+    @case ('inicio') { <svg lucideHouse aria-hidden="true"></svg> }
+    @case ('aulas') { <svg lucideCalendarDays aria-hidden="true"></svg> }
+    @case ('presenca') { <svg lucideCircleCheck aria-hidden="true"></svg> }
+  }
+</ng-template>
+
 <ion-split-pane when="lg" contentId="conteudo">
   <ion-menu contentId="conteudo" [swipeGesture]="false">
     <ion-content>
@@ -13,36 +26,18 @@
         </div>
 
         <ion-list lines="none" class="itens">
-          <ion-item button detail="false" routerLink="/app/inicio" routerLinkActive="ativo">
-            <svg lucideHouse aria-hidden="true" slot="start"></svg><ion-label>Início</ion-label>
-          </ion-item>
-          <ion-item button detail="false" routerLink="/app/aulas" routerLinkActive="ativo">
-            <svg lucideCalendarDays aria-hidden="true" slot="start"></svg><ion-label>Aulas</ion-label>
-          </ion-item>
-          <ion-item button detail="false" routerLink="/app/presenca" routerLinkActive="ativo">
-            <svg lucideCircleCheck aria-hidden="true" slot="start"></svg><ion-label>Presença</ion-label>
-          </ion-item>
-          <ion-item button detail="false" routerLink="/app/financeiro" routerLinkActive="ativo">
-            <svg lucideWallet aria-hidden="true" slot="start"></svg><ion-label>Financeiro</ion-label>
-          </ion-item>
-          @if (ehProfessor()) {
-            <ion-item button detail="false" routerLink="/app/chamada" routerLinkActive="ativo">
-              <svg lucideClipboardCheck aria-hidden="true" slot="start"></svg><ion-label>Controle de presença</ion-label>
-            </ion-item>
-          }
-          @if (ehDono()) {
-            <ion-item button detail="false" routerLink="/app/professores" routerLinkActive="ativo">
-              <svg lucideUsers aria-hidden="true" slot="start"></svg><ion-label>Professores</ion-label>
-            </ion-item>
-            <ion-item button detail="false" routerLink="/app/agenda" routerLinkActive="ativo">
-              <svg lucideCalendarCog aria-hidden="true" slot="start"></svg><ion-label>Agenda</ion-label>
-            </ion-item>
-            <ion-item button detail="false" routerLink="/app/graduacao" routerLinkActive="ativo">
-              <svg lucideAward aria-hidden="true" slot="start"></svg><ion-label>Graduação</ion-label>
-            </ion-item>
-            <ion-item button detail="false" routerLink="/app/sumidos" routerLinkActive="ativo">
-              <svg lucideUserX aria-hidden="true" slot="start"></svg><ion-label>Alunos sumidos</ion-label>
-            </ion-item>
+          @for (aba of abas(); track aba.tab) {
+            @if (aba.tab !== 'perfil') {
+              <ion-item button detail="false" [routerLink]="'/app/' + aba.tab" routerLinkActive="ativo">
+                <span slot="start" class="icone"><ng-container *ngTemplateOutlet="icone; context: { $implicit: aba.icone }" /></span>
+                <ion-label>{{ aba.rotulo }}</ion-label>
+                @if (aba.contador; as contador) {
+                  @if (contador() > 0) {
+                    <ion-badge slot="end" [attr.aria-label]="contador() + ' ' + aba.unidade">{{ contador() }}</ion-badge>
+                  }
+                }
+              </ion-item>
+            }
           }
         </ion-list>
 
@@ -57,23 +52,19 @@
   </ion-menu>
 
   <div class="ion-page" id="conteudo">
-    <ion-tabs>
+    <ion-tabs (ionTabsDidChange)="aoTrocarAba()">
       <ion-tab-bar slot="bottom">
-        <ion-tab-button tab="inicio">
-          <svg lucideHouse aria-hidden="true"></svg><ion-label>Início</ion-label>
-        </ion-tab-button>
-        <ion-tab-button tab="aulas">
-          <svg lucideCalendarDays aria-hidden="true"></svg><ion-label>Aulas</ion-label>
-        </ion-tab-button>
-        <ion-tab-button tab="presenca">
-          <svg lucideCircleCheck aria-hidden="true"></svg><ion-label>Presença</ion-label>
-        </ion-tab-button>
-        <ion-tab-button tab="financeiro">
-          <svg lucideWallet aria-hidden="true"></svg><ion-label>Financeiro</ion-label>
-        </ion-tab-button>
-        <ion-tab-button tab="perfil">
-          <svg lucideUser aria-hidden="true"></svg><ion-label>Perfil</ion-label>
-        </ion-tab-button>
+        @for (aba of abas(); track aba.tab) {
+          <ion-tab-button [tab]="aba.tab">
+            <ng-container *ngTemplateOutlet="icone; context: { $implicit: aba.icone }" />
+            <ion-label>{{ aba.rotulo }}</ion-label>
+            @if (aba.contador; as contador) {
+              @if (contador() > 0) {
+                <ion-badge [attr.aria-label]="contador() + ' ' + aba.unidade">{{ contador() }}</ion-badge>
+              }
+            }
+          </ion-tab-button>
+        }
       </ion-tab-bar>
     </ion-tabs>
   </div>

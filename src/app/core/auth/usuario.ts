@@ -12,3 +12,7 @@ export const ROTULO_PERFIL: Record<Perfil, string> = {
   PROFESSOR: 'Professor',
   DONO: 'Dono'
 };
+
+export function rotaInicial(perfil: Perfil | undefined): string {
+  return perfil === 'DONO' ? '/app/chamada' : '/app/inicio';
+}

@@ -49,3 +49,12 @@ export function contarChamadas(page: Page, metodo: string, caminho: string): () 
   });
   return () => total;
 }
+
+export async function entrarComoDono(page: Page, email: string, senha: string): Promise<void> {
+  await entrar(page, email, senha);
+  await expect(page).toHaveURL(/\/app\/chamada$/);
+}
+
+export async function irParaAba(page: Page, nome: string): Promise<void> {
+  await page.locator('ion-menu ion-item, ion-tab-button').filter({ hasText: nome }).locator('visible=true').first().click();
+}

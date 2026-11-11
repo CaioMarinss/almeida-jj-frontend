@@ -1,62 +1,37 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of, Subject, throwError } from 'rxjs';
-import { AlunoGraduacao, Categoria, Faixa } from '../../shared/graduacao/graduacao.model';
-import { AtualAlterada, GraduacaoService } from '../../shared/graduacao/graduacao.service';
+import { of, throwError } from 'rxjs';
+import { ContadoresDonoService } from '../../core/dono/contadores-dono.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Apto, Faixa, ListaAptos } from '../../shared/graduacao/graduacao.model';
+import { GraduacaoService } from '../../shared/graduacao/graduacao.service';
 import { criarNotificador } from '../auth/testes-auth';
 import { provedoresApp } from '../testes-app';
 import { GraduacaoComponent } from './graduacao.component';
 
-function faixa(id: number, categoria: Categoria, descricao: string): Faixa {
-  return { id, codigo: `F${id}`, descricao, categoria, corPrincipal: '#fff', corSecundaria: null, grauMin: 0, grauMax: 4 };
+const BRANCA: Faixa = { id: 1, codigo: 'B', descricao: 'Branca', categoria: 'ADULTO', corPrincipal: '#fff', corSecundaria: null, grauMin: 0, grauMax: 4 };
+
+function apto(id: number, nome: string): Apto {
+  return { id, nome, atual: { faixa: BRANCA, grau: 1 }, contadas: 34, minimo: 30, apto: true, sugestao: null, exame: null, graduado: false };
 }
 
-const FAIXAS: Faixa[] = [
-  ...Array.from({ length: 12 }, (_, i) => faixa(i + 1, 'INFANTIL', `Infantil ${i + 1}`)),
-  ...Array.from({ length: 5 }, (_, i) => faixa(i + 13, 'ADULTO', `Adulto ${i + 1}`)),
-  ...Array.from({ length: 3 }, (_, i) => faixa(i + 18, 'MESTRE', `Mestre ${i + 1}`))
-];
-
-function aluno(id: number, nome: string, atual: AlunoGraduacao['atual'] = null): AlunoGraduacao {
-  return { id, nome, email: `a${id}@x.com`, perfil: id === 1 ? 'PROFESSOR' : 'ALUNO', atual };
-}
-
-const NOMES = ['Iara', 'Hugo', 'Gabi', 'Fabio', 'Elisa', 'Davi', 'Cris', 'Beto', 'Ana'];
-
-function nove(): AlunoGraduacao[] {
-  return NOMES.map((nome, i) => aluno(10 + i, nome));
-}
+const LISTA: ListaAptos = {
+  evento: { data: '2026-12-14', minimoGrau: 30, minimoFaixa: 60 },
+  grau: [apto(2, 'Bia')],
+  faixa: []
+};
 
 describe('GraduacaoComponent', () => {
   let service: jasmine.SpyObj<GraduacaoService>;
-  let notificador: ReturnType<typeof criarNotificador>;
+  let contadores: jasmine.SpyObj<ContadoresDonoService>;
   let fixture: ComponentFixture<GraduacaoComponent>;
-  let alteracoes: Subject<AtualAlterada>;
 
-  const cmp = (): GraduacaoComponent => fixture.componentInstance;
   const el = (): HTMLElement => fixture.nativeElement;
-  const linhas = (): NodeListOf<HTMLElement> => el().querySelectorAll('li.aluno');
-  const nomes = (): string[] => Array.from(linhas()).map(l => l.querySelector('strong')?.textContent?.trim() ?? '');
-  const texto = (): string => el().textContent ?? '';
-
-  function digitar(valor: string): void {
-    const campo = el().querySelector<HTMLInputElement>('input[type="search"]')!;
-    campo.value = valor;
-    campo.dispatchEvent(new Event('input'));
+  const botao = (rotulo: string): HTMLElement | undefined =>
+    Array.from(el().querySelectorAll<HTMLElement>('ajj-botao')).find((b) => b.textContent?.trim() === rotulo);
+  const clicar = (rotulo: string): void => {
+    botao(rotulo)!.querySelector('ion-button')!.click();
     fixture.detectChanges();
-  }
-
-  function filtrar(valor: string): void {
-    const select = el().querySelector<HTMLSelectElement>('select')!;
-    select.value = valor;
-    select.dispatchEvent(new Event('change'));
-    fixture.detectChanges();
-  }
-
-  function pagina(rotulo: 'Anterior' | 'Próxima'): void {
-    const botao = Array.from(el().querySelectorAll('ajj-paginacao ajj-botao')).find(b => b.textContent?.trim() === rotulo)!;
-    botao.querySelector('ion-button')!.click();
-    fixture.detectChanges();
-  }
+  };
 
   function criar(): void {
     fixture = TestBed.createComponent(GraduacaoComponent);
@@ -67,256 +42,102 @@ describe('GraduacaoComponent', () => {
   beforeEach(() => {
     jasmine.clock().install();
     jasmine.clock().mockDate(new Date('2026-11-07T15:00:00Z'));
-    notificador = criarNotificador();
-    alteracoes = new Subject<AtualAlterada>();
-    service = jasmine.createSpyObj<GraduacaoService>('GraduacaoService', ['alunos', 'faixas', 'proxima', 'historicoDe', 'aptos'], {
-      atualAlterada$: alteracoes.asObservable()
-    });
-    service.historicoDe.and.returnValue(of([]));
-    service.aptos.and.returnValue(throwError(() => new Error('sem evento')));
-    service.proxima.and.returnValue(of(null));
-    service.faixas.and.returnValue(of(FAIXAS));
-    service.alunos.and.returnValue(of([aluno(2, 'Bia'), aluno(1, 'Ana')]));
+    service = jasmine.createSpyObj<GraduacaoService>('GraduacaoService', ['proxima', 'aptos', 'faixas', 'agendar']);
+    service.proxima.and.returnValue(of({ data: '2026-12-14', minimoGrau: 30, minimoFaixa: 60 }));
+    service.aptos.and.returnValue(of(LISTA));
+    service.faixas.and.returnValue(of([BRANCA]));
+    contadores = jasmine.createSpyObj<ContadoresDonoService>('ContadoresDonoService', ['atualizar']);
+    contadores.atualizar.and.resolveTo();
     TestBed.configureTestingModule({
       imports: [GraduacaoComponent],
-      providers: [...provedoresApp(notificador), { provide: GraduacaoService, useValue: service }]
+      providers: [
+        ...provedoresApp(criarNotificador()),
+        { provide: GraduacaoService, useValue: service },
+        { provide: ContadoresDonoService, useValue: contadores }
+      ]
     });
   });
 
   afterEach(() => jasmine.clock().uninstall());
 
-  it('carrega a lista uma vez e pagina em 7 sem nova requisição', () => {
-    service.alunos.and.returnValue(of(nove()));
+  it('mostra o painel do evento, o resumo e a lista na própria tela', () => {
     criar();
 
-    expect(nomes()).toEqual(['Ana', 'Beto', 'Cris', 'Davi', 'Elisa', 'Fabio', 'Gabi']);
-    expect(texto()).toContain('Página 1 de 2');
-    expect(texto()).toContain('9 alunos');
-
-    pagina('Próxima');
-
-    expect(nomes()).toEqual(['Hugo', 'Iara']);
-    expect(texto()).toContain('Página 2 de 2');
-    pagina('Anterior');
-    expect(nomes().length).toBe(7);
-    expect(service.alunos).toHaveBeenCalledTimes(1);
+    expect(el().textContent).toContain('Próxima graduação');
+    expect(el().textContent).toContain('14/12');
+    expect(el().textContent).toContain('1 apto · 0 exames feitos · 0 graduados');
+    expect(el().querySelectorAll('li.linha').length).toBe(1);
+    expect(el().querySelector('ion-segment')).not.toBeNull();
+    expect(botao('Ver aptos')).toBeUndefined();
   });
 
-  it('pede os alunos ao servidor uma única vez, sem parâmetros', () => {
+  it('não mostra mais busca, filtro de faixa nem lista de alunos', () => {
     criar();
-    digitar('an');
-    filtrar('sem');
 
-    expect(service.alunos).toHaveBeenCalledTimes(1);
-    expect(service.alunos.calls.mostRecent().args).toEqual([]);
+    expect(el().querySelector('input[type="search"]')).toBeNull();
+    expect(el().querySelector('li.aluno')).toBeNull();
   });
 
-  it('ordena por nome', () => {
+  it('semEventoMostraEstadoVazio e o botão abre o Alterar', () => {
+    service.proxima.and.returnValue(of(null));
+    service.aptos.and.returnValue(throwError(() => new HttpErrorResponse({ status: 404, error: { codigo: 'ERR033' } })));
     criar();
 
-    expect(nomes()).toEqual(['Ana', 'Bia']);
-  });
-
-  it('contador usa o singular', () => {
-    service.alunos.and.returnValue(of([aluno(1, 'Ana')]));
-    criar();
-
-    expect(texto()).toContain('1 aluno');
-    expect(texto()).not.toContain('1 alunos');
-  });
-
-  it('busca por trecho sem acento nem maiúscula, e volta à página 1', () => {
-    service.alunos.and.returnValue(of([...nove(), aluno(30, 'Conceição')]));
-    criar();
-    pagina('Próxima');
-
-    digitar('CONCEICAO');
-
-    expect(nomes()).toEqual(['Conceição']);
-    expect(texto()).toContain('1 aluno');
-    digitar('');
-    expect(texto()).toContain('Página 1 de 2');
-  });
-
-  it('filtro de faixa e Sem graduação funcionam na memória', () => {
-    service.alunos.and.returnValue(
-      of([aluno(1, 'Ana', { faixa: FAIXAS[12], grau: 2 }), aluno(2, 'Bia'), aluno(3, 'Caio', { faixa: FAIXAS[13], grau: 0 })])
-    );
-    criar();
-
-    filtrar('sem');
-    expect(nomes()).toEqual(['Bia']);
-    filtrar('13');
-    expect(nomes()).toEqual(['Ana']);
-    filtrar('14');
-    expect(nomes()).toEqual(['Caio']);
-    filtrar('todas');
-    expect(nomes()).toEqual(['Ana', 'Bia', 'Caio']);
-    expect(service.alunos).toHaveBeenCalledTimes(1);
-  });
-
-  it('mudar o filtro volta para a página 1', () => {
-    service.alunos.and.returnValue(of(nove()));
-    criar();
-    pagina('Próxima');
-
-    filtrar('sem');
-
-    expect(texto()).toContain('Página 1 de 2');
-    expect(nomes().length).toBe(7);
-  });
-
-  it('linhas mostram barra e texto da faixa, ou Sem graduação, sem chip de cargo', () => {
-    service.alunos.and.returnValue(of([aluno(1, 'Ana', { faixa: FAIXAS[12], grau: 2 }), aluno(2, 'Bia')]));
-    criar();
-
-    const [ana, bia] = Array.from(linhas());
-    expect(ana.getAttribute('data-email')).toBe('a1@x.com');
-    expect(ana.querySelector('ajj-barra-faixa')).not.toBeNull();
-    expect(ana.textContent).toContain('Adulto 1 · 2 graus');
-    expect(bia.querySelector('ajj-barra-faixa')).toBeNull();
-    expect(bia.textContent).toContain('Sem graduação');
-    expect(el().querySelector('li.aluno .ajj-chip')).toBeNull();
-  });
-
-  it('não existe mais Carregar mais', () => {
-    service.alunos.and.returnValue(of(nove()));
-    criar();
-
-    expect(texto()).not.toContain('Carregar mais');
-    expect(el().querySelector('.mais')).toBeNull();
-  });
-
-  it('filtro tem Todas, Sem graduação e as 20 faixas agrupadas', () => {
-    criar();
-
-    const select = el().querySelector('select')!;
-    expect(el().querySelector(`label[for="${select.id}"]`)).not.toBeNull();
-    const opcoes = Array.from(select.querySelectorAll('option')).map(o => o.textContent?.trim());
-    expect(opcoes.slice(0, 2)).toEqual(['Todas', 'Sem graduação']);
-    expect(Array.from(select.querySelectorAll('optgroup')).map(g => g.label)).toEqual(['Infantil', 'Adulto', 'Mestres']);
-    expect(select.querySelectorAll('optgroup option').length).toBe(20);
-  });
-
-  it('mostra erro com Tentar de novo e recarrega', () => {
-    service.alunos.and.returnValues(throwError(() => new Error('x')), of([aluno(2, 'Bia')]));
-    criar();
-
-    expect(cmp().erroCarga()).toBeTrue();
-    expect(notificador.erroDaApi).toHaveBeenCalled();
-    const tentar = Array.from(el().querySelectorAll('ajj-botao')).find(b => b.textContent?.includes('Tentar de novo'))!;
-    tentar.querySelector('ion-button')!.click();
+    expect(el().textContent).toContain('Nenhuma graduação agendada');
+    expect(el().querySelector('input[type="date"]')).toBeNull();
+    const vazio = el().querySelector<HTMLElement>('.vazio')!;
+    Array.from(vazio.querySelectorAll<HTMLElement>('ajj-botao')).find((b) => b.textContent?.trim() === 'Alterar')!
+      .querySelector('ion-button')!
+      .click();
     fixture.detectChanges();
 
-    expect(cmp().erroCarga()).toBeFalse();
-    expect(linhas().length).toBe(1);
+    expect(el().querySelector('input[type="date"]')).not.toBeNull();
   });
 
-  it('mostra estado vazio sem resultados', () => {
-    service.alunos.and.returnValue(of([]));
+  it('alterar a data recarrega os aptos e os contadores', () => {
+    service.agendar.and.returnValue(of({ data: '2026-12-20', minimoGrau: 30, minimoFaixa: 60 }));
     criar();
-
-    expect(linhas().length).toBe(0);
-    expect(texto()).toContain('Nenhum aluno encontrado');
-  });
-
-  it('Ver aptos abre o painel de aptos e fecha ao ser dispensado', () => {
-    criar();
-    const modais = el().querySelectorAll<HTMLElement & { isOpen: boolean }>('ion-modal');
-    const modal = modais[modais.length - 1];
-    const ver = Array.from(el().querySelectorAll('ajj-botao')).find(b => b.textContent?.trim() === 'Ver aptos')!;
-    expect(modal.isOpen).toBeFalse();
-
-    ver.querySelector('ion-button')!.click();
+    clicar('Alterar');
+    const campo = el().querySelector<HTMLInputElement>('input[type="date"]')!;
+    campo.value = '2026-12-20';
+    campo.dispatchEvent(new Event('input'));
     fixture.detectChanges();
-    expect(modal.isOpen).toBeTrue();
-
-    modal.dispatchEvent(new CustomEvent('didDismiss'));
-    fixture.detectChanges();
-    expect(modal.isOpen).toBeFalse();
-  });
-
-  it('abrir seleciona o aluno e a linha abre ao clicar', () => {
-    criar();
-
-    linhas()[1].querySelector('button')!.click();
-
-    expect(cmp().selecionado()?.id).toBe(2);
-  });
-
-  it('a atual anunciada pelo serviço atualiza a linha, mesmo com o painel fechado', () => {
-    criar();
-
-    alteracoes.next({ idAluno: 2, atual: { faixa: FAIXAS[13], grau: 1 } });
+    el().querySelector('form')!.dispatchEvent(new Event('submit'));
     fixture.detectChanges();
 
-    expect(cmp().selecionado()).toBeNull();
-    expect(linhas()[1].textContent).toContain('Adulto 2 · 1 grau');
+    expect(service.aptos).toHaveBeenCalledTimes(2);
+    expect(contadores.atualizar).toHaveBeenCalledTimes(1);
   });
 
-  it('a atual anunciada atualiza também o aluno selecionado do modal', () => {
+  it('ao voltar para a aba recarrega os aptos e a próxima graduação, menos na primeira entrada', () => {
     criar();
-    cmp().abrir(cmp().alunos()[0]);
+    fixture.componentInstance.ionViewWillEnter();
+    expect(service.aptos).toHaveBeenCalledTimes(1);
+    expect(service.proxima).toHaveBeenCalledTimes(1);
 
-    alteracoes.next({ idAluno: 2, atual: { faixa: FAIXAS[13], grau: 1 } });
+    service.aptos.and.returnValue(of({ ...LISTA, grau: [apto(2, 'Bia'), apto(3, 'Caio')] }));
+    fixture.componentInstance.ionViewWillEnter();
+    fixture.detectChanges();
 
-    expect(cmp().selecionado()?.atual).toEqual({ faixa: FAIXAS[13], grau: 1 });
+    expect(service.aptos).toHaveBeenCalledTimes(2);
+    expect(service.proxima).toHaveBeenCalledTimes(2);
+    expect(el().querySelectorAll('li.linha').length).toBe(2);
   });
 
-  it('o modal abre com o aluno selecionado e fecha ao ser dispensado', () => {
+  it('ao voltar em outro dia libera o Graduou na data do evento', () => {
+    service.aptos.and.returnValue(of({ ...LISTA, grau: [{ ...apto(2, 'Bia'), exame: { aprovado: true, nota: 9, observacao: null } }] }));
+    jasmine.clock().mockDate(new Date('2026-12-13T15:00:00Z'));
     criar();
-    const modal = el().querySelector<HTMLElement & { isOpen: boolean }>('ion-modal')!;
-    expect(modal.isOpen).toBeFalse();
+    const ion = (): HTMLElement & { disabled: boolean } => botao('Graduou')!.querySelector<HTMLElement & { disabled: boolean }>('ion-button')!;
+    expect(ion().disabled).toBeTrue();
 
-    cmp().abrir(cmp().alunos()[0]);
+    jasmine.clock().mockDate(new Date('2026-12-14T15:00:00Z'));
+    fixture.componentInstance.ionViewWillEnter();
     fixture.detectChanges();
-    expect(modal.isOpen).toBeTrue();
-
-    modal.dispatchEvent(new CustomEvent('didDismiss'));
-    fixture.detectChanges();
-
-    expect(cmp().selecionado()).toBeNull();
-    expect(modal.isOpen).toBeFalse();
-  });
-
-  it('fechar limpa o aluno selecionado', () => {
-    criar();
-    cmp().abrir(cmp().alunos()[0]);
-
-    cmp().fechar();
-
-    expect(cmp().selecionado()).toBeNull();
-  });
-
-  it('atualizarLinha troca a graduação só daquela linha e a remove com null', () => {
-    criar();
-
-    cmp().atualizarLinha(2, { faixa: FAIXAS[13], grau: 1 });
-    fixture.detectChanges();
-    expect(linhas()[1].textContent).toContain('Adulto 2 · 1 grau');
-    expect(linhas()[0].textContent).toContain('Sem graduação');
-
-    cmp().atualizarLinha(2, null);
-    fixture.detectChanges();
-    expect(linhas()[1].textContent).toContain('Sem graduação');
-  });
-
-  it('após atualizar uma linha, ela continua visível e a página e o contador não mudam', () => {
-    service.alunos.and.returnValue(of(nove()));
-    criar();
-    filtrar('sem');
-
-    cmp().atualizarLinha(18, { faixa: FAIXAS[13], grau: 1 });
+    fixture.componentInstance.ionViewWillEnter();
     fixture.detectChanges();
 
-    expect(nomes()).toContain('Ana');
-    expect(nomes().length).toBe(7);
-    expect(texto()).toContain('9 alunos');
-    expect(texto()).toContain('Página 1 de 2');
-
-    digitar('');
-    expect(nomes().length).toBe(7);
-    expect(texto()).toContain('8 alunos');
-    expect(texto()).toContain('Página 1 de 2');
+    expect(ion().disabled).toBeFalse();
+    expect(el().textContent).not.toContain('Disponível em');
   });
 });

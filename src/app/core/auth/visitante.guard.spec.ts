@@ -25,4 +25,12 @@ describe('visitanteGuard', () => {
 
     expect(TestBed.inject(Router).serializeUrl(resultado as UrlTree)).toBe('/app/inicio');
   });
+
+  it('com sessão do dono leva para a chamada', () => {
+    TestBed.inject(SessionService).iniciar('TK', { id: 1, nome: 'Ana', email: 'a@x.com', perfil: 'DONO' });
+
+    const resultado = executar();
+
+    expect(TestBed.inject(Router).serializeUrl(resultado as UrlTree)).toBe('/app/chamada');
+  });
 });

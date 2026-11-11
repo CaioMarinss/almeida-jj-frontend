@@ -34,3 +34,7 @@ const FORMATADOR_SAO_PAULO = new Intl.DateTimeFormat('en-CA', {
 export function hojeEmSaoPaulo(): string {
   return FORMATADOR_SAO_PAULO.format(new Date());
 }
+
+export function formatarNota(nota: number): string {
+  return nota.toFixed(1).replace('.', ',');
+}

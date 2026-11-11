@@ -19,7 +19,7 @@ import {
   removerAvulsa,
   removerGrade
 } from '../suporte/presenca';
-import { entrar, esperarAlerta, esperarToast, responderAlerta } from '../suporte/telas';
+import { entrar, entrarComoDono, esperarAlerta, responderAlerta } from '../suporte/telas';
 
 const NOMES_DIAS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
 const MOTIVO_AULA_FECHADA = 'a aula de teste só tem janela fechada depois de 01:00 (horário de São Paulo)';
@@ -35,6 +35,11 @@ async function entrarNoInicio(page: Page, conta: Conta): Promise<void> {
   await sairDaSessao(page);
   await entrar(page, conta.email, conta.senha);
   await expect(page).toHaveURL(/\/app\/inicio$/);
+}
+
+async function entrarNaChamada(page: Page, conta: Conta): Promise<void> {
+  await sairDaSessao(page);
+  await entrarComoDono(page, conta.email, conta.senha);
 }
 
 async function criarAlunoNomeado(request: APIRequestContext, prefixo: string): Promise<Conta> {
@@ -155,96 +160,64 @@ test.describe('Presença', () => {
     }
   });
 
-  test('o professor inclui e tira um aluno da chamada dentro do prazo', async ({ page, request }) => {
+  test('o dono marca e desmarca na chamada em lista', async ({ page, request }) => {
     const dono = await criarDono(request);
-    const professor = await criarContaAtiva(request);
-    await promoverProfessor(request, dono, professor);
     const aluno = await criarAlunoNomeado(request, 'Chamada');
     const aula = exigirAula(await avulsaAberta(request, dono), MOTIVO_SEM_AULA);
     const { id, data } = aula;
 
     try {
-      await entrarNoInicio(page, professor);
+      await entrarNaChamada(page, dono);
       await abrirChamada(page, data, id);
 
-      await expect(page.getByText(/Professor pode ajustar até \d{2}\/\d{2}/)).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'Presentes · 0' })).toBeVisible();
       await expect(page.getByText('Ninguém registrado nesta aula.')).toBeVisible();
-      await page.getByRole('button', { name: '+ Incluir aluno', exact: true }).click();
-      await page.locator('#busca-incluir').fill(aluno.nome);
-      await page.locator('app-incluir-aluno button.pessoa').filter({ hasText: aluno.nome }).click();
-      await page.getByRole('button', { name: 'Incluir 1 aluno', exact: true }).click();
-      await esperarToast(page, `${aluno.nome} entrou na chamada.`);
+      await page.locator('#busca-chamada').fill(aluno.nome);
+      await page.locator('section.outros button.linha').filter({ hasText: aluno.nome }).click();
 
-      const linha = page.locator('li.presente').filter({ hasText: aluno.nome });
-      await expect(linha).toContainText('incluída pelo professor');
-      await expect(page.locator(`button.aula[data-id="${id}"] .quantidade`)).toHaveText('1 presença');
+      await expect(page.getByRole('heading', { name: 'Presentes · 1' })).toBeVisible();
+      const presente = page.locator('section.presentes button.linha').filter({ hasText: aluno.nome });
+      await expect(presente).toContainText('incluído por você');
+      await expect(presente).toHaveAttribute('aria-pressed', 'true');
+      await expect(page.locator('section.outros button.linha').filter({ hasText: aluno.nome })).toHaveCount(0);
+      await expect(page.locator(`button.aula[data-id="${id}"] .quantidade`)).toHaveText('1 pres.');
 
-      await page.getByRole('button', { name: `Tirar ${aluno.nome}`, exact: true }).click();
-      await esperarAlerta(page, `Tirar ${aluno.nome} desta aula?`);
+      await presente.click();
+      await esperarAlerta(page, `Tirar a presença de ${aluno.nome}?`);
       await responderAlerta(page, 'Tirar');
-      await esperarToast(page, `${aluno.nome} saiu da chamada.`);
-      await expect(page.getByText('Ninguém registrado nesta aula.')).toBeVisible();
-      await expect(page.locator(`button.aula[data-id="${id}"] .quantidade`)).toHaveText('0 presenças');
+      await expect(page.getByRole('heading', { name: 'Presentes · 0' })).toBeVisible();
+      await expect(page.locator('section.outros button.linha').filter({ hasText: aluno.nome })).toBeVisible();
+      await expect(page.locator(`button.aula[data-id="${id}"] .quantidade`)).toHaveText('0 pres.');
     } finally {
       await removerAvulsa(request, dono, aula);
     }
   });
 
-  test('o professor inclui dois alunos de uma vez', async ({ page, request }) => {
+  test('o dono inclui dois alunos em seguida na mesma aula', async ({ page, request }) => {
     const dono = await criarDono(request);
-    const professor = await criarContaAtiva(request);
-    await promoverProfessor(request, dono, professor);
     const prefixo = `Lote${sufixoUnico()}`;
     const primeiro = nomear(await criarContaAtiva(request), `${prefixo} Ana`);
     const segundo = nomear(await criarContaAtiva(request), `${prefixo} Bia`);
     const aula = exigirAula(await avulsaAberta(request, dono), MOTIVO_SEM_AULA);
 
     try {
-      await entrarNoInicio(page, professor);
+      await entrarNaChamada(page, dono);
       await abrirChamada(page, aula.data, aula.id);
-      await page.getByRole('button', { name: '+ Incluir aluno', exact: true }).click();
-      await page.locator('#busca-incluir').fill(prefixo);
-      await page.locator('app-incluir-aluno button.pessoa').filter({ hasText: primeiro.nome }).click();
-      await page.locator('app-incluir-aluno button.pessoa').filter({ hasText: segundo.nome }).click();
-      await page.getByRole('button', { name: 'Incluir 2 alunos', exact: true }).click();
-      await esperarToast(page, '2 alunos entraram na chamada.');
+      await page.locator('#busca-chamada').fill(prefixo);
+      await page.locator('section.outros button.linha').filter({ hasText: primeiro.nome }).click();
+      await expect(page.getByRole('heading', { name: 'Presentes · 1' })).toBeVisible();
+      await page.locator('section.outros button.linha').filter({ hasText: segundo.nome }).click();
 
-      await expect(page.locator('li.presente').filter({ hasText: prefixo })).toHaveCount(2);
-      await expect(page.locator(`button.aula[data-id="${aula.id}"] .quantidade`)).toHaveText('2 presenças');
+      await expect(page.getByRole('heading', { name: 'Presentes · 2' })).toBeVisible();
+      await expect(page.locator('section.presentes button.linha').filter({ hasText: prefixo })).toHaveCount(2);
+      await expect(page.locator(`button.aula[data-id="${aula.id}"] .quantidade`)).toHaveText('2 pres.');
     } finally {
       descartarAulaPorSql(aula);
     }
   });
 
-  test('o dono vê quem sumiu há 14 dias ou mais, e não quem treinou na semana passada', async ({ page, request }) => {
+  test('o dono edita a chamada da semana passada e tira a presença depois de confirmar', async ({ page, request }) => {
     const dono = await criarDono(request);
-    const sumido = await criarAlunoNomeado(request, 'Sumido');
-    const presente = await criarAlunoNomeado(request, 'Presente');
-    const idSumido = await idDe(request, sumido);
-    const idPresente = await idDe(request, presente);
-    const antiga = dataDaSemana(-3, 1);
-    inserirPresencaNaGrade(idSumido, 1, '18:00', antiga);
-    inserirPresencaNaGrade(idPresente, 1, '18:00', antiga);
-    inserirPresencaNaGrade(idPresente, 1, '18:00', dataDaSemana(-1, 1));
-    const dias = Math.round((Date.parse(hojeEmSaoPaulo()) - Date.parse(antiga)) / 86_400_000);
-
-    try {
-      await entrarNoInicio(page, dono);
-      await page.locator('app-area-dono').getByRole('button', { name: 'Sumidos', exact: true }).click();
-      await expect(page).toHaveURL(/\/app\/sumidos$/);
-      const linha = page.locator('li.sumido').filter({ hasText: sumido.nome });
-      await expect(linha).toContainText(`Último treino ${diaMes(antiga)} · há ${dias} dias`);
-      await expect(page.locator('li.sumido').filter({ hasText: presente.nome })).toHaveCount(0);
-    } finally {
-      descartarPresencasDoAluno(idSumido);
-      descartarPresencasDoAluno(idPresente);
-    }
-  });
-
-  test('a chamada da semana passada é só leitura para o professor e editável para o dono', async ({ page, request }) => {
-    const dono = await criarDono(request);
-    const professor = await criarContaAtiva(request);
-    await promoverProfessor(request, dono, professor);
     const aluno = await criarAlunoNomeado(request, 'Passada');
     const data = dataDaSemana(-1, 1);
     const idAluno = await idDe(request, aluno);
@@ -252,43 +225,29 @@ test.describe('Presença', () => {
     const idAula = await idDaGrade(request, dono, 1, '18:00');
 
     try {
-      await entrarNoInicio(page, professor);
+      await entrarNaChamada(page, dono);
       await abrirChamada(page, data, idAula);
-      await expect(page.locator('li.presente').filter({ hasText: aluno.nome })).toContainText('contada');
-      await expect(page.getByText('Fora do prazo: estas presenças só podem ser consultadas.')).toBeVisible();
-      await expect(page.getByRole('button', { name: `Tirar ${aluno.nome}`, exact: true })).toHaveCount(0);
-      await expect(page.getByRole('button', { name: '+ Incluir aluno', exact: true })).toHaveCount(0);
-
-      await entrarNoInicio(page, dono);
-      await abrirChamada(page, data, idAula);
+      await page.locator('#busca-chamada').fill(aluno.nome);
+      const presente = page.locator('section.presentes button.linha').filter({ hasText: aluno.nome });
+      await expect(presente).toContainText('marcou Vou');
       await expect(page.getByText('Fora do prazo: estas presenças só podem ser consultadas.')).toHaveCount(0);
-      await expect(page.getByRole('button', { name: '+ Incluir aluno', exact: true })).toBeVisible();
-      await page.getByRole('button', { name: `Tirar ${aluno.nome}`, exact: true }).click();
+      await expect(presente).toBeEnabled();
+
+      await presente.click();
+      await esperarAlerta(page, `Tirar a presença de ${aluno.nome}?`);
       await responderAlerta(page, 'Tirar');
-      await esperarToast(page, `${aluno.nome} saiu da chamada.`);
-      await expect(page.locator('li.presente').filter({ hasText: aluno.nome })).toHaveCount(0);
+      await expect(presente).toHaveCount(0);
+      await expect(page.locator('section.outros button.linha').filter({ hasText: aluno.nome })).toBeVisible();
     } finally {
       descartarPresencasDoAluno(idAluno);
     }
   });
 
-  test('as setas do Controle de presença param no prazo de cada um', async ({ page, request }) => {
+  test('as setas da Presenças param no prazo do dono', async ({ page, request }) => {
     const dono = await criarDono(request);
-    const professor = await criarContaAtiva(request);
-    await promoverProfessor(request, dono, professor);
     const anterior = page.getByRole('button', { name: 'Semana anterior', exact: true });
     const proxima = page.getByRole('button', { name: 'Próxima semana', exact: true });
     const intervalo = page.locator('.semana .intervalo');
-
-    await entrarNoInicio(page, professor);
-    await page.goto('/app/chamada');
-    await expect(intervalo).toHaveText('Esta semana');
-    await expect(proxima).toBeDisabled();
-    await anterior.click();
-    await expect(intervalo).toHaveText(`${diaMes(dataDaSemana(-1, 1))} a ${diaMes(dataDaSemana(-1, 7))}`);
-    await expect(anterior).toBeDisabled();
-    await proxima.click();
-    await expect(intervalo).toHaveText('Esta semana');
 
     const prazo = await request.get(`${URL_API}/presencas/prazo`, { headers: await autorizacao(request, dono) });
     expect(prazo.status()).toBe(200);
@@ -296,14 +255,16 @@ test.describe('Presença', () => {
     const semanaDoPrazo = ajustaDesde === null ? dataDaSemana(-12, 1) : somarDias(ajustaDesde, 1 - diaDaSemanaIso(ajustaDesde));
     const primeira = semanaDoPrazo < dataDaSemana(-1, 1) ? semanaDoPrazo : dataDaSemana(-1, 1);
 
-    await entrarNoInicio(page, dono);
-    await page.goto('/app/chamada');
+    await entrarNaChamada(page, dono);
     await expect(intervalo).toHaveText('Esta semana');
+    await expect(proxima).toBeDisabled();
     for (let semana = dataDaSemana(0, 1); semana > primeira; semana = somarDias(semana, -7)) {
       await anterior.click();
     }
     await expect(intervalo).toHaveText(`${diaMes(primeira)} a ${diaMes(somarDias(primeira, 6))}`);
     await expect(anterior).toBeDisabled();
+    await proxima.click();
+    await expect(proxima).toBeEnabled();
   });
 
   test('o dono inclui o aluno em uma aula da semana passada e a origem aparece como incluída pelo dono', async ({ page, request }) => {
@@ -314,14 +275,11 @@ test.describe('Presença', () => {
     const idAula = await idDaGrade(request, dono, 2, '18:00');
 
     try {
-      await entrarNoInicio(page, dono);
+      await entrarNaChamada(page, dono);
       await abrirChamada(page, data, idAula);
-      await page.getByRole('button', { name: '+ Incluir aluno', exact: true }).click();
-      await page.locator('#busca-incluir').fill(aluno.nome);
-      await page.locator('app-incluir-aluno button.pessoa').filter({ hasText: aluno.nome }).click();
-      await page.getByRole('button', { name: 'Incluir 1 aluno', exact: true }).click();
-      await esperarToast(page, `${aluno.nome} entrou na chamada.`);
-      await expect(page.locator('li.presente').filter({ hasText: aluno.nome })).toContainText('incluída pelo dono');
+      await page.locator('#busca-chamada').fill(aluno.nome);
+      await page.locator('section.outros button.linha').filter({ hasText: aluno.nome }).click();
+      await expect(page.locator('section.presentes button.linha').filter({ hasText: aluno.nome })).toContainText('incluído por você');
 
       await entrarNoInicio(page, aluno);
       await page.goto('/app/presenca');
@@ -370,27 +328,31 @@ test.describe('Presença', () => {
     }
   });
 
-  test('o aluno não vê a Chamada no menu nem na Início e a rota o leva para a Início', async ({ page, request }) => {
-    const aluno = await criarContaAtiva(request);
-
-    await entrarNoInicio(page, aluno);
-    await expect(page.locator('ion-menu ion-item').filter({ hasText: 'Controle de presença' })).toHaveCount(0);
-    await expect(page.locator('section.atalho-chamada')).toHaveCount(0);
-
-    await page.goto('/app/chamada');
-    await expect(page).toHaveURL(/\/app\/inicio$/);
-  });
-
-  test('o professor chega na Chamada pelo atalho da Início', async ({ page, request }) => {
+  test('aluno e professor não têm a Presenças de gestão e a rota os leva para a Início', async ({ page, request }) => {
     const dono = await criarDono(request);
+    const aluno = await criarContaAtiva(request);
     const professor = await criarContaAtiva(request);
     await promoverProfessor(request, dono, professor);
 
-    await entrarNoInicio(page, professor);
-    await page.locator('section.atalho-chamada').getByRole('button', { name: 'Controle de presença', exact: true }).click();
+    for (const conta of [aluno, professor]) {
+      await entrarNoInicio(page, conta);
+      await expect(page.locator('ion-menu ion-item, ion-tab-button').filter({ hasText: /^\s*Presenças\s*$/ })).toHaveCount(0);
+      await expect(page.locator('section.atalho-chamada')).toHaveCount(0);
 
-    await expect(page).toHaveURL(/\/app\/chamada$/);
+      await page.goto('/app/chamada');
+      await expect(page).toHaveURL(/\/app\/inicio$/);
+      await expect(page.getByRole('button', { name: 'Editar grade', exact: true })).toHaveCount(0);
+    }
+  });
+
+  test('o dono entra direto na Presenças e Editar grade leva à grade', async ({ page, request }) => {
+    const dono = await criarDono(request);
+
+    await entrarNaChamada(page, dono);
     await expect(page.getByRole('group', { name: 'Dia da aula' })).toBeVisible();
+    await page.getByRole('button', { name: 'Editar grade', exact: true }).click();
+
+    await expect(page).toHaveURL(/\/app\/grade$/);
   });
 });
 
@@ -429,6 +391,22 @@ test.describe('Presença, só desktop', () => {
     expect((await request.post(base, { headers, data: { idAluno: await idDe(request, alvo) } })).status()).toBe(403);
     expect((await request.delete(`${base}/${await idDe(request, alvo)}`, { headers })).status()).toBe(403);
     expect((await request.get(`${URL_API}/presencas/prazo`, { headers })).status()).toBe(403);
+  });
+
+  test('API: professor não acessa a chamada nem a lista de alunos', async ({ request }) => {
+    const dono = await criarDono(request);
+    const professor = await criarContaAtiva(request);
+    await promoverProfessor(request, dono, professor);
+    const alvo = await criarContaAtiva(request);
+    const headers = await autorizacao(request, professor);
+    const base = `${URL_API}/agenda/${hojeEmSaoPaulo()}/aulas/1/presencas`;
+
+    expect((await request.get(base, { headers })).status()).toBe(403);
+    expect((await request.post(base, { headers, data: { idAluno: await idDe(request, alvo) } })).status()).toBe(403);
+    expect((await request.delete(`${base}/${await idDe(request, alvo)}`, { headers })).status()).toBe(403);
+    expect((await request.get(`${URL_API}/presencas/prazo`, { headers })).status()).toBe(403);
+    expect((await request.get(`${URL_API}/alunos`, { headers })).status()).toBe(403);
+    expect((await request.get(`${URL_API}/alunos/painel`, { headers })).status()).toBe(403);
   });
 
   test('API: professor não vê os sumidos nem as presenças de outro aluno', async ({ request }) => {

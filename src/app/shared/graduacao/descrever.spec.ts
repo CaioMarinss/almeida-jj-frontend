@@ -1,5 +1,5 @@
 import { Faixa } from './graduacao.model';
-import { descreverGraduacao, descreverGrau, formatarDiaMes, formatarMesAno, hojeEmSaoPaulo } from './descrever';
+import { descreverGraduacao, descreverGrau, formatarDiaMes, formatarMesAno, formatarNota, hojeEmSaoPaulo } from './descrever';
 
 const faixa = (descricao: string, categoria: Faixa['categoria']): Faixa => ({
   id: 1,
@@ -50,5 +50,11 @@ describe('descrever', () => {
   it('formata datas sem usar fuso', () => {
     expect(formatarDiaMes('2026-12-14')).toBe('14/12');
     expect(formatarMesAno('2026-03-01')).toBe('03/2026');
+  });
+
+  it('formatarNotaUsaVirgulaEUmaCasa', () => {
+    expect(formatarNota(8.5)).toBe('8,5');
+    expect(formatarNota(10)).toBe('10,0');
+    expect(formatarNota(0)).toBe('0,0');
   });
 });
