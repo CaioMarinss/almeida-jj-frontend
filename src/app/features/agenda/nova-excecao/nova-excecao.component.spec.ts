@@ -63,6 +63,8 @@ describe('NovaExcecaoComponent', () => {
   }
 
   beforeEach(async () => {
+    jasmine.clock().install();
+    jasmine.clock().mockDate(new Date('2026-11-09T15:00:00Z'));
     notificador = criarNotificador();
     salvas = [];
     cancelou = 0;
@@ -86,6 +88,8 @@ describe('NovaExcecaoComponent', () => {
     fixture.componentInstance.cancelar.subscribe(() => cancelou++);
     await atualizar();
   });
+
+  afterEach(() => jasmine.clock().uninstall());
 
   it('começa pela escolha do tipo', () => {
     expect(opcoesTipo()).toEqual(['Cancelar o dia inteiro', 'Cancelar uma aula', 'Aula avulsa']);
