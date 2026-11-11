@@ -126,6 +126,8 @@ describe('ProximaGraduacaoComponent', () => {
   it('agendar chama a API, atualiza o bloco e mostra o toast', () => {
     service.agendar.and.returnValue(of({ data: '2026-12-14', minimoGrau: null, minimoFaixa: null }));
     criar();
+    const alterada = jasmine.createSpy('alterada');
+    fixture.componentInstance.alterada.subscribe(alterada);
     clicar('Alterar');
     escolher('2026-12-14');
     minimos('30', '60');
@@ -134,6 +136,7 @@ describe('ProximaGraduacaoComponent', () => {
     fixture.detectChanges();
 
     expect(service.agendar).toHaveBeenCalledWith('2026-12-14', 30, 60);
+    expect(alterada).toHaveBeenCalledTimes(1);
     expect(textos()).toContain('14/12');
     expect(botao('Alterar')).toBeDefined();
     expect(notificador.sucesso).toHaveBeenCalled();
@@ -143,7 +146,10 @@ describe('ProximaGraduacaoComponent', () => {
     service.proxima.and.returnValue(of({ data: '2026-12-14', minimoGrau: 30, minimoFaixa: 60 }));
     criar();
 
-    expect(textos()).toContain('Mínimo: 30 grau · 60 faixa');
+    const rotulos = Array.from(el().querySelectorAll('dt')).map((d) => d.textContent?.trim());
+    const valores = Array.from(el().querySelectorAll('dd')).map((d) => d.textContent?.trim());
+    expect(rotulos).toEqual(['Mínimo p/ grau', 'Mínimo p/ faixa']);
+    expect(valores).toEqual(['30', '60']);
     expect(textos()).not.toContain('mínimo não definido');
   });
 

@@ -4,28 +4,28 @@
 
 .aptos {
   display: grid;
-  gap: var(--ajj-espaco-4);
-  padding: var(--ajj-espaco-4);
+  gap: var(--ajj-espaco-3);
 }
 
-h2,
 h3,
 p {
   margin: 0;
 }
 
-h2 {
-  font-size: 24px;
+.resumo {
+  font-size: 14px;
 }
 
 .vazio {
   display: grid;
-  gap: var(--ajj-espaco-1, 4px);
+  justify-items: start;
+  gap: var(--ajj-espaco-2);
 }
 
-.trilha {
+.grupo {
   display: grid;
   gap: var(--ajj-espaco-2);
+  margin-top: var(--ajj-espaco-2);
 }
 
 .lista {
@@ -65,8 +65,21 @@ h2 {
 }
 
 .contagem {
-  font-size: 20px;
+  font-size: 16px;
   color: var(--ajj-sucesso);
+}
+
+.selo {
+  font-weight: 600;
+  color: var(--ajj-sucesso);
+
+  &.reprovado {
+    color: var(--ajj-perigo);
+  }
+
+  &.graduado {
+    color: var(--ajj-texto-suave);
+  }
 }
 
 .dica {

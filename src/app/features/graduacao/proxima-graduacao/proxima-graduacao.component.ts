@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, output, signal } from '@angular/core';
 import { Notificador } from '../../../core/notificacao/notificador';
 import { formatarDiaMes, hojeEmSaoPaulo } from '../../../shared/graduacao/descrever';
 import { ProximaGraduacao } from '../../../shared/graduacao/graduacao.model';
@@ -15,6 +15,8 @@ import { BotaoComponent } from '../../../shared/ui/botao/botao.component';
 export class ProximaGraduacaoComponent implements OnInit {
   private readonly service = inject(GraduacaoService);
   private readonly notificador = inject(Notificador);
+
+  readonly alterada = output<void>();
 
   readonly data = signal<string | null>(null);
   readonly carregando = signal(true);
@@ -76,6 +78,7 @@ export class ProximaGraduacaoComponent implements OnInit {
         this.aplicar(agendada);
         this.salvando.set(false);
         this.editando.set(false);
+        this.alterada.emit();
         void this.notificador.sucesso(`Próxima graduação agendada para ${formatarDiaMes(data)}.`);
       },
       error: (erro: unknown) => {
@@ -98,6 +101,7 @@ export class ProximaGraduacaoComponent implements OnInit {
       next: () => {
         this.aplicar(null);
         this.editando.set(false);
+        this.alterada.emit();
         void this.notificador.sucesso('Data da próxima graduação cancelada.');
       },
       error: (erro: unknown) => {

@@ -1,0 +1,109 @@
+.painel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ajj-espaco-3);
+  padding: var(--ajj-espaco-5) var(--ajj-espaco-4) calc(var(--ajj-espaco-4) + env(safe-area-inset-bottom, 0px));
+}
+
+.cabeca {
+  display: grid;
+  gap: 2px;
+}
+
+.acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ajj-espaco-2);
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ajj-espaco-1);
+
+  input,
+  textarea {
+    padding: 0 var(--ajj-espaco-3);
+    border: 1px solid var(--ajj-borda);
+    border-radius: var(--ajj-raio-m);
+    background: var(--ajj-superficie);
+    color: var(--ajj-texto);
+    font: inherit;
+
+    &:focus-visible {
+      outline: 2px solid var(--ajj-primaria);
+      outline-offset: 2px;
+    }
+
+    &[aria-invalid='true'] {
+      border-color: var(--ajj-perigo);
+    }
+  }
+
+  input {
+    min-height: 44px;
+  }
+
+  textarea {
+    padding-top: var(--ajj-espaco-2);
+    padding-bottom: var(--ajj-espaco-2);
+    resize: vertical;
+  }
+}
+
+.erro {
+  color: var(--ajj-perigo);
+}
+
+.opcoes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--ajj-espaco-2);
+}
+
+.opcao {
+  min-height: 44px;
+  border: 1px solid var(--ajj-borda);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ajj-texto);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+
+  &[aria-pressed='true'] {
+    border-color: var(--ajj-primaria);
+    background: var(--ajj-primaria);
+    color: var(--ajj-sobre-primaria);
+  }
+
+  &.reprovado[aria-pressed='true'] {
+    border-color: var(--ajj-perigo);
+    background: var(--ajj-perigo);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ajj-primaria);
+    outline-offset: 2px;
+  }
+}
+
+.graduar {
+  display: flex;
+  align-items: center;
+  gap: var(--ajj-espaco-3);
+  min-height: 44px;
+  padding: var(--ajj-espaco-2) var(--ajj-espaco-3);
+  border-radius: var(--ajj-raio-m);
+  background: var(--ajj-superficie-2);
+  cursor: pointer;
+
+  input {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--ajj-primaria);
+  }
+}

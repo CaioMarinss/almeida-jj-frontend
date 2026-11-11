@@ -61,13 +61,20 @@
             <span class="ajj-rotulo">Próxima graduação</span>
             <strong class="data ajj-numero">{{ formatar(proxima) }}</strong>
           </p>
-          <p class="ajj-suave minimos">
-            @if (minimosDefinidos()) {
-              Mínimo: {{ minimoGrau() }} grau · {{ minimoFaixa() }} faixa
-            } @else {
-              mínimo não definido
-            }
-          </p>
+          @if (minimosDefinidos()) {
+            <dl class="minimos">
+              <div>
+                <dt class="ajj-rotulo">Mínimo p/ grau</dt>
+                <dd class="ajj-numero">{{ minimoGrau() }}</dd>
+              </div>
+              <div>
+                <dt class="ajj-rotulo">Mínimo p/ faixa</dt>
+                <dd class="ajj-numero">{{ minimoFaixa() }}</dd>
+              </div>
+            </dl>
+          } @else {
+            <p class="ajj-suave">mínimo não definido</p>
+          }
         </div>
       } @else {
         <p class="ajj-suave">Sem data definida para a próxima graduação</p>
