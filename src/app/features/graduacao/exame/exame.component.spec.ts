@@ -192,6 +192,24 @@ describe('ExameComponent', () => {
     expect(removido).toHaveBeenCalled();
   });
 
+  it('cabeçalho mostra faixa atual, sugestão e contagem; o botão de sair é Cancelar', () => {
+    criar();
+
+    const cabeca = el().querySelector('.cabeca')!.textContent!.replace(/\s+/g, ' ');
+    expect(cabeca).toContain('Branca · 2 graus → Branca · 3 graus');
+    expect(cabeca).toContain('34/30');
+    expect(botao('Cancelar')).toBeDefined();
+    expect(botao('Fechar')).toBeUndefined();
+  });
+
+  it('remover não confirma enquanto salva', async () => {
+    criar(apto({ exame: { aprovado: true, nota: 8, observacao: null } }));
+    fixture.componentInstance.salvando.set(true);
+    await fixture.componentInstance.remover();
+
+    expect(notificador.confirmar).not.toHaveBeenCalled();
+  });
+
   it('sem exame não mostra Remover exame', () => {
     criar();
 

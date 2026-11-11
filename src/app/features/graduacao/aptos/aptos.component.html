@@ -114,6 +114,7 @@
                           {{ exame.aprovado ? 'Aprovado' : 'Reprovado' }} · nota {{ nota(exame.nota) }}
                         </span>
                         @if (exame.aprovado && a.apto) {
+                          <ajj-botao variante="texto" (clique)="abrirExame(a)">Ver</ajj-botao>
                           <ajj-botao [desabilitado]="!liberado()" (clique)="abrir(a)">Graduou</ajj-botao>
                           @if (!liberado()) {
                             <span class="dica ajj-suave">Disponível em {{ formatar(lista.evento.data) }}</span>

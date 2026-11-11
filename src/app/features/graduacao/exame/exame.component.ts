@@ -47,6 +47,7 @@ export class ExameComponent implements OnInit {
   readonly mostrarGraduar = computed(
     () => this.aprovado() === true && this.apto().apto && this.liberadoGraduar() && this.sugestao() !== null
   );
+  readonly descrever = descreverGraduacao;
   readonly rotuloGraduar = computed(() => {
     const s = this.sugestao();
     return s ? `Já registrar a graduação (${descreverGraduacao(s.faixa, s.grau)})` : '';
@@ -86,12 +87,15 @@ export class ExameComponent implements OnInit {
   }
 
   async remover(): Promise<void> {
+    if (this.salvando()) {
+      return;
+    }
     const confirmado = await this.notificador.confirmar(
       'Remover exame',
       `Remover o exame de ${this.apto().nome}?`,
       'Remover exame'
     );
-    if (!confirmado || this.salvando()) {
+    if (!confirmado) {
       return;
     }
     this.salvando.set(true);

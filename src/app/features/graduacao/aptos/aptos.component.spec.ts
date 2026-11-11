@@ -275,6 +275,47 @@ describe('AptosComponent', () => {
     expect(notificador.sucesso).toHaveBeenCalled();
   });
 
+  it('aprovado e apto também abre a folha, para corrigir ou remover o exame', () => {
+    criar();
+    botaoEm(linhaDe('Bia'), 'Ver')!.querySelector('ion-button')!.click();
+
+    expect(fixture.componentInstance.exameDe()?.id).toBe(2);
+    expect(botaoEm(linhaDe('Bia'), 'Graduou')).toBeDefined();
+  });
+
+  it('toda linha não graduada tem caminho para a folha do exame', () => {
+    service.aptos.and.returnValue(
+      of(
+        lista({
+          grau: [
+            apto(1, 'A'),
+            apto(2, 'B', { exame: APROVADO }),
+            apto(3, 'C', { exame: { aprovado: false, nota: 3, observacao: null } }),
+            apto(4, 'D', { apto: false, contadas: 1 }),
+            apto(5, 'E', { apto: false, exame: APROVADO }),
+            apto(6, 'F', { apto: false, graduado: true })
+          ]
+        })
+      )
+    );
+    criar();
+
+    for (const l of linhas()) {
+      const nome = l.querySelector('strong')!.textContent!.trim();
+      const caminho = ['Exame', 'Ver'].some((r) => botaoEm(l, r) !== undefined);
+      expect(caminho).toBe(nome !== 'F', nome);
+    }
+  });
+
+  it('ERR035 ao graduar recarrega a lista', () => {
+    service.graduou.and.returnValue(throwError(() => new HttpErrorResponse({ status: 422, error: { codigo: 'ERR035' } })));
+    criar();
+    clicarEm(linhaDe('Bia'), 'Graduou');
+    enviar();
+
+    expect(service.aptos).toHaveBeenCalledTimes(2);
+  });
+
   it('Graduou fica desabilitado antes da data do evento, com dica', () => {
     jasmine.clock().mockDate(new Date('2026-12-13T15:00:00Z'));
         criar();

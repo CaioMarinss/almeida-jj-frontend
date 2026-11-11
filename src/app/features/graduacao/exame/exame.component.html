@@ -1,8 +1,18 @@
 <form class="painel" novalidate (submit)="$event.preventDefault(); salvar()">
   <div class="cabeca">
     <strong id="exame-titulo" class="ajj-titulo">Exame · {{ apto().nome }}</strong>
-    @if (apto().atual; as atual) {
-      <span class="ajj-suave">{{ atual.faixa.descricao }}</span>
+    <span class="ajj-suave">
+      @if (apto().atual; as atual) {
+        {{ descrever(atual.faixa, atual.grau) }}
+      } @else {
+        Sem graduação
+      }
+      @if (sugestao(); as s) {
+        → {{ descrever(s.faixa, s.grau) }}
+      }
+    </span>
+    @if (apto().minimo !== null) {
+      <span class="ajj-suave ajj-numero">{{ apto().contadas }}/{{ apto().minimo }} presenças</span>
     }
   </div>
 
@@ -62,6 +72,6 @@
     @if (apto().exame) {
       <ajj-botao variante="texto" [desabilitado]="salvando()" (clique)="remover()">Remover exame</ajj-botao>
     }
-    <ajj-botao variante="texto" [desabilitado]="salvando()" (clique)="fechar.emit()">Fechar</ajj-botao>
+    <ajj-botao variante="texto" [desabilitado]="salvando()" (clique)="fechar.emit()">Cancelar</ajj-botao>
   </div>
 </form>

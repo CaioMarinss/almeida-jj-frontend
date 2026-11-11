@@ -191,7 +191,7 @@ export class AptosComponent implements OnInit {
         this.salvando.set(false);
         void this.notificador.erroDaApi(erro, 'Não foi possível registrar a graduação.');
         const codigo = codigoDeErro(erro);
-        if (codigo === 'ERR031' || codigo === 'ERR032') {
+        if (codigo === 'ERR031' || codigo === 'ERR032' || codigo === 'ERR035') {
           this.selecionado.set(null);
           this.carregar();
         }
