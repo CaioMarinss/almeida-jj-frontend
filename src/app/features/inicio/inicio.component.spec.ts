@@ -133,24 +133,12 @@ describe('InicioComponent', () => {
     expect(tela.querySelector('.proxima-aula')).toBeNull();
   });
 
-  it('professor e dono veem o atalho Chamada, aluno não', async () => {
-    expect((await renderizar('Pedro', 'PROFESSOR')).querySelector('ajj-botao.chamada')?.textContent?.trim()).toBe('Controle de presença');
-    TestBed.resetTestingModule();
-    expect((await renderizar('Carla', 'DONO')).querySelector('ajj-botao.chamada')?.textContent?.trim()).toBe('Controle de presença');
-    TestBed.resetTestingModule();
-    expect((await renderizar('Ana', 'ALUNO')).querySelector('ajj-botao.chamada')).toBeNull();
-  });
+  it('inicioDoProfessorSemAtalhoDeChamada', async () => {
+    const tela = await renderizar('Pedro', 'PROFESSOR');
 
-  it('dono vê o card Área do dono logo após a saudação', async () => {
-    const tela = await renderizar('Carla', 'DONO');
-
-    expect(tela.querySelector('header.saudacao + app-area-dono')).not.toBeNull();
-  });
-
-  it('aluno e professor não veem o card', async () => {
-    expect((await renderizar('Ana', 'ALUNO')).querySelector('app-area-dono')).toBeNull();
-    TestBed.resetTestingModule();
-    expect((await renderizar('Pedro', 'PROFESSOR')).querySelector('app-area-dono')).toBeNull();
+    expect(tela.querySelector('ajj-botao.chamada')).toBeNull();
+    expect(tela.textContent).not.toContain('Controle de presença');
+    expect(tela.querySelector('app-area-dono')).toBeNull();
   });
 
   it('ERR027 ao marcar assume que já está marcado', async () => {

@@ -1,18 +1,15 @@
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, provideRouter, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
-import { professorGuard } from './professor.guard';
+import { alunoGuard } from './aluno.guard';
 import { SessionService } from './session.service';
 import { Perfil } from './usuario';
 
-describe('professorGuard', () => {
+describe('alunoGuard', () => {
   const executar = () =>
-    TestBed.runInInjectionContext(() => professorGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
+    TestBed.runInInjectionContext(() => alunoGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
 
   const logarComo = (perfil: Perfil) =>
     TestBed.inject(SessionService).iniciar('TK', { id: 1, nome: 'Ana', email: 'a@x.com', perfil });
-
-  const destino = (resultado: ReturnType<typeof executar>) =>
-    TestBed.inject(Router).serializeUrl(resultado as UrlTree);
 
   beforeEach(() => {
     sessionStorage.clear();
@@ -21,25 +18,16 @@ describe('professorGuard', () => {
 
   afterEach(() => sessionStorage.clear());
 
-  it('libera o dono', () => {
+  it('libera aluno e professor', () => {
+    logarComo('ALUNO');
+    expect(executar()).toBeTrue();
+    logarComo('PROFESSOR');
+    expect(executar()).toBeTrue();
+  });
+
+  it('manda o dono para a chamada', () => {
     logarComo('DONO');
 
-    expect(executar()).toBeTrue();
-  });
-
-  it('libera o professor', () => {
-    logarComo('PROFESSOR');
-
-    expect(executar()).toBeTrue();
-  });
-
-  it('manda o aluno para o início', () => {
-    logarComo('ALUNO');
-
-    expect(destino(executar())).toBe('/app/inicio');
-  });
-
-  it('sem sessão manda para o início', () => {
-    expect(destino(executar())).toBe('/app/inicio');
+    expect(TestBed.inject(Router).serializeUrl(executar() as UrlTree)).toBe('/app/chamada');
   });
 });

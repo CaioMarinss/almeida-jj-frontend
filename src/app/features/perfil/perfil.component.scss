@@ -35,20 +35,41 @@
   font-size: 15px;
 }
 
-.bloco {
-  margin-bottom: var(--ajj-espaco-3);
+.trocar-senha {
+  display: flex;
+  align-items: center;
+  gap: var(--ajj-espaco-3);
+  width: 100%;
+  border: 1px solid var(--ajj-borda);
+  color: var(--ajj-texto);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
 }
 
-.bloco h2 {
-  margin: 0 0 var(--ajj-espaco-4);
-  font-size: 20px;
+.trocar-senha:hover {
+  background: var(--ajj-superficie-2);
+}
+
+.trocar-senha svg {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  color: var(--ajj-primaria);
+}
+
+.trocar-senha .seta {
+  color: var(--ajj-texto-suave);
+}
+
+.rotulo {
+  flex: 1;
+  font-family: var(--ajj-fonte-titulo);
+  font-size: 18px;
+  text-transform: uppercase;
 }
 
 .sair {
   margin-top: var(--ajj-espaco-4);
-}
-
-.gerenciar {
-  display: block;
-  margin-bottom: var(--ajj-espaco-3);
 }

@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { finalize } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
+import { rotaInicial } from '../../../core/auth/usuario';
 import { Notificador } from '../../../core/notificacao/notificador';
 import { CampoComponent } from '../../../shared/ui/campo/campo.component';
 import { LayoutAuthComponent } from '../../../shared/ui/layout-auth/layout-auth.component';
@@ -43,7 +44,7 @@ export class LoginComponent {
     const email = normalizarEmail(this.loginForm.getRawValue().email);
     this.enviando.set(true);
     this.auth.login(email, this.loginForm.getRawValue().senha).pipe(finalize(() => this.enviando.set(false))).subscribe({
-      next: () => void this.nav.navigateRoot('/app/inicio'),
+      next: usuario => void this.nav.navigateRoot(rotaInicial(usuario.perfil)),
       error: (erro: unknown) => {
         if (codigoDeErro(erro) === 'ERR003') {
           void this.notificador
