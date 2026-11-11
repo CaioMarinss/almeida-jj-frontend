@@ -8,6 +8,8 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não lançado]
 
+## [0.2.8] - 2026-11-11
+
 ### Adicionado
 - **Navegação própria do dono**: abas "Presenças", "Financeiro", "Graduação" (com o número de aptos), "Alunos" (com o número de sumidos) e "Perfil". O dono entra direto em `/app/chamada` e não vê mais Início, Aulas nem Presença; aluno e professor continuam com as abas de antes.
 - **Alunos** (`/app/alunos`, só o dono): lista de todas as contas com busca sem acento, filtro por faixa, chips "Todos", "Sumidos · N" e "Professores", "treinou hoje"/"há N dias"/"sumido · N dias" e paginação de 7 em 7. Substitui as telas Professores e Sumidos.
