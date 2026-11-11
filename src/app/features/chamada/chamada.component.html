@@ -156,6 +156,8 @@
                   </li>
                 }
               </ul>
+            } @else if (busca() === '' && totalPresentes() > 0) {
+              <p class="ajj-suave vazio" role="status">Todos os alunos estão presentes.</p>
             } @else {
               <p class="ajj-suave vazio" role="status">Nenhum aluno encontrado.</p>
             }

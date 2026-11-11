@@ -375,6 +375,27 @@ describe('ChamadaComponent', () => {
     expect(linhas('outros').every(l => l.disabled)).toBeTrue();
   });
 
+  it('todos presentes sem busca mostra que todos estão presentes', async () => {
+    alunos.listar.and.returnValue(of([bia, caio]));
+    await criar('DONO');
+
+    expect(linhas('outros').length).toBe(0);
+    expect(el().querySelector('section.outros')?.textContent).toContain('Todos os alunos estão presentes.');
+  });
+
+  it('todos presentes com busca sem resultado mostra nenhum aluno encontrado', async () => {
+    alunos.listar.and.returnValue(of([bia, caio]));
+    await criar('DONO');
+    const campo = el().querySelector<HTMLInputElement>('input[type="search"]')!;
+
+    campo.value = 'zzz';
+    campo.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    expect(el().querySelector('section.outros')?.textContent).toContain('Nenhum aluno encontrado.');
+    expect(el().querySelector('section.outros')?.textContent).not.toContain('Todos os alunos estão presentes.');
+  });
+
   it('chamada vazia mostra aviso', async () => {
     presenca.chamada.and.returnValue(of({ ...chamadaBase, presencas: [] }));
     await criar('DONO');

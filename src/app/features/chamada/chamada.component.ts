@@ -3,7 +3,7 @@ import { IonButtons, IonContent, IonHeader, IonSpinner, IonTitle, IonToolbar, Na
 import { LucideCheck, LucideChevronLeft, LucideChevronRight, LucideTriangleAlert, LucideUsers } from '@lucide/angular';
 import { firstValueFrom } from 'rxjs';
 import { Notificador } from '../../core/notificacao/notificador';
-import { AulaDoDia, CLASSE_CHIP_MODALIDADE, ROTULO_MODALIDADE } from '../../shared/agenda/agenda.model';
+import { AulaDoDia } from '../../shared/agenda/agenda.model';
 import { AgendaService } from '../../shared/agenda/agenda.service';
 import { DIAS_SEMANA_CURTOS, diaSemanaIso, formatarDiaMes, inicioDaSemana, somarDias } from '../../shared/agenda/datas';
 import { hojeEmSaoPaulo } from '../../shared/graduacao/descrever';
@@ -60,9 +60,6 @@ export class ChamadaComponent {
   private readonly pessoas = inject(AlunosService);
   private readonly nav = inject(NavController);
   private readonly notificador = inject(Notificador);
-
-  readonly rotulo = ROTULO_MODALIDADE;
-  readonly classeChip = CLASSE_CHIP_MODALIDADE;
 
   readonly hoje = signal(hojeEmSaoPaulo());
 
