@@ -20,15 +20,6 @@
     min-width: 0;
     margin: 0;
     font-size: 24px;
-
-    &.exame {
-      font-size: 16px;
-      overflow-wrap: anywhere;
-    }
-
-    &.reprovado {
-      color: var(--ajj-perigo);
-    }
   }
 }
 
@@ -56,6 +47,15 @@
   dd {
     margin: 0;
     font-size: 24px;
+
+    &.exame {
+      font-size: 16px;
+      overflow-wrap: anywhere;
+    }
+
+    &.reprovado {
+      color: var(--ajj-perigo);
+    }
   }
 
   dt {
