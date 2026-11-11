@@ -1,10 +1,11 @@
 import { expect, test } from '@playwright/test';
-import { criarContaAtiva } from '../suporte/contas';
+import { criarContaAtiva, criarDono } from '../suporte/contas';
 import { OUTRA_SENHA_FORTE } from '../suporte/dados';
 import {
   botao,
   contarChamadas,
   entrar,
+  entrarComoDono,
   esperarAlerta,
   esperarToast,
   preencher,
@@ -18,6 +19,8 @@ test.describe('Troca de senha no perfil', () => {
     await entrar(page, conta.email, conta.senha);
     await expect(page).toHaveURL(/\/app\/inicio$/);
     await page.goto('/app/perfil');
+    await page.getByRole('button', { name: 'Trocar senha', exact: true }).click();
+    await expect(page).toHaveURL(/\/app\/perfil\/senha$/);
 
     const trocas = contarChamadas(page, 'PUT', '/alunos/me/senha');
     await preencher(page, { senhaAtual: conta.senha, novaSenha: 'SoLetras!', passwordConfirm: 'SoLetras!' });
@@ -45,6 +48,22 @@ test.describe('Troca de senha no perfil', () => {
 
     await entrar(page, conta.email, OUTRA_SENHA_FORTE);
     await expect(page).toHaveURL(/\/app\/inicio$/);
+  });
+});
+
+test.describe('Perfil', () => {
+  test('o dono abre Trocar senha pelo Perfil e volta pela seta', async ({ page, request }) => {
+    const dono = await criarDono(request);
+    await entrarComoDono(page, dono.email, dono.senha);
+
+    await page.goto('/app/perfil');
+    await expect(page.getByRole('button', { name: 'Sair da conta', exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Trocar senha', exact: true }).click();
+    await expect(page).toHaveURL(/\/app\/perfil\/senha$/);
+    await expect(page.getByRole('heading', { name: 'Trocar senha' }).or(page.locator('ion-title', { hasText: 'Trocar senha' })).first()).toBeVisible();
+
+    await page.getByRole('button', { name: 'Voltar para o perfil' }).click();
+    await expect(page).toHaveURL(/\/app\/perfil$/);
   });
 });
 

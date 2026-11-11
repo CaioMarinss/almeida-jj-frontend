@@ -2,7 +2,7 @@ import { APIRequestContext, expect, Page, test } from '@playwright/test';
 import { URL_API } from '../../playwright.config';
 import { Conta, criarContaAtiva, criarDono, idDe, tokenDe } from '../suporte/contas';
 import { dataDaSemana, diaMes, somarDias, hojeEmSaoPaulo } from '../suporte/datas';
-import { botao, entrar, esperarToast, responderAlerta } from '../suporte/telas';
+import { botao, entrar, entrarComoDono, esperarToast, responderAlerta } from '../suporte/telas';
 
 const NOMES_DIAS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
 const SEGUNDA = 1;
@@ -84,11 +84,11 @@ async function irParaAba(page: Page, nome: string): Promise<void> {
   await page.locator('ion-menu ion-item, ion-tab-button').filter({ hasText: nome }).locator('visible=true').first().click();
 }
 
-async function abrirAgendaComoDono(page: Page, dono: Conta, aba: 'Grade semanal' | 'Exceções'): Promise<void> {
+async function abrirAgendaComoDono(page: Page, dono: Conta, aba: 'Grade semanal' | 'Cancelamentos e extras'): Promise<void> {
   await sairDaSessao(page);
-  await entrarNoInicio(page, dono);
-  await page.goto('/app/agenda');
-  await expect(page.getByRole('heading', { name: 'Agenda' }).or(page.locator('ion-title', { hasText: 'Agenda' })).first()).toBeVisible();
+  await entrarComoDono(page, dono.email, dono.senha);
+  await page.goto('/app/grade');
+  await expect(page.locator('ion-title', { hasText: 'Grade' }).first()).toBeVisible();
   await page.locator('ion-segment-button').filter({ hasText: aba }).click();
 }
 
@@ -139,7 +139,7 @@ test.describe('Agenda de aulas', () => {
     const motivo = 'Reforma do tatame';
 
     try {
-      await abrirAgendaComoDono(page, dono, 'Exceções');
+      await abrirAgendaComoDono(page, dono, 'Cancelamentos e extras');
       await botao(page, '+ Nova exceção').click();
       await painel(page).locator('button.tipo').filter({ hasText: 'Cancelar uma aula' }).click();
       await painel(page).locator('#excecao-data').fill(data);
@@ -152,7 +152,7 @@ test.describe('Agenda de aulas', () => {
       await expect(cartao(page, '18:00')).toContainText(`Cancelada · ${motivo}`);
       await expect(cartao(page, '19:30')).not.toContainText('Cancelada');
 
-      await abrirAgendaComoDono(page, dono, 'Exceções');
+      await abrirAgendaComoDono(page, dono, 'Cancelamentos e extras');
       await desfazerExcecao(page, data);
 
       await verDiaComoAluno(page, aluno, semanas, data, TERCA);
@@ -171,7 +171,7 @@ test.describe('Agenda de aulas', () => {
     const motivo = 'Feriado municipal';
 
     try {
-      await abrirAgendaComoDono(page, dono, 'Exceções');
+      await abrirAgendaComoDono(page, dono, 'Cancelamentos e extras');
       await botao(page, '+ Nova exceção').click();
       await painel(page).locator('button.tipo').filter({ hasText: 'Cancelar o dia inteiro' }).click();
       await painel(page).locator('#excecao-data').fill(data);
@@ -187,7 +187,7 @@ test.describe('Agenda de aulas', () => {
       await expect(cartoes).toHaveCount(5);
       await expect(cartoes.filter({ hasText: 'Cancelada' })).toHaveCount(5);
 
-      await abrirAgendaComoDono(page, dono, 'Exceções');
+      await abrirAgendaComoDono(page, dono, 'Cancelamentos e extras');
       await desfazerExcecao(page, data);
 
       await verDiaComoAluno(page, aluno, semanas, data, QUARTA);
@@ -235,7 +235,7 @@ test.describe('Agenda de aulas', () => {
     const motivo = 'Aulão de domingo';
 
     try {
-      await abrirAgendaComoDono(page, dono, 'Exceções');
+      await abrirAgendaComoDono(page, dono, 'Cancelamentos e extras');
       await botao(page, '+ Nova exceção').click();
       await painel(page).locator('button.tipo').filter({ hasText: 'Aula avulsa' }).click();
       await painel(page).locator('#excecao-data').fill(data);
@@ -251,7 +251,7 @@ test.describe('Agenda de aulas', () => {
       await expect(cartao(page, '10:30')).toContainText('No-Gi');
       await expect(cartao(page, '10:30')).toContainText('até 11:30');
 
-      await abrirAgendaComoDono(page, dono, 'Exceções');
+      await abrirAgendaComoDono(page, dono, 'Cancelamentos e extras');
       await desfazerExcecao(page, data);
 
       await verDiaComoAluno(page, aluno, semanas, data, QUINTA);
@@ -341,7 +341,7 @@ test.describe('Agenda de aulas', () => {
     }
   });
 
-  test('aluno e professor não veem a Agenda e são redirecionados', async ({ page, request }, info) => {
+  test('aluno e professor não chegam na Grade e são redirecionados', async ({ page, request }) => {
     const dono = await criarDono(request);
     const professor = await criarContaAtiva(request);
     await promoverPorApi(request, dono, professor);
@@ -350,30 +350,26 @@ test.describe('Agenda de aulas', () => {
     for (const conta of [aluno, professor]) {
       await sairDaSessao(page);
       await entrarNoInicio(page, conta);
-      if (!info.project.name.includes('celular')) {
-        await expect(page.locator('ion-menu').getByText('Perfil', { exact: true })).toBeVisible();
-        await expect(page.locator('ion-menu').getByText('Agenda', { exact: true })).toHaveCount(0);
-      }
-      await expect(page.locator('app-area-dono')).toHaveCount(0);
+      await expect(page.getByRole('button', { name: 'Editar grade' })).toHaveCount(0);
 
-      await page.goto('/app/perfil');
-      await expect(page.getByRole('button', { name: 'Gerenciar agenda' })).toHaveCount(0);
-
+      await page.goto('/app/grade');
+      await expect(page).toHaveURL(/\/app\/inicio$/);
       await page.goto('/app/agenda');
       await expect(page).toHaveURL(/\/app\/inicio$/);
     }
   });
 
-  test('o dono chega na Agenda pelo atalho e pelo Perfil', async ({ page, request }) => {
+  test('o dono chega na Grade por Editar grade e o link antigo /app/agenda leva para ela', async ({ page, request }) => {
     const dono = await criarDono(request);
-    await entrarNoInicio(page, dono);
+    await entrarComoDono(page, dono.email, dono.senha);
 
-    await page.locator('app-area-dono').getByRole('button', { name: 'Agenda', exact: true }).click();
-    await expect(page).toHaveURL(/\/app\/agenda$/);
+    await page.getByRole('button', { name: 'Editar grade', exact: true }).click();
+    await expect(page).toHaveURL(/\/app\/grade$/);
+    await expect(page.locator('ion-segment-button').filter({ hasText: 'Grade semanal' })).toBeVisible();
+    await expect(page.locator('ion-segment-button').filter({ hasText: 'Cancelamentos e extras' })).toBeVisible();
 
-    await page.goto('/app/perfil');
-    await page.getByRole('button', { name: 'Gerenciar agenda', exact: true }).click();
-    await expect(page).toHaveURL(/\/app\/agenda$/);
+    await page.goto('/app/agenda');
+    await expect(page).toHaveURL(/\/app\/grade$/);
   });
 });
 
